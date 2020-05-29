@@ -6,6 +6,7 @@ A tool for scraping Reddit posts and comments.
 import json
 import praw
 import psaw
+import prawcore
 import argparse
 import datetime
 from tqdm import tqdm
@@ -61,6 +62,8 @@ parser.add_argument('-k', '--top-k', type=int, help='The number of top comments 
 parser.add_argument('--dump-batch', type=int, help='The number of submissions to batch process before writing to file.', default=8)
 parser.add_argument('--no-indent-json', dest='indent_json', action='store_false',
                     help='Don\'t indent the output JSON file. Default behaviour is to indent.')
+parser.add_argument('--no-restore', dest='restore_file', action='store_false',
+                    help='Don\'t scrape from file start. Default behaviour is to restore file and keep scraping.')
 args = parser.parse_args()
 
 client_id = args.client_id
@@ -80,7 +83,7 @@ api = psaw.PushshiftAPI(reddit)
 
 SUBMISSION_SERIALIZE_ATTRIBUTES = [
     'created_utc', 'id', 'name', 'permalink',
-    'score', 'title', 'upvote_ratio', 'url'
+    'score', 'title', 'upvote_ratio', 'url', 'selftext'
 ]
 
 COMMENT_SERIALIZE_ATTRIBUTES = [
@@ -88,11 +91,16 @@ COMMENT_SERIALIZE_ATTRIBUTES = [
     'link_id', 'parent_id', 'permalink', 'score', 'subreddit_id'
 ]
 
-def _serialize_reddit_object(obj, attributes):
+def _serialize_reddit_object(obj, attributes, print_func=print):
     data = {attribute: getattr(obj, attribute) for attribute in attributes}
     if obj.author is not None:
         data['author'] = obj.author.name
-        data['author_id'] = obj.author.id
+        try:
+            data['author_id'] = obj.author.id
+        except Exception as exception:
+            print_func('Failed to get id of u/{}. Error: {}'.format(str(obj.author), exception))
+            pass
+
     data['subreddit'] = obj.subreddit.name
     data['subreddit_id'] = obj.subreddit.id
 
@@ -100,28 +108,54 @@ def _serialize_reddit_object(obj, attributes):
 
 output_path = Path(args.output)
 output_path.parent.mkdir(parents=True, exist_ok=True)
-if output_path.exists() and prompt('The file \'{}\' already exists! '.format(output_path) +
-    'Continuing will overwrite the file. Are you sure?'):
-    output_path.unlink()
-    
-submissions = api.search_submissions(q=args.query, subreddit=args.subreddit, sort_type='score', sort='desc', limit=args.limit)
+
+results = []
+if output_path.exists():
+    if not args.restore_file:
+        if prompt('The file \'{}\' already exists! '.format(output_path) + 
+                  'Continuing will overwrite the file. Are you sure?'):
+            output_path.unlink()
+    else:
+        # Restore the scraped contents and save it in results...
+        with open(output_path, 'r') as output_file:
+            results = json.load(output_file)
+
+# A set containing all scraped submission ids.
+submission_ids = {result['id'] for result in results}
+
+submissions = api.search_submissions(q=args.query, subreddit=args.subreddit, sort_type='score', sort='desc')
 with tqdm(total=args.limit) as progress_bar:
-    results = []
     for index, submission in enumerate(submissions):
+        # Increment progress bar counter
+        progress_bar.update(1)
+
+        if submission.id in submission_ids: continue
+        submission_ids.add(submission.id)
+
         # Update the progress bar.
         progress_bar.set_description('Post {} (score={})'.format(submission.id, submission.score))
         progress_bar.refresh()
 
         submission.comment_sort = 'top'
         submission.comment_limit = None if args.top_k < 0 else args.top_k
-        submission.comments.replace_more(0 or args.top_k)
+        submission.comments.replace_more(args.top_k)
 
-        submission_data = _serialize_reddit_object(submission, SUBMISSION_SERIALIZE_ATTRIBUTES)
+        submission_data = _serialize_reddit_object(
+            submission,
+            SUBMISSION_SERIALIZE_ATTRIBUTES,
+            print_func=progress_bar.write
+        )
+
         submission_data['comments'] = []
 
         comments = list(submission.comments)[:args.top_k]
         for comment in comments:
-            comment_data = _serialize_reddit_object(comment, COMMENT_SERIALIZE_ATTRIBUTES)
+            comment_data = _serialize_reddit_object(
+                comment,
+                COMMENT_SERIALIZE_ATTRIBUTES,
+                print_func=progress_bar.write
+            )
+
             submission_data['comments'].append(comment_data)
 
         results.append(submission_data)
@@ -131,6 +165,3 @@ with tqdm(total=args.limit) as progress_bar:
                 json.dump(results, output_file, indent=args.indent_json)
         
             progress_bar.write('Writing to file (batch {})'.format(index // args.dump_batch))
-
-        # Increment progress bar counter
-        progress_bar.update(1)
