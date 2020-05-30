@@ -39,7 +39,7 @@ def filter_text(text):
     '''
 
     text = text.strip()
-    return text == '[deleted]' or text == '[removed]'
+    return text == '' or text == '[deleted]' or text == '[removed]'
 
 def get_text(attribute, value):
     '''
