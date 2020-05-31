@@ -17,8 +17,12 @@ parser.add_argument('source_attribute', help='The name of the source attribute. 
 parser.add_argument('target_attribute', help='The name of the target attribute. Should be a field or array. ' +
                     'In the case that the mapped attribute is an array, a separate translation will be ' +
                     'created for each value in the array.', type=str)
-parser.add_argument('--token', help='The translation token. Defaults to \'<TRANSLATE_TOKEN>\'.',
+parser.add_argument('--start-token', help='The start BOS (beginning of sentence) token. Defaults to \'<BOS>\'.',
+                    type=str, default='<BOS>')
+parser.add_argument('--translate-token', help='The translation token. Defaults to \'<TRANSLATE_TOKEN>\'.',
                     type=str, default='<TRANSLATE_TOKEN>')
+parser.add_argument('--end-token', help='The end EOS (end of sentence) token. Defaults to \'<EOS>\'.',
+                    type=str, default='<EOS>')
 parser.add_argument('--no-filter', dest='filter', action='store_false', help='Don\'t filter posts for ' +
                     '"[deleted]", "[removed]", and other useless values. Default behaviour is to filter.')
 
@@ -88,9 +92,11 @@ with open(Path(args.input), 'r') as input_file, \
                 target_text = get_text(args.target_attribute, target)
                 if args.filter and filter_text(target_text): continue
       
-                output_file.write('{}{}{}'.format(
+                output_file.write('{}{}{}{}{}'.format(
+                    args.start_token,
                     source_text,
-                    args.token,
-                    target_text
+                    args.translate_token,
+                    target_text,
+                    args.end_token
                 ).encode('unicode_escape'))
                 output_file.write(b'\n')

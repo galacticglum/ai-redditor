@@ -138,7 +138,7 @@ with tqdm(total=args.limit) as progress_bar:
 
         submission.comment_sort = 'top'
         submission.comment_limit = None if args.top_k < 0 else args.top_k
-        submission.comments.replace_more(args.top_k)
+        submission.comments.replace_more(submission.comment_limit)
 
         submission_data = _serialize_reddit_object(
             submission,
@@ -147,7 +147,6 @@ with tqdm(total=args.limit) as progress_bar:
         )
 
         submission_data['comments'] = []
-
         comments = list(submission.comments)[:args.top_k]
         for comment in comments:
             comment_data = _serialize_reddit_object(
