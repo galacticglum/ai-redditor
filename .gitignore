@@ -134,3 +134,6 @@ dmypy.json
 # dataset
 data/*
 !data/scripts
+notebooks/models/*
+notebooks/checkpoint/*
+notebooks/samples/*
