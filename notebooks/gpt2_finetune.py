@@ -20,5 +20,6 @@ session = gpt2.start_tf_sess()
 if args.mode == 'train':
     gpt2.finetune(session, args.dataset, model_name=args.model_name, steps=args.steps)
 elif args.mode == 'generate':
+    gp2.load_gpt2(session)
     text = gpt2.generate(session, prefix=args.start_token + args.prompt, truncate=args.end_token, return_as_list=True)[0]
     print(text)
