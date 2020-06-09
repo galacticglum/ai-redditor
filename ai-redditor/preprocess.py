@@ -18,11 +18,11 @@ parser.add_argument('target_attribute', help='The name of the target attribute. 
                     'In the case that the mapped attribute is an array, a separate translation will be ' +
                     'created for each value in the array.', type=str)
 parser.add_argument('--start-token', help='The start BOS (beginning of sentence) token. Defaults to \'<BOS>\'.',
-                    type=str, default='<BOS>')
+                    type=str, default='<|bos|>')
 parser.add_argument('--translate-token', help='The translation token. Defaults to \'<TRANSLATE_TOKEN>\'.',
-                    type=str, default='<TRANSLATE_TOKEN>')
+                    type=str, default='<|eq_tok|>')
 parser.add_argument('--end-token', help='The end EOS (end of sentence) token. Defaults to \'<EOS>\'.',
-                    type=str, default='<EOS>')
+                    type=str, default='<|eos|>')
 parser.add_argument('--no-filter', dest='filter', action='store_false', help='Don\'t filter posts for ' +
                     '"[deleted]", "[removed]", and other useless values. Default behaviour is to filter.')
 
