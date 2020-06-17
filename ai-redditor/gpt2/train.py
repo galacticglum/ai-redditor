@@ -527,7 +527,7 @@ if args.restore_checkpoint:
                 .format(args.outdir)
         )
     else:
-        args.model_name_or_path = checkpoints[-1]
+        args.model_name_or_path = str(checkpoints[-1])
 elif args.outdir.exists() and any(args.outdir.iterdir()) and args.do_train and not args.overwrite_outdir:
     raise ValueError(
         'Output directory (\'{}\') already exists and is non-empty. Use --overwrite-outdir to disable this.' \
