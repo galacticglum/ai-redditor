@@ -369,7 +369,7 @@ def train(args, dataset, model, tokenizer):
                 if args.local_rank in [-1, 0] and args.save_frequency > 0 and global_step % args.save_frequency == 0:
                     checkpoint_prefix = 'checkpoint'
                     output_dir = args.outdir / '{}-{}'.format(checkpoint_prefix, global_step)
-                    output_dir.parent.mkdir(parents=True, exist_ok=True)
+                    output_dir.mkdir(parents=True, exist_ok=True)
 
                     model_to_save = model.module if hasattr(model, 'module') else model
                     model_to_save.save_pretrained(output_dir)
