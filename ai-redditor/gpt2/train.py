@@ -99,7 +99,7 @@ def get_checkpoints(directory, prefix='checkpoint', use_mtime=False, sort_ascend
             checkpoints.append((filepath.lstat().st_mtime, filepath))
         else:
             # Sort by checkpoint number
-            matches = re.match(r'.*{}-([0-9]+)'.format(prefix), filepath)
+            matches = re.match(r'.*{}-([0-9]+)'.format(prefix), str(filepath))
             if matches and matches.groups():
                 checkpoints.append((int(matches.groups()[0]), filepath))
 
