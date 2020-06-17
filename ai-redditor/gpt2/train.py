@@ -255,7 +255,7 @@ def train(args, dataset, model, tokenizer):
     scheduler_checkpoint = Path(args.model_name_or_path) / 'scheduler.pt' 
     if args.model_name_or_path and optimizer_checkpoint.is_file() and scheduler_checkpoint.is_file():
         optimizer.load_state_dict(torch.load(str(optimizer_checkpoint)))
-        scheduler.load_state_dict(torch.load(str(schedular_checkpoint)))
+        scheduler.load_state_dict(torch.load(str(scheduler_checkpoint)))
 
     if args.fp16:
         try:
