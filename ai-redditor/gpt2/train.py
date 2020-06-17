@@ -218,7 +218,7 @@ def train(args, dataset, model, tokenizer):
 
     '''
 
-    if args.local_rank not in [-1, 0]:
+    if args.local_rank in [-1, 0]:
         summary_writer = SummaryWriter()
     
     batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
