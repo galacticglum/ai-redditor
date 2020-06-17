@@ -12,4 +12,5 @@ update-checker==0.17
 urllib3==1.25.9
 websocket-client==0.57.0
 wincertstore==0.2
-gpt-2-simple
+transformers
+tensorboardX
