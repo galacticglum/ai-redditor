@@ -126,7 +126,7 @@ def rotate_checkpoints(directory, max_checkpoints=None, prefix='checkpoint', use
     if max_checkpoints <= 0: return
 
     checkpoints = get_checkpoints(directory, prefix, use_mtime)
-    if len(get_checkpoints) <= max_checkpoints: return
+    if len(checkpoints) <= max_checkpoints: return
 
     n = max(0, len(checkpoints) - max_checkpoints)
     for checkpoint in checkpoints[:n]:
