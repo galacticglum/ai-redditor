@@ -3,8 +3,7 @@ from pathlib import Path
 from transformers import AutoTokenizer, AutoModelWithLMHead
 
 parser = argparse.ArgumentParser(description='Generate text from a model with an language modelling head.')
-parser.add_argument('model', type=str, dest='model_name_or_path',
-                    help='The model checkpoint for weights initialization (i.e. a pretrained model).')
+parser.add_argument('model_name_or_path', type=str, help='The model checkpoint for weights initialization (i.e. a pretrained model).')
 parser.add_argument('--prompt', type=str, default=None, help='A prompt for the model. Leave to None for no prompt.')
 parser.add_argument('--samples', type=int, default=1, help='The number of samples to generate. Defaults to 1.')
 parser.add_argument('--top-k', type=int, default=50, help='The number of highest probability vocabulary tokens ' +
