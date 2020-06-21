@@ -52,7 +52,7 @@ split_pattern = (
 split_regex = re.compile(split_pattern, flags=re.MULTILINE | re.DOTALL)
 
 if args.prompt is None:
-    args.prompt = '{} [WP]'.format(tokenizer.bos_token)
+    args.prompt = '{}[WP]'.format(tokenizer.bos_token)
  
 prompt_ids = tokenizer.encode(args.prompt, return_tensors='pt').to(model.device)
 
