@@ -140,15 +140,15 @@ if args.show_profile:
     print('##### Profile Results #####')
     for index, profile_result in enumerate(profiling_results):
         print('***** Sample {} *****'.format(index + 1))
-        print(' Took {} iterations (failed {} times).'.format(
+        print('- Took {} iterations (failed {} times).'.format(
             profile_result.iteration_count, profile_result.fail_count
         ))
 
-        print(' Generate Durations: {} seconds'.format(', '.join(
+        print('- Generate Durations: {} seconds'.format(', '.join(
             str(round(duration, 2))for duration in profile_result.generate_durations)
         ))
         
-        print(' Average Duration: {:.2f} seconds'.format(
+        print('- Average Duration: {:.2f} seconds'.format(
             sum(profile_result.generate_durations) / len(profile_result.generate_durations)
         ))
 
