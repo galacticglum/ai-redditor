@@ -144,11 +144,11 @@ if args.show_profile:
             profile_result.iteration_count, profile_result.fail_count
         ))
 
-        print(' Generate Durations: {}'.format(', '.join(
+        print(' Generate Durations: {} seconds'.format(', '.join(
             str(round(duration, 2))for duration in profile_result.generate_durations)
         ))
         
-        print(' Average Duration: {:.2f}'.format(
+        print(' Average Duration: {:.2f} seconds'.format(
             sum(profile_result.generate_durations) / len(profile_result.generate_durations)
         ))
 
