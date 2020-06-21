@@ -653,8 +653,9 @@ if args.do_train and (args.local_rank == -1 or torch.distributed.get_rank() == 0
     tokenizer.save_pretrained(args.outdir)
     torch.save(args, args.outdir / 'training_args.bin')
 
-    model = AutoModelWithLMHead.from_pretrained(args.outdir)
-    tokenizer = AutoTokenizer.from_pretrained(args.outdir)
+    absolute_outdir = str(args.outdir.absolute())
+    model = AutoModelWithLMHead.from_pretrained(absolute_outdir)
+    tokenizer = AutoTokenizer.from_pretrained(absolute_outdir)
     model.to(args.device)
 
 if args.do_eval and args.local_rank in [-1, 0]:
@@ -674,7 +675,7 @@ if args.do_eval and args.local_rank in [-1, 0]:
         global_step = checkpoint.split('-')[1] if len(checkpoints) > 1 else ''
         prefix = checkpoint.split('/')[-1] if checkpoint.find('checkpoint') != -1 else ''
 
-        model = AutoModelWithLMHead.from_pretrained(checkpoint)
+        model = AutoModelWithLMHead.from_pretrained(str(checkpoint.absolute()))
         model.to(args.device)
 
         result = evaluate(args, eval_dataset, model, tokenizer, prefix=prefix)
