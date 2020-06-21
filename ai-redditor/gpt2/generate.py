@@ -25,6 +25,7 @@ parser.add_argument('--max-length', type=int, default=250, help='Maximum number 
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
 parser.add_argument('--translate-token', type=str, default=None, help='The query/answer separator token (translation separator token). ' +
                     'If not specified, the first additional special token from the tokenizer is used.')
+parser.add_argument('--profile', dest='show_profile', action='store_true', help='Show profiling results.')
 args = parser.parse_args()
 
 tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
@@ -59,14 +60,42 @@ if args.prompt is None:
     args.prompt = '{}[WP]'.format(tokenizer.bos_token)
  
 prompt_ids = tokenizer.encode(args.prompt, return_tensors='pt').to(model.device)
-
 print('- Encoded prompt into token ids')
 
+class ProfileResult:
+    '''
+    A profile result for a single sample.
+
+    '''
+
+    def __init__(self, generate_durations=None, fail_count=0, iteration_count=0):
+        '''
+        Initializes a new :class:`ProfileResult` object.
+
+        :param generate_durations:
+            The time, in seconds, that it took to generate the sample
+            for each iteration stored as a list.
+        :param fail_count:
+            The number of failed samples.
+        :param iteration_count:
+            The number of iterations that it took to generate the sample.
+    
+        '''
+
+        self.generate_durations = generate_durations or list()
+        self.fail_count = fail_count
+        self.iteration_count = iteration_count
+
 results = []
+profiling_results = []
+
 current_iteration = 0
 with tqdm(total=args.samples) as progress_bar:
+    profile_result = ProfileResult()
     while len(results) < args.samples and current_iteration < args.max_iterations:
         current_iteration += 1
+
+        start_time = time.time()
         generated = model.generate(
             prompt_ids,
             bos_token_id=tokenizer.bos_token_id,
@@ -77,6 +106,8 @@ with tqdm(total=args.samples) as progress_bar:
             max_length=args.max_length + len(prompt_ids), do_sample=True
         )
 
+        profile_result.generate_durations.append(time.time() - start_time)
+
         for i in range(generated.size()[0]):
             if len(results) >= args.samples: break
 
@@ -86,15 +117,40 @@ with tqdm(total=args.samples) as progress_bar:
             match = split_regex.match(decoded)
             if not match:
                 progress_bar.write('- Could not split generated sequence into parts. Skipping...')
+                profile_result.fail_count += 1
                 continue
 
             prompt = match.group('prompt')
             response = match.group('response')
             if prompt is None or response is None:
                 progress_bar.write('- Generated sequence has no prompt or response. Skipping...')
+                profile_result.fail_count += 1
                 continue
 
             progress_bar.update(1)
             results.append((prompt, response))
 
+            # Update profile results
+            profile_result.iteration_count = current_iteration
+            profiling_results.append(profile_result)
+
 print(results)
+
+if args.show_profile:
+    print('##### Profile Results #####')
+    for index, profile_result in enumerate(profiling_results):
+        print('***** Sample {} *****'.format(index))
+        print(' Took {} iterations (failed {} times).'.format(
+            profile_result.iteration_count, profile_result.fail_count
+        ))
+        
+        print(' Generate Durations: {}'.format(', '.join(
+            str(round(duration, 2))for duration in profile_result.generate_durations)
+        ))
+        
+        print(' Average Duration: {:.2f}'.format(
+            sum(profile_result.generate_durations) / len(profile_result.generate_durations)
+        ))
+
+    print('###########################')
+
