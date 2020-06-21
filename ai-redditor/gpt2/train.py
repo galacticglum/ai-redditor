@@ -452,234 +452,242 @@ def evaluate(args, dataset, model, tokenizer, prefix=''):
     
     return result
 
-parser = argparse.ArgumentParser('Train or fine-tune a GPT-2 model using casual language (CLM) loss.')
-parser.add_argument('train_dataset', type=Path, help='The preprocessed training dataset file.')
-parser.add_argument('--eval-dataset', type=Path, help='The preprocessed evalutation dataset file.')
-parser.add_argument('--line-by-line', dest='line_by_line', action='store_true',
-                    help='Indicates whether distinct lines of text in the input dataset are to be handled as ' +
-                    'separate input sequences (i.e. whether to add the BOS and EOS tokens to each line).')
-parser.add_argument('--mlm', dest='use_masked_loss', action='store_true', help='Train with masked-language modelling ' +
-                    '(CLM) loss rather than casual language model loss.')
-parser.add_argument('--mlm-probability', type=float, default=0.15, help='Ratio of tokens to mask for MLM loss.')
-parser.add_argument('--block-size', type=int, default=-1, help='Optional input sequence length after tokenization. ' +
-                    'The training dataset will be truncated in blocks of this size. Defaults to -1, meaning that ' +
-                    'the maximum input sequence length of the model for single sentence inputs will be used.')
-parser.add_argument('--overwrite-cache', action='store_true', help='Overwrite the cached training and evaluation sets.')
-parser.add_argument('--model', type=str, default='gpt2', dest='model_name_or_path',
-                    help='The model checkpoint for weights initialization (i.e. a pretrained model). ' +
-                    'Leave as None to train a model from scratch.')
-parser.add_argument('--model-type', type=str, default='gpt2', help='The model architecture. Defaults to GPT2.')
-parser.add_argument('--outdir', type=Path, default=Path('./output'), help='The directory to save model checkpoints.')
-parser.add_argument('--overwrite-outdir', action='store_true', help='Overwrrite the output directory.')
-parser.add_argument('--restore', dest='restore_checkpoint', action='store_true', help='Whether to resume training from the lastest checkpoint.')
-parser.add_argument('--cache-dir', type=Path, default=None, help='The location to store pretrained models.')
-parser.add_argument('--do-train', action='store_true', help='Whether to run training.')
-parser.add_argument('--do-eval', action='store_true', help='Whether to evaluate the model on the evaluation set.')
-parser.add_argument('--eval-during-training', action='store_true', help='Whether to run evaluation during training at each logging step.')
-parser.add_argument('--eval-all-checkpoints', action='store_true', help='Evaluate all checkpoints starting with the same prefix as the input model checkpoint.')
-parser.add_argument('--model-config', default=None, type=str, help='Optional model config name or path if not the same as the model ' +
-                    'checkpoint path. If both are None, a new config will be initialized.')
-parser.add_argument('--tokenizer', default=None, type=str, help='Optional pretrained tokenizer name or path if not the same as the model ' + 
-                    'checkpoint path. If both are None, a new tokenizer will be initialized.')
-parser.add_argument('--per-gpu-train-batch-size', default=4, type=int, help='Batch size per device (i.e. GPU, CPU, or TPU) while training.')
-parser.add_argument('--per-gpu-eval-batch-size', default=4, type=int, help='Batch size per device (i.e. GPU, CPU, or TPU) while evaluationg.')
-parser.add_argument('--gradient-accumulation-steps', type=int, default=1, help='Number of steps to accumulate before performing a backpropagation pass.')
-parser.add_argument('--learning-rate', type=float, default=5e-5, help='The initial learning rate for the Adam optimizer.')
-parser.add_argument('--weight-decay', type=float, default=0, help='The rate at which weights decay.')
-parser.add_argument('--epsilon', type=float, default=1e-8, help='Epsilon for Adam optimizer.')
-parser.add_argument('--max-gradient-norm', type=float, default=1.0, help='Maximum gradient norm.')
-parser.add_argument('--epochs', type=float, default=10.0, help='Total number of training epochs to perform.')
-parser.add_argument('--global-steps', type=int, default=-1, help='The number of training steps to perform. ' +
-                    'Overrides epochs parameter if non-negative value.')
-parser.add_argument('--lr-warmup-steps', type=int, default=0, help='The duration, in training steps, of the linear warmup on the learning rate.')
-parser.add_argument('--log-frequency', type=int, default=500, help='The frequency, in training steps, at which the model metrics are logged.')
-parser.add_argument('--save-frequency', type=int, default=500, help='The frequency, in training steps, at which the model checkpoint is saved.')
-parser.add_argument('--max-checkpoints', type=int, default=None, help='The maximum number of checkpoints to keep before deleting older ones. ' +
-                    'A negative or None value means that there is no limit.')
-parser.add_argument('--no-cuda', dest='no_cuda', action='store_true', help='Disable CUDA devices even when they are available.')
-parser.add_argument('--fp16', dest='fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
-parser.add_argument('--fp16-opt-level', type=str, default='O1', help='Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html.')
-parser.add_argument('--local-rank', type=int, default=-1, help='The rank of the process; for distributed training. ' +
-                    'A value of -1 means no distributed training.')
-parser.add_argument('--debug-server-ip', type=str, default='', help='The IP of the PTVSD server.')
-parser.add_argument('--debug-server-port', type=str, default='', help='The port of the PTVSD server.')
-parser.add_argument('--special-tokens', type=Path, default=None, help='A JSON file containing a dictionary of special tokens. ' +
-                    'If not specified, the default special tokens are used (<|bos|>, <|eos|>, <|pad|>, and <|eq_tok|>).')
-parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
-args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser('Train or fine-tune a GPT-2 model using casual language (CLM) loss.')
+    parser.add_argument('train_dataset', type=Path, help='The preprocessed training dataset file.')
+    parser.add_argument('--eval-dataset', type=Path, help='The preprocessed evalutation dataset file.')
+    parser.add_argument('--line-by-line', dest='line_by_line', action='store_true',
+                        help='Indicates whether distinct lines of text in the input dataset are to be handled as ' +
+                        'separate input sequences (i.e. whether to add the BOS and EOS tokens to each line).')
+    parser.add_argument('--mlm', dest='use_masked_loss', action='store_true', help='Train with masked-language modelling ' +
+                        '(CLM) loss rather than casual language model loss.')
+    parser.add_argument('--mlm-probability', type=float, default=0.15, help='Ratio of tokens to mask for MLM loss.')
+    parser.add_argument('--block-size', type=int, default=-1, help='Optional input sequence length after tokenization. ' +
+                        'The training dataset will be truncated in blocks of this size. Defaults to -1, meaning that ' +
+                        'the maximum input sequence length of the model for single sentence inputs will be used.')
+    parser.add_argument('--overwrite-cache', action='store_true', help='Overwrite the cached training and evaluation sets.')
+    parser.add_argument('--model', type=str, default='gpt2', dest='model_name_or_path',
+                        help='The model checkpoint for weights initialization (i.e. a pretrained model). ' +
+                        'Leave as None to train a model from scratch.')
+    parser.add_argument('--model-type', type=str, default='gpt2', help='The model architecture. Defaults to GPT2.')
+    parser.add_argument('--outdir', type=Path, default=Path('./output'), help='The directory to save model checkpoints.')
+    parser.add_argument('--overwrite-outdir', action='store_true', help='Overwrrite the output directory.')
+    parser.add_argument('--restore', dest='restore_checkpoint', action='store_true', help='Whether to resume training from the lastest checkpoint.')
+    parser.add_argument('--cache-dir', type=Path, default=None, help='The location to store pretrained models.')
+    parser.add_argument('--do-train', action='store_true', help='Whether to run training.')
+    parser.add_argument('--do-eval', action='store_true', help='Whether to evaluate the model on the evaluation set.')
+    parser.add_argument('--eval-during-training', action='store_true', help='Whether to run evaluation during training at each logging step.')
+    parser.add_argument('--eval-all-checkpoints', action='store_true', help='Evaluate all checkpoints starting with the same prefix as the input model checkpoint.')
+    parser.add_argument('--model-config', default=None, type=str, help='Optional model config name or path if not the same as the model ' +
+                        'checkpoint path. If both are None, a new config will be initialized.')
+    parser.add_argument('--tokenizer', default=None, type=str, help='Optional pretrained tokenizer name or path if not the same as the model ' + 
+                        'checkpoint path. If both are None, a new tokenizer will be initialized.')
+    parser.add_argument('--per-gpu-train-batch-size', default=4, type=int, help='Batch size per device (i.e. GPU, CPU, or TPU) while training.')
+    parser.add_argument('--per-gpu-eval-batch-size', default=4, type=int, help='Batch size per device (i.e. GPU, CPU, or TPU) while evaluationg.')
+    parser.add_argument('--gradient-accumulation-steps', type=int, default=1, help='Number of steps to accumulate before performing a backpropagation pass.')
+    parser.add_argument('--learning-rate', type=float, default=5e-5, help='The initial learning rate for the Adam optimizer.')
+    parser.add_argument('--weight-decay', type=float, default=0, help='The rate at which weights decay.')
+    parser.add_argument('--epsilon', type=float, default=1e-8, help='Epsilon for Adam optimizer.')
+    parser.add_argument('--max-gradient-norm', type=float, default=1.0, help='Maximum gradient norm.')
+    parser.add_argument('--epochs', type=float, default=10.0, help='Total number of training epochs to perform.')
+    parser.add_argument('--global-steps', type=int, default=-1, help='The number of training steps to perform. ' +
+                        'Overrides epochs parameter if non-negative value.')
+    parser.add_argument('--lr-warmup-steps', type=int, default=0, help='The duration, in training steps, of the linear warmup on the learning rate.')
+    parser.add_argument('--log-frequency', type=int, default=500, help='The frequency, in training steps, at which the model metrics are logged.')
+    parser.add_argument('--save-frequency', type=int, default=500, help='The frequency, in training steps, at which the model checkpoint is saved.')
+    parser.add_argument('--max-checkpoints', type=int, default=None, help='The maximum number of checkpoints to keep before deleting older ones. ' +
+                        'A negative or None value means that there is no limit.')
+    parser.add_argument('--no-cuda', dest='no_cuda', action='store_true', help='Disable CUDA devices even when they are available.')
+    parser.add_argument('--fp16', dest='fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
+    parser.add_argument('--fp16-opt-level', type=str, default='O1', help='Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html.')
+    parser.add_argument('--local-rank', type=int, default=-1, help='The rank of the process; for distributed training. ' +
+                        'A value of -1 means no distributed training.')
+    parser.add_argument('--debug-server-ip', type=str, default='', help='The IP of the PTVSD server.')
+    parser.add_argument('--debug-server-port', type=str, default='', help='The port of the PTVSD server.')
+    parser.add_argument('--special-tokens', type=Path, default=None, help='A JSON file containing a dictionary of special tokens. ' +
+                        'If not specified, the default special tokens are used (<|bos|>, <|eos|>, <|pad|>, and <|eq_tok|>).')
+    parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
+    args = parser.parse_args()
 
-if args.model_type in ['bert', 'roberta', 'distilbert', 'camembert'] and not args.use_masked_loss:
-    raise ValueError(
-        'BERT and RoBERTa-like models require masked language model heads. '
-        'They must be run with masked language modelliing, using the --mlm flag.'
-    )
-
-if args.eval_dataset is None and args.do_eval:
-    raise ValueError(
-        'Cannot evaluate model without an evaluation dataset. '
-        'Either supply an evaluation dataset or remove the --do-eval flag.'
-    )
-
-if args.restore_checkpoint:
-    checkpoints = get_checkpoints(args.outdir)
-    if len(checkpoints) == 0:
+    if args.model_type in ['bert', 'roberta', 'distilbert', 'camembert'] and not args.use_masked_loss:
         raise ValueError(
-            'Cannot restore the latest checkpoint: no checkpoint was found in the output directory (\'\').' \
-                .format(args.outdir)
+            'BERT and RoBERTa-like models require masked language model heads. '
+            'They must be run with masked language modelliing, using the --mlm flag.'
         )
+
+    if args.eval_dataset is None and args.do_eval:
+        raise ValueError(
+            'Cannot evaluate model without an evaluation dataset. '
+            'Either supply an evaluation dataset or remove the --do-eval flag.'
+        )
+
+    if args.restore_checkpoint:
+        checkpoints = get_checkpoints(args.outdir)
+        if len(checkpoints) == 0:
+            raise ValueError(
+                'Cannot restore the latest checkpoint: no checkpoint was found in the output directory (\'\').' \
+                    .format(args.outdir)
+            )
+        else:
+            args.model_name_or_path = str(checkpoints[-1])
+    elif args.outdir.exists() and any(args.outdir.iterdir()) and args.do_train and not args.overwrite_outdir:
+        raise ValueError(
+            'Output directory (\'{}\') already exists and is non-empty. Use --overwrite-outdir to disable this.' \
+                    .format(args.outdir)
+        )
+
+    # Setup PTVSD (Python Tools for Visual Studio Debugging) server
+    if args.debug_server_ip and args.debug_server_port:
+        import ptvsd
+
+        print('Waiting for PTVSD server to attach...')
+        ptvsd.enable_attach(address=(args.debug_server_ip, args.debug_server_port), redirect_output=True)
+        ptvsd.wait_for_attach()
+
+    # Setup CUDA, GPU, and distributed training
+    if args.local_rank == -1 or args.no_cuda:
+        args.device = torch.device('cuda' if torch.cuda.is_available() and not args.no_cuda else 'cpu')
+        args.n_gpu = 0 if args.no_cuda else 1
     else:
-        args.model_name_or_path = str(checkpoints[-1])
-elif args.outdir.exists() and any(args.outdir.iterdir()) and args.do_train and not args.overwrite_outdir:
-    raise ValueError(
-        'Output directory (\'{}\') already exists and is non-empty. Use --overwrite-outdir to disable this.' \
-                .format(args.outdir)
+        torch.cuda.set_device(args.local_rank)
+        args.device = torch.device('cuda', args.local_rank)
+        torch.distributed.init_process_group(backend='nccl')
+        args.n_gpu = 1
+
+    # Setup logging
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
+        datefmt='%m/%d/%Y %H:%M:%S'
     )
 
-# Setup PTVSD (Python Tools for Visual Studio Debugging) server
-if args.debug_server_ip and args.debug_server_port:
-    import ptvsd
-
-    print('Waiting for PTVSD server to attach...')
-    ptvsd.enable_attach(address=(args.debug_server_ip, args.debug_server_port), redirect_output=True)
-    ptvsd.wait_for_attach()
-
-# Setup CUDA, GPU, and distributed training
-if args.local_rank == -1 or args.no_cuda:
-    args.device = torch.device('cuda' if torch.cuda.is_available() and not args.no_cuda else 'cpu')
-    args.n_gpu = 0 if args.no_cuda else 1
-else:
-    torch.cuda.set_device(args.local_rank)
-    args.device = torch.device('cuda', args.local_rank)
-    torch.distributed.init_process_group(backend='nccl')
-    args.n_gpu = 1
-
-# Setup logging
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
-    datefmt='%m/%d/%Y %H:%M:%S'
-)
-
-logging.warning(
-    'Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bit floating-point precision: %s',
-    args.local_rank,
-    args.device,
-    args.n_gpu,
-    bool(args.local_rank != -1),
-    args.fp16,
-)
-
-# Set seed
-if args.seed is None:
-    # We use the current time as the seed rather than letting numpy seed
-    # since we want to achieve consistent results across sessions.
-    # Source: https://stackoverflow.com/a/45573061/7614083
-    t = int(time.time() * 1000.0)
-    args.seed = ((t & 0xff000000) >> 24) + ((t & 0x00ff0000) >> 8) + ((t & 0x0000ff00) <<  8) + ((t & 0x000000ff) << 24)
-
-set_seed(args.seed)
-
-if args.local_rank not in [-1, 0]:
-    # Start barrier to ensure that the model is only downloaded once.
-    torch.distributed.barrier()
-
-if args.model_config:
-    config = AutoConfig.from_pretrained(args.model_config, cache_dir=args.cache_dir)
-elif args.model_name_or_path:
-    config = AutoConfig.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
-else:
-    config = CONFIG_MAPPING[args.model_type]()
-    logging.warning('No config found: creating a new config instance from scatch.')
-
-if args.tokenizer:
-    tokenizer = AutoTokenizer.from_pretrained(args.tokenizer, cache_dir=args.cache_dir)
-elif args.model_name_or_path:
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
-else:
-    raise ValueError(
-        'Instantiating a new tokenizer from scratch is not support; however, it can be done from another script.'
-        'Use the --tokenizer command line argument, providing it with the location of the script, to load the tokenizer.'
+    logging.warning(
+        'Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bit floating-point precision: %s',
+        args.local_rank,
+        args.device,
+        args.n_gpu,
+        bool(args.local_rank != -1),
+        args.fp16,
     )
 
-if args.block_size <= 0:
-    args.block_size = tokenizer.max_len
-else:
-    args.block_size = min(args.block_size, tokenizer.max_len)
+    # Set seed
+    if args.seed is None:
+        # We use the current time as the seed rather than letting numpy seed
+        # since we want to achieve consistent results across sessions.
+        # Source: https://stackoverflow.com/a/45573061/7614083
+        t = int(time.time() * 1000.0)
+        args.seed = ((t & 0xff000000) >> 24) + ((t & 0x00ff0000) >> 8) + ((t & 0x0000ff00) <<  8) + ((t & 0x000000ff) << 24)
 
-if args.model_name_or_path:
-    model = AutoModelWithLMHead.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool('.ckpt' in args.model_name_or_path),
-        config=config,
-        cache_dir=args.cache_dir
-    )
-else:
-    logging.info('Training {} model from scratch'.format(args.model_type))
-    model = AutoModelWithLMHead.from_config(config)
+    set_seed(args.seed)
 
-# Add special tokens and resize the model
-logging.info('Initializing tokenizer with special tokens and resizing the model\'s token embeddings.')
-tokenizer.add_special_tokens(get_special_tokens(args.special_tokens))
-model.resize_token_embeddings(len(tokenizer))
-
-model.to(args.device)
-if args.local_rank == 0:
-    # End barrier
-    torch.distributed.barrier()
-
-if args.do_train:
     if args.local_rank not in [-1, 0]:
-        # Start barrier to make sure that the dataset is only processed once among the distributed training pool.
+        # Start barrier to ensure that the model is only downloaded once.
         torch.distributed.barrier()
 
-    train_dataset = get_dataset(
-        args.train_dataset, tokenizer, args.block_size,
-        line_by_line=args.line_by_line, overwrite_cache=args.overwrite_cache
-    )
+    if args.model_config:
+        config = AutoConfig.from_pretrained(args.model_config, cache_dir=args.cache_dir)
+    elif args.model_name_or_path:
+        config = AutoConfig.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
+    else:
+        config = CONFIG_MAPPING[args.model_type]()
+        logging.warning('No config found: creating a new config instance from scatch.')
 
+    if args.tokenizer:
+        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer, cache_dir=args.cache_dir)
+    elif args.model_name_or_path:
+        tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
+    else:
+        raise ValueError(
+            'Instantiating a new tokenizer from scratch is not support; however, it can be done from another script.'
+            'Use the --tokenizer command line argument, providing it with the location of the script, to load the tokenizer.'
+        )
+
+    if args.block_size <= 0:
+        args.block_size = tokenizer.max_len
+    else:
+        args.block_size = min(args.block_size, tokenizer.max_len)
+
+    if args.model_name_or_path:
+        model = AutoModelWithLMHead.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool('.ckpt' in args.model_name_or_path),
+            config=config,
+            cache_dir=args.cache_dir
+        )
+    else:
+        logging.info('Training {} model from scratch'.format(args.model_type))
+        model = AutoModelWithLMHead.from_config(config)
+
+    # Add special tokens and resize the model
+    logging.info('Initializing tokenizer with special tokens and resizing the model\'s token embeddings.')
+    tokenizer.add_special_tokens(get_special_tokens(args.special_tokens))
+    model.resize_token_embeddings(len(tokenizer))
+
+    model.to(args.device)
     if args.local_rank == 0:
         # End barrier
         torch.distributed.barrier()
 
-    global_step, loss = train(args, train_dataset, model, tokenizer)
-    logging.info('  global_step: {}, average loss: {}'.format(global_step, loss))
+    if args.do_train:
+        if args.local_rank not in [-1, 0]:
+            # Start barrier to make sure that the dataset is only processed once among the distributed training pool.
+            torch.distributed.barrier()
 
-if args.do_train and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
-    if args.local_rank in [-1, 0]:
-        args.outdir.mkdir(parents=True, exist_ok=True)
-    
-    logging.info('Saving model checkpoint to {}'.format(args.outdir))
-    model_to_save = model.module if hasattr(model, 'module') else model
-    model_to_save.save_pretrained(args.outdir)
-    tokenizer.save_pretrained(args.outdir)
-    torch.save(args, args.outdir / 'training_args.bin')
+        train_dataset = get_dataset(
+            args.train_dataset, tokenizer, args.block_size,
+            line_by_line=args.line_by_line, overwrite_cache=args.overwrite_cache
+        )
 
-    absolute_outdir = str(args.outdir.absolute())
-    model = AutoModelWithLMHead.from_pretrained(absolute_outdir)
-    tokenizer = AutoTokenizer.from_pretrained(absolute_outdir)
-    model.to(args.device)
+        if args.local_rank == 0:
+            # End barrier
+            torch.distributed.barrier()
 
-if args.do_eval and args.local_rank in [-1, 0]:
-    eval_dataset = get_dataset(
-        args.eval_dataset, tokenizer, args.block_size,
-        line_by_line=args.line_by_line, overwrite_cache=args.overwrite_cache
-    )
+        global_step, loss = train(args, train_dataset, model, tokenizer)
+        logging.info('  global_step: {}, average loss: {}'.format(global_step, loss))
 
-    results = {}
-    checkpoints = [args.outdir]
-    if args.eval_all_checkpoints:
-        checkpoints = list(args.outdir.glob('**/{}'.format(WEIGHTS_NAME)))
-        logging.getLogger('transformers.modelling_utils').setLevel(logging.WARN)
+    if args.do_train and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
+        if args.local_rank in [-1, 0]:
+            args.outdir.mkdir(parents=True, exist_ok=True)
+        
+        logging.info('Saving model checkpoint to {}'.format(args.outdir))
+        model_to_save = model.module if hasattr(model, 'module') else model
+        model_to_save.save_pretrained(args.outdir)
+        tokenizer.save_pretrained(args.outdir)
+        torch.save(args, args.outdir / 'training_args.bin')
 
-    logging.info('Evaluating the following checkpoints: {}'.format(checkpoints))
-    for checkpoint in checkpoints:
-        global_step = checkpoint.split('-')[1] if len(checkpoints) > 1 else ''
-        prefix = checkpoint.split('/')[-1] if checkpoint.find('checkpoint') != -1 else ''
-
-        model = AutoModelWithLMHead.from_pretrained(str(checkpoint.absolute()))
+        absolute_outdir = str(args.outdir.absolute())
+        model = AutoModelWithLMHead.from_pretrained(absolute_outdir)
+        tokenizer = AutoTokenizer.from_pretrained(absolute_outdir)
         model.to(args.device)
 
-        result = evaluate(args, eval_dataset, model, tokenizer, prefix=prefix)
-        result = dict((key + '_{}'.format(global_step), value) for key, value in result.items())
-        results.update(result)
-        
-    logging.info('Evaluation results: {}'.format(results))
+    if args.do_eval and args.local_rank in [-1, 0]:
+        eval_dataset = get_dataset(
+            args.eval_dataset, tokenizer, args.block_size,
+            line_by_line=args.line_by_line, overwrite_cache=args.overwrite_cache
+        )
+
+        results = {}
+        checkpoints = [args.outdir]
+        if args.eval_all_checkpoints:
+            checkpoints = list(args.outdir.glob('**/{}'.format(WEIGHTS_NAME)))
+            logging.getLogger('transformers.modelling_utils').setLevel(logging.WARN)
+
+        logging.info('Evaluating the following checkpoints: {}'.format(checkpoints))
+        for checkpoint in checkpoints:
+            global_step = checkpoint.split('-')[1] if len(checkpoints) > 1 else ''
+            prefix = checkpoint.split('/')[-1] if checkpoint.find('checkpoint') != -1 else ''
+
+            model = AutoModelWithLMHead.from_pretrained(str(checkpoint.absolute()))
+            model.to(args.device)
+
+            result = evaluate(args, eval_dataset, model, tokenizer, prefix=prefix)
+            result = dict((key + '_{}'.format(global_step), value) for key, value in result.items())
+            results.update(result)
+            
+        logging.info('Evaluation results: {}'.format(results))
+
+def _mp_func(index):
+    # For xla spawn (TPUs)
+    main()
+
+if __name__ == '__main__':
+    main()
