@@ -685,7 +685,7 @@ def main():
             
         logging.info('Evaluation results: {}'.format(results))
 
-def _mp_func(index):
+def _mp_fn(index):
     # For xla spawn (TPUs)
     main()
 
