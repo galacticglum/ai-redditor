@@ -23,6 +23,8 @@ parser.add_argument('--num-return-sequences', type=int, default=10, help='The nu
 parser.add_argument('--max-iterations', type=int, default=5, help='Maximum number of iterations. Defaults to 5.')
 parser.add_argument('--max-length', type=int, default=250, help='Maximum number of tokens to generate in a single iteration.')
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
+parser.add_argument('--translate-token', type=str, default=None, help='The query/answer separator token (translation separator token). ' +
+                    'If not specified, the first additional special token from the tokenizer is used.')
 args = parser.parse_args()
 
 tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
@@ -42,10 +44,12 @@ set_seed(args.seed)
 
 print('- Set seed to {}'.format(args.seed))
 
-TRANSLATE_TOKEN = '<|eq_tok|>'
+# The tokenizer should only have a single additional special token,
+# which is the translate token. If no overwrite is specified, we use this.
+translate_token = args.translate_token or tokenizer.additional_special_tokens[0]
 split_pattern = (
     f'^{re.escape(tokenizer.bos_token)}(?P<prompt>.+?)'
-    f'(?:{re.escape(TRANSLATE_TOKEN)}(?P<response>.+?))*'
+    f'(?:{re.escape(translate_token)}(?P<response>.+?))*'
     f'{re.escape(tokenizer.eos_token)}'
 )
 
