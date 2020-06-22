@@ -145,7 +145,7 @@ def main():
     parser.add_argument('--model-type', type=str, default='gpt2', help='The model architecture. Defaults to GPT2.')
     parser.add_argument('--outdir', type=Path, default=Path('./output'), help='The directory to save model checkpoints.')
     parser.add_argument('--overwrite-outdir', action='store_true', help='Overwrrite the output directory.')
-    parser.add_argument('--logdir', type=Path, default=Path('./output/logs'), help='The Tensorboard logging directory.')
+    parser.add_argument('--logdir', type=Path, default=None, help='The Tensorboard logging directory.')
     parser.add_argument('--restore', dest='restore_checkpoint', action='store_true', help='Whether to resume training from the lastest checkpoint.')
     parser.add_argument('--cache-dir', type=Path, default=None, help='The location to store pretrained models.')
     parser.add_argument('--do-train', action='store_true', help='Whether to run training.')
@@ -189,6 +189,9 @@ def main():
     parser.add_argument('--dataloader-drop-last', dest='dataloader_drop_last', action='store_true', help='Drop the last incomplete ' +
                         'batch if it is not divisible by the batch size. Defaults to False.')
     args = parser.parse_args()
+
+    if args.logdir is None:
+        args.logdir = args.outdir / 'logs'
 
     if args.model_type in ['bert', 'roberta', 'distilbert', 'camembert'] and not args.use_masked_loss:
         raise ValueError(
