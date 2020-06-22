@@ -137,3 +137,5 @@ data/*
 notebooks/models/*
 notebooks/checkpoint/*
 notebooks/samples/*
+# outdir
+output/*
