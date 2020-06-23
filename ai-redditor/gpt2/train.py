@@ -24,8 +24,7 @@ from transformers import (
     DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
-    set_seed,
-    get_linear_schedule_with_warmup
+    set_seed
 )
 
 def get_special_tokens(filepath=None):
