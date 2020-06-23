@@ -1,3 +1,1 @@
-import tempfile
-
 SQLALCHEMY_TRACK_MODIFICATIONS = False
