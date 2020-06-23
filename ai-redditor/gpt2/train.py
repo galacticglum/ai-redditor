@@ -15,7 +15,6 @@ from pathlib import Path
 from transformers import (
     WEIGHTS_NAME,
     CONFIG_MAPPING,
-    AdamW,
     AutoConfig,
     AutoModelWithLMHead,
     AutoTokenizer,
