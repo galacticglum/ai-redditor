@@ -15,7 +15,6 @@ from pathlib import Path
 from transformers import (
     WEIGHTS_NAME,
     CONFIG_MAPPING,
-    AdamW,
     AutoConfig,
     AutoModelWithLMHead,
     AutoTokenizer,
@@ -25,8 +24,7 @@ from transformers import (
     DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
-    set_seed,
-    get_linear_schedule_with_warmup
+    set_seed
 )
 
 def get_special_tokens(filepath=None):
