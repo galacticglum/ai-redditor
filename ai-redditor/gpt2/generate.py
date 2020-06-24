@@ -12,6 +12,8 @@ from transformers import (
 
 parser = argparse.ArgumentParser(description='Generate text from a model with an language modelling head.')
 parser.add_argument('model_name_or_path', type=str, help='The model checkpoint for weights initialization (i.e. a pretrained model).')
+parser.add_argument('--tokenizer', default=None, type=str, help='Optional pretrained tokenizer name or path if not the same as the model ' + 
+                    'checkpoint path. If both are None, a new tokenizer will be initialized.')
 parser.add_argument('--prompt', type=str, default=None, help='A prompt for the model. Leave to None for no prompt.')
 parser.add_argument('--samples', type=int, default=1, help='The number of samples to generate. Defaults to 1.')
 parser.add_argument('--top-k', type=int, default=300, help='The number of highest probability vocabulary tokens ' +
@@ -28,7 +30,16 @@ parser.add_argument('--translate-token', type=str, default=None, help='The query
 parser.add_argument('--profile', dest='show_profile', action='store_true', help='Show profiling results.')
 args = parser.parse_args()
 
-tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+if args.tokenizer:
+    tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
+elif args.model_name_or_path:
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+else:
+    raise ValueError(
+        'Instantiating a new tokenizer from scratch is not support; however, it can be done from another script.'
+        'Use the --tokenizer command line argument, providing it with the location of the script, to load the tokenizer.'
+    )
+
 model = AutoModelWithLMHead.from_pretrained(args.model_name_or_path)
 
 print('- Loaded model and tokenizer from \'{}\''.format(args.model_name_or_path))
