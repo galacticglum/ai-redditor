@@ -123,7 +123,10 @@ with tqdm(total=args.samples) as progress_bar:
             prompt = match.group('prompt')
             response = match.group('response')
             if prompt is None or response is None:
-                progress_bar.write('- Generated sequence has no prompt or response. Skipping...')
+                progress_bar.write(
+                    '- Generated sequence has no prompt or response. Skipping...'
+                    '  -> \"{}\"'.format(decoded)
+                )
                 profile_result.fail_count += 1
                 continue
 
