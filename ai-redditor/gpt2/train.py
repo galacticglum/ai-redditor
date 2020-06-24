@@ -157,6 +157,7 @@ def main():
     parser.add_argument('--train-batch-size', '--per-device-train-batch-size', dest='per_device_train_batch_size', default=8, type=int, help='Batch size per device (i.e. GPU, CPU, or TPU) while training.')
     parser.add_argument('--eval-batch-size', '--per-device-eval-batch-size', dest='per_device_eval_batch_size', default=8, type=int, help='Batch size per device (i.e. GPU, CPU, or TPU) while evaluationg.')
     parser.add_argument('--gradient-accumulation-steps', type=int, default=1, help='Number of steps to accumulate before performing a backpropagation pass.')
+    parser.add_argument('--gradient-checkpointing', action='store_true', help='If True, use gradient checkpointing to save memory at the expense of slower backward pass.')
     parser.add_argument('--learning-rate', type=float, default=5e-5, help='The initial learning rate for the Adam optimizer.')
     parser.add_argument('--weight-decay', type=float, default=0, help='The rate at which weights decay.')
     parser.add_argument('--epsilon', type=float, default=1e-8, help='Epsilon for Adam optimizer.')
@@ -269,6 +270,15 @@ def main():
         config = CONFIG_MAPPING[args.model_type]()
         logging.warning('No config found: creating a new config instance from scatch.')
 
+    # Inject gradient checkpoint value into config
+    if hasattr(config, 'gradient_checkpointing'):
+        config.gradient_checkpointing = args.gradient_checkpointing
+    else:
+        logging.warning(
+            'Config does not have the \'gradient_checkpointing\' attribute. '
+            'Gradient checkpointing will NOT be used.'
+        )
+
     if args.tokenizer:
         tokenizer = AutoTokenizer.from_pretrained(args.tokenizer, cache_dir=args.cache_dir)
     elif args.model_name_or_path:
@@ -351,13 +361,18 @@ def main():
     # So, as a temporary workaround, we just set the field directly.
     training_args.dataloader_drop_last = args.dataloader_drop_last
 
+    def _on_save_model(trainer, output_dir):
+        tokenizer.save_pretrained(output_dir)
+
     trainer = Trainer(
         model=model,
         args=training_args,
         data_collator=data_collator,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        prediction_loss_only=True
+        prediction_loss_only=True,
+        # Callback to save tokenizer when checkpointing...
+        on_save_model=_on_save_model
     )
 
     if args.do_train:
