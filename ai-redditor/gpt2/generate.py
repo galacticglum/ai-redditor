@@ -23,6 +23,7 @@ parser.add_argument('--top-p', type=float, default=1, help='The cumulative proba
 parser.add_argument('--num-return-sequences', type=int, default=10, help='The number of sequences to return per iteration. ' + 
                     'Defaults to 10.')
 parser.add_argument('--max-iterations', type=int, default=5, help='Maximum number of iterations. Defaults to 5.')
+parser.add_argument('--min-length', type=int, default=250, help='Minimum number of tokens to generate in a single iteration.')
 parser.add_argument('--max-length', type=int, default=250, help='Maximum number of tokens to generate in a single iteration.')
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
 parser.add_argument('--translate-token', type=str, default=None, help='The query/answer separator token (translation separator token). ' +
@@ -114,7 +115,8 @@ with tqdm(total=args.samples) as progress_bar:
             pad_token_id=tokenizer.pad_token_id,
             top_k=args.top_k, top_p=args.top_p,
             num_return_sequences=args.num_return_sequences,
-            max_length=args.max_length + len(prompt_ids), do_sample=True
+            min_length=args.min_length, max_length=args.max_length,
+            do_sample=True
         )
 
         profile_result.generate_durations.append(time.time() - start_time)
