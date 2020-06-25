@@ -7,7 +7,8 @@ from pathlib import Path
 from transformers import (
     set_seed,
     AutoTokenizer, 
-    AutoModelWithLMHead
+    AutoModelWithLMHead,
+    SpecialTokensMixin
 )
 
 parser = argparse.ArgumentParser(description='Generate text from a model with an language modelling head.')
@@ -22,9 +23,9 @@ parser.add_argument('--top-p', type=float, default=1, help='The cumulative proba
                     'vocabulary tokens to keep for nucleus sampling. Must be between 0 and 1. Default to 1.')
 parser.add_argument('--num-return-sequences', type=int, default=10, help='The number of sequences to return per iteration. ' + 
                     'Defaults to 10.')
-parser.add_argument('--max-iterations', type=int, default=5, help='Maximum number of iterations. Defaults to 5.')
+parser.add_argument('--max-iterations', type=int, default=10, help='Maximum number of iterations. Defaults to 10.')
 parser.add_argument('--min-length', type=int, default=250, help='Minimum number of tokens to generate in a single iteration.')
-parser.add_argument('--max-length', type=int, default=250, help='Maximum number of tokens to generate in a single iteration.')
+parser.add_argument('--max-length', type=int, default=1024, help='Maximum number of tokens to generate in a single iteration.')
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
 parser.add_argument('--translate-token', type=str, default=None, help='The query/answer separator token (translation separator token). ' +
                     'If not specified, the first additional special token from the tokenizer is used.')
@@ -129,7 +130,10 @@ with tqdm(total=args.samples) as progress_bar:
 
             match = split_regex.match(decoded)
             if not match:
-                progress_bar.write('- Could not split generated sequence into parts. Skipping...')
+                progress_bar.write(
+                    '- Could not split generated sequence into parts. Skipping...'
+                    '  -> \"{}\"'.format(decoded)
+                )
                 profile_result.fail_count += 1
                 continue
 
