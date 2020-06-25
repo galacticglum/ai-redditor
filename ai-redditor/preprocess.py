@@ -9,8 +9,8 @@ from tqdm import tqdm
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description='Preprocess scraped Reddit posts into translations of the form "source=target".')
-parser.add_argument('input', help='A path to the JSON file containing the Reddit posts.', type=str)
-parser.add_argument('output', help='The output filename.', type=str)
+parser.add_argument('input', help='A path to the JSON file containing the Reddit posts.', type=Path)
+parser.add_argument('output', help='The output filename.', type=Path)
 parser.add_argument('source_attribute', help='The name of the source attribute. Should be a field or array. ' +
                     'In the case that the mapped attribute is an array, a separate translation will be ' +
                     'created for each value in the array.', type=str)
@@ -25,6 +25,10 @@ parser.add_argument('--end-token', help='The end EOS (end of sentence) token. De
                     type=str, default='<|eos|>')
 parser.add_argument('--no-filter', dest='filter', action='store_false', help='Don\'t filter posts for ' +
                     '"[deleted]", "[removed]", and other useless values. Default behaviour is to filter.')
+parser.add_argument('--no-split', dest='split', action='store_false', help='Indicates whether the dataset ' +
+                    'should be split into train and test sets. Defaults to True.')
+parser.add_argument('--test-split-ratio', default=0.30, help='The ratio of the dataset that is allocated ' +
+                    'to testing. Defaults to 30%%.', type=float)
 
 # A list of common Reddit bots to ignore.
 _DEFAULT_USER_BLACKLIST = [
@@ -61,10 +65,12 @@ def is_blacklisted(user_id):
 
     return user_id in args.user_blacklist
 
-with open(Path(args.input), 'r') as input_file, \
-    open(Path(args.output), 'wb+') as output_file:
+train_set_output = args.output.parent / (args.output.stem + '_train' + args.output.suffix)
+test_set_output = args.output.parent / (args.output.stem + '_test' + args.output.suffix)
+with open(args.input, 'r') as input_file:
 
     inputs = json.load(input_file)
+    samples = []
     for data in tqdm(inputs):
         # Treat both sources and target as list, even if it is not a JSON array.
         # This simplifies the logic for iterating over them.
@@ -92,11 +98,22 @@ with open(Path(args.input), 'r') as input_file, \
                 target_text = get_text(args.target_attribute, target)
                 if args.filter and filter_text(target_text): continue
       
-                output_file.write('{}{}{}{}{}'.format(
+                samples.append('{}{}{}{}{}'.format(
                     args.start_token,
                     source_text,
                     args.translate_token,
                     target_text,
                     args.end_token
-                ).encode('unicode_escape'))
-                output_file.write(b'\n')
+                ).encode('unicode_escape') + b'\n')
+
+    train_samples_amount = int(len(samples) * (1 - args.test_split_ratio))
+
+    # Write train set
+    with open(train_set_output, 'wb+') as train_output_file:
+        for train_sample in samples[:train_samples_amount]:
+            train_output_file.write(train_sample)
+    
+    # Write test set
+    with open(test_set_output, 'wb+') as test_output_file:
+        for test_sample in samples[train_samples_amount:]:
+            test_output_file.write(test_sample)
