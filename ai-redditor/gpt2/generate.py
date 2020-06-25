@@ -70,7 +70,7 @@ split_pattern = (
 split_regex = re.compile(split_pattern, flags=re.MULTILINE | re.DOTALL)
 
 if args.prompt is None:
-    args.prompt = '{}[WP]'.format(tokenizer.bos_token)
+    args.prompt = tokenizer.bos_token
  
 prompt_ids = tokenizer.encode(args.prompt, return_tensors='pt').to(model.device)
 print('- Encoded prompt into token ids')
@@ -131,7 +131,7 @@ with tqdm(total=args.samples) as progress_bar:
             match = split_regex.match(decoded)
             if not match:
                 progress_bar.write(
-                    '- Could not split generated sequence into parts. Skipping...'
+                    '- Could not split generated sequence into parts. Skipping...\n'
                     '  -> \"{}\"'.format(decoded)
                 )
                 profile_result.fail_count += 1
@@ -141,7 +141,7 @@ with tqdm(total=args.samples) as progress_bar:
             response = match.group('response')
             if prompt is None or response is None:
                 progress_bar.write(
-                    '- Generated sequence has no prompt or response. Skipping...'
+                    '- Generated sequence has no prompt or response. Skipping...\n'
                     '  -> \"{}\"'.format(decoded)
                 )
                 profile_result.fail_count += 1
