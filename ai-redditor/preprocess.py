@@ -29,6 +29,9 @@ parser.add_argument('--no-split', dest='split', action='store_false', help='Indi
                     'should be split into train and test sets. Defaults to True.')
 parser.add_argument('--test-split-ratio', default=0.30, help='The ratio of the dataset that is allocated ' +
                     'to testing. Defaults to 30%%.', type=float)
+parser.add_argument('--dataset-ratio', default=1.0, help='The ratio of samples to include in the dataset. ' +
+                    'This will generate a dataset file from the first X percent of samples. Defaults to 100%%.',
+                    type=float)
 
 # A list of common Reddit bots to ignore.
 _DEFAULT_USER_BLACKLIST = [
@@ -106,7 +109,7 @@ with open(args.input, 'r') as input_file:
                     args.end_token
                 ).encode('unicode_escape') + b'\n')
 
-    train_samples_amount = int(len(samples) * (1 - args.test_split_ratio))
+    train_samples_amount = int(len(samples) * args.dataset_ratio * (1 - args.test_split_ratio))
 
     # Write train set
     with open(train_set_output, 'wb+') as train_output_file:
