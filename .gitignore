@@ -139,3 +139,4 @@ notebooks/checkpoint/*
 notebooks/samples/*
 # outdir
 output/*
+apex/
