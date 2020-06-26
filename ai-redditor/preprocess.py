@@ -109,7 +109,8 @@ with open(args.input, 'r') as input_file:
                     args.end_token
                 ).encode('unicode_escape') + b'\n')
 
-    train_samples_amount = int(len(samples) * args.dataset_ratio * (1 - args.test_split_ratio))
+    samples = samples[:int(len(samples) * args.dataset_ratio)]
+    train_samples_amount = int(len(samples) * (1 - args.test_split_ratio))
 
     # Write train set
     with open(train_set_output, 'wb+') as train_output_file:
