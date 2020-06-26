@@ -134,6 +134,7 @@ dmypy.json
 # dataset
 data/*
 !data/scripts
+!data/special_tokens
 notebooks/models/*
 notebooks/checkpoint/*
 notebooks/samples/*

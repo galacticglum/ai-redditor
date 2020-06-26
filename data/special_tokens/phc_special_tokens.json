@@ -1,0 +1,10 @@
+{
+    "bos_token": "<|bos|>", 
+    "eos_token": "<|eos|>", 
+    "pad_token": "<|pad|>",
+    "additional_special_tokens": [
+        "<|bol|>", "<|eol|>",
+        "<|bon|>", "<|eon|>",
+        "<|eq_tok|>"
+    ]   
+}
