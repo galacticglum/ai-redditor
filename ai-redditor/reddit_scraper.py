@@ -12,50 +12,15 @@ import argparse
 import datetime
 from tqdm import tqdm
 from pathlib import Path
-
-def prompt(question, default='yes'):
-    '''
-    Ask a yes/no question via raw_input() and return their answer.
-
-    "question" is a string that is presented to the user.
-    "default" is the presumed answer if the user just hits <Enter>.
-        It must be "yes" (the default), "no" or None (meaning
-        an answer is required of the user).
-
-    The "answer" return value is True for "yes" or False for "no".
-    '''
-
-    valid = {
-        'yes': True, 'y': True, 'ye': True,
-        'no': False, 'n': False
-    }
-
-    if default is None:
-        prompt = ' [y/n] '
-    elif default == 'yes':
-        prompt = ' [Y/n] '
-    elif default == 'no':
-        prompt = ' [y/N] '
-    else:
-        raise ValueError('invalid default answer: \'%s\'' % default)
-
-    while True:
-        print(question + prompt)
-        choice = input().lower()
-        if default is not None and choice == '':
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            print('Please respond with \'yes\' or \'no\' (or \'y\' or \'n\').\n')
+from io_utils import prompt
 
 parser = argparse.ArgumentParser(description='A tool for scraping Reddit posts and comments.')
 parser.add_argument('subreddit', type=str, help='The subreddit to search in.')
-parser.add_argument('output', type=str, help='The output filename.')
+parser.add_argument('output', type=Path, help='The output filename.')
 parser.add_argument('--client-id', type=str, help='The Reddit OAuth client id.', default=None)
 parser.add_argument('--client-secret', type=str, help='The Reddit OAuth client secret.', default=None)
 parser.add_argument('--user-agent', type=str, help='The Reddit user agent.', default='airedditor.reddit_scraper (by u/GalacticGlum)')
-parser.add_argument('-c', '--credentials', type=str, help='The filepath of a JSON file containing the Reddit credentials (client ' +
+parser.add_argument('-c', '--credentials', type=Path, help='The filepath of a JSON file containing the Reddit credentials (client ' +
                     'id and secret). If both client id/secret and this is specified, this takes precedence.', default=None)
 parser.add_argument('-l', '--limit', type=int, help='The number of posts to get. Defaults to infinite.', default=None)
 parser.add_argument('-q', '--query', type=str, help='A search query to perform on the post.', default=None)
@@ -73,9 +38,8 @@ args = parser.parse_args()
 
 client_id = args.client_id
 client_secret = args.client_secret
-credentials_filepath = Path(args.credentials)
-if credentials_filepath.exists() and credentials_filepath.is_file():
-    with open(credentials_filepath) as credentials_file:
+if args.credentials.exists() and args.credentials.is_file():
+    with open(args.credentials) as credentials_file:
         credentials = json.load(credentials_file)
         client_id = credentials.get('client_id', client_id)
         client_secret = credentials.get('client_secret', client_secret)
@@ -111,18 +75,17 @@ def _serialize_reddit_object(obj, attributes, print_func=print):
 
     return data
 
-output_path = Path(args.output)
-output_path.parent.mkdir(parents=True, exist_ok=True)
+args.output.parent.mkdir(parents=True, exist_ok=True)
 
 results = []
-if output_path.exists():
+if args.output.exists():
     if not args.restore_file:
-        if prompt('The file \'{}\' already exists! '.format(output_path) + 
+        if prompt('The file \'{}\' already exists! '.format(args.output) + 
                   'Continuing will overwrite the file. Are you sure?'):
-            output_path.unlink()
+            args.output.unlink()
     else:
         # Restore the scraped contents and save it in results...
-        with open(output_path, 'r') as output_file:
+        with open(args.output, 'r') as output_file:
             results = json.load(output_file)
 
 title_filter_pattern = re.compile(args.title_filter or '')
@@ -174,7 +137,7 @@ if len(submissions_to_remove) > 0:
 if comments_remove_count > 0 or len(submissions_to_remove) > 0:
     print('- Removed {} comments during repair.'.format(comments_remove_count))
     print('- Removed {} submissions during repair.'.format(len(submissions_to_remove)))
-    with open(output_path, 'w') as output_file:
+    with open(args.output, 'w') as output_file:
         json.dump(results, output_file, indent=args.indent_json)
 
 submissions = api.search_submissions(q=args.query, subreddit=args.subreddit, sort_type='score', sort='desc')
@@ -219,7 +182,7 @@ with tqdm(total=args.limit) as progress_bar:
         results.append(submission_data)
 
         if index % args.dump_batch == 0:
-            with open(output_path, 'w+') as output_file:
+            with open(args.output, 'w+') as output_file:
                 json.dump(results, output_file, indent=args.indent_json)
         
             progress_bar.write('Writing to file (batch {})'.format(index // args.dump_batch))

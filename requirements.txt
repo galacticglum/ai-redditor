@@ -14,3 +14,5 @@ websocket-client==0.57.0
 wincertstore==0.2
 git+https://github.com/galacticglum/transformers.git#egg=transformers
 tensorboardX
+bs4
+html5lib
