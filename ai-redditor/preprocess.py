@@ -3,7 +3,9 @@ Preprocess scraped Reddit posts into translations of the form "source=target".
 
 '''
 
+import time
 import json
+import random
 import argparse
 from tqdm import tqdm
 from pathlib import Path
@@ -32,6 +34,8 @@ parser.add_argument('--test-split-ratio', default=0.30, help='The ratio of the d
 parser.add_argument('--dataset-ratio', default=1.0, help='The ratio of samples to include in the dataset. ' +
                     'This will generate a dataset file from the first X percent of samples. Defaults to 100%%.',
                     type=float)
+parser.add_argument('--shuffle', action='store_true', help='Shuffle the samples before outputting datasets.')
+parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
 
 # A list of common Reddit bots to ignore.
 _DEFAULT_USER_BLACKLIST = [
@@ -67,6 +71,17 @@ def is_blacklisted(user_id):
     '''
 
     return user_id in args.user_blacklist
+
+# Set seed
+if args.seed is None:
+    # We use the current time as the seed rather than letting numpy seed
+    # since we want to achieve consistent results across sessions.
+    # Source: https://stackoverflow.com/a/45573061/7614083
+    t = int(time.time() * 1000.0)
+    args.seed = ((t & 0xff000000) >> 24) + ((t & 0x00ff0000) >> 8) + ((t & 0x0000ff00) <<  8) + ((t & 0x000000ff) << 24)
+
+random.seed(args.seed)
+print('- Set seed to {}'.format(args.seed))
 
 train_set_output = args.output.parent / (args.output.stem + '_train' + args.output.suffix)
 test_set_output = args.output.parent / (args.output.stem + '_test' + args.output.suffix)
@@ -108,8 +123,25 @@ with open(args.input, 'r') as input_file:
                     target_text,
                     args.end_token
                 ).encode('unicode_escape') + b'\n')
+    
+    dataset_size = int(len(samples) * args.dataset_ratio)
+    if args.shuffle:
+        samples = random.sample(samples, dataset_size)
+        print(
+            '- Using random sample consisting of {}%% ({} samples) '.format(
+                args.dataset_ratio * 100,
+                dataset_size
+            ) + 'of the dataset for preprocessing.'
+        )
+    else:
+        samples = samples[:dataset_size]
+        print(
+            '- Using the first {} samples ({}%% '.format(
+                dataset_size,
+                args.dataset_ratio * 100
+            ) + 'of the dataset) for preprocessing.'
+        )
 
-    samples = samples[:int(len(samples) * args.dataset_ratio)]
     train_samples_amount = int(len(samples) * (1 - args.test_split_ratio))
 
     # Write train set
@@ -121,3 +153,6 @@ with open(args.input, 'r') as input_file:
     with open(test_set_output, 'wb+') as test_output_file:
         for test_sample in samples[train_samples_amount:]:
             test_output_file.write(test_sample)
+
+    print('- Created training dataset consisting of {} examples.'.format(train_samples_amount))
+    print('- Created testing dataset consisting of {} examples.'.format(len(samples) - train_samples_amount))
