@@ -410,14 +410,14 @@ def main():
             perplexity = math.exp(eval_output['eval_loss'])
             result = {'perplexity': perplexity, 'loss': eval_output['eval_loss']}
             
-            prefix = checkpoint.split('/')[-1] if checkpoint.find('checkpoint') != -1 else ''
+            prefix = str(checkpoint).split('/')[-1] if str(checkpoint).find('checkpoint') != -1 else ''
             logging.info('***** Evaluation results {} *****'.format(prefix))
 
             if trainer.is_world_master():
                 with open(args.outdir / (prefix + 'eval_results.txt'), 'w+') as file:
                     for key in sorted(result.keys()):
                         logging.info('  {}: {}'.format(key, str(result[key])))
-                        file.write('{}={}'.format(key, str(result[key])))
+                        file.write('{}={}\n.format(key, str(result[key])))
 
 def _mp_fn(index):
     # For xla spawn (TPUs)
