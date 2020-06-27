@@ -417,7 +417,7 @@ def main():
                 with open(args.outdir / (prefix + 'eval_results.txt'), 'w+') as file:
                     for key in sorted(result.keys()):
                         logging.info('  {}: {}'.format(key, str(result[key])))
-                        file.write('{}={}\n.format(key, str(result[key])))
+                        file.write('{}={}\n'.format(key, str(result[key])))
 
 def _mp_fn(index):
     # For xla spawn (TPUs)
