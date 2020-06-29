@@ -101,6 +101,40 @@ body {
 }
 
 /*
+* Redacted text style
+*/
+.redacted i {
+    position: relative;
+    white-space: pre;
+    font-style: normal;
+}
+
+.redacted.redacted-remove-hover i:after {
+    transition: all 0.05s linear;
+}
+
+.redacted i:after {
+    background: black;
+    border-radius: 0.1em;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
+    content: " ";
+    width: 100%;
+    height: 1.2em;
+    left: 0;
+    position: absolute;
+    -webkit-transform: skewY(-5deg) rotate(5deg);
+    transform: skewY(-5deg) rotate(5deg);
+}
+
+.redacted i:after {
+    background: #f8981e;
+}
+
+.redacted-remove-hover i:after {
+    background: none;
+}
+
+/*
 * Cover
 */
 
@@ -116,39 +150,7 @@ body {
     color: rgba(255, 255, 255, .5);
 }
 
-/*
-* Redacted text style
-*/
-.redacted span {
-    position: relative;
-    white-space: pre;
-}
-
-.redacted.redacted-remove-hover span:after {
-    transition: all 0.05s linear;
-}
-
-.redacted span:after {
-    background: black;
-    border-radius: 0.1em;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
-    content: " ";
-    width: 100%;
-    height: 1.2em;
-    left: 0;
-    position: absolute;
-    -webkit-transform: skewY(-5deg) rotate(5deg);
-    transform: skewY(-5deg) rotate(5deg);
-}
-
-.redacted span:after {
-    background: #f8981e;
-}
-
-.redacted-remove-hover span:after {
-    background: none;
-}
-
+/* Utilities */
 .text-link {
     color: #feaede !important; 
     cursor: pointer;
