@@ -49,8 +49,6 @@ body {
     display: -ms-flexbox;
     display: flex;
     color: #fff;
-    text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
-    box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
 }
 
 .cover-container {
@@ -105,9 +103,6 @@ body {
 /*
 * Cover
 */
-.cover {
-    /* padding: 0 1.5rem; */
-}
 
 .cover .btn-lg {
     padding: .75rem 1.25rem;
@@ -152,4 +147,55 @@ body {
 
 .redacted-remove-hover span:after {
     background: none;
+}
+
+.text-link {
+    color: #feaede !important; 
+    cursor: pointer;
+}
+
+.text-link:hover, .text-link:active {
+    color: #f9f871 !important;
+    text-decoration: none;
+}
+
+/* Truncate utilities */
+.truncate-line {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;  
+    -webkit-box-pack: end;
+  }
+
+.truncate-block-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+}
+
+
+.truncate-block-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  -webkit-box-pack: end;
+}
+
+.truncate-block-4 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;  
+    -webkit-box-pack: end;
+}
+
+.truncate-block-5 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;  
+    -webkit-box-pack: end;
 }
