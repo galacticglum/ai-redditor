@@ -24,8 +24,10 @@ parser.add_argument('--top-p', type=float, default=1, help='The cumulative proba
 parser.add_argument('--num-return-sequences', type=int, default=10, help='The number of sequences to return per iteration. ' + 
                     'Defaults to 10.')
 parser.add_argument('--max-iterations', type=int, default=10, help='Maximum number of iterations. Defaults to 10.')
-parser.add_argument('--min-length', type=int, default=250, help='Minimum number of tokens to generate in a single iteration.')
-parser.add_argument('--max-length', type=int, default=1024, help='Maximum number of tokens to generate in a single iteration.')
+parser.add_argument('--min-length', type=int, default=250, help='Minimum number of tokens to generate in a single iteration. ' +
+                    'Defaults to 250 tokens.')
+parser.add_argument('--max-length', type=int, default=1024, help='Maximum number of tokens to generate in a single iteration. ' +
+                    'Defaults to 1024 tokens.')
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
 parser.add_argument('--translate-token', type=str, default=None, help='The query/answer separator token (translation separator token). ' +
                     'If not specified, the first additional special token from the tokenizer is used.')
