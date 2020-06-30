@@ -161,6 +161,16 @@ body {
     text-decoration: none;
 }
 
+.text-link-secondary {
+    color: white !important;
+    cursor: pointer;
+}
+
+.text-link-secondary:hover, .text-link-secondary:active {
+    color: #5becc0 !important;
+    text-decoration: none;
+}
+
 /* Truncate utilities */
 .truncate-line {
     overflow: hidden;

@@ -13,22 +13,11 @@
         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
     <!-- Favicons -->
-    <link rel="apple-touch-icon" href="https://getbootstrap.com/docs/4.5/assets/img/favicons/apple-touch-icon.png"
-        sizes="180x180">
-    <link rel="icon" href="https://getbootstrap.com/docs/4.5/assets/img/favicons/favicon-32x32.png" sizes="32x32"
-        type="image/png">
-    <link rel="icon" href="https://getbootstrap.com/docs/4.5/assets/img/favicons/favicon-16x16.png" sizes="16x16"
-        type="image/png">
-    <link rel="manifest" href="https://getbootstrap.com/docs/4.5/assets/img/favicons/manifest.json">
-    <link rel="mask-icon" href="https://getbootstrap.com/docs/4.5/assets/img/favicons/safari-pinned-tab.svg"
-        color="#563d7c">
     <link rel="icon" href="https://getbootstrap.com/docs/4.5/assets/img/favicons/favicon.ico">
-    <meta name="msapplication-config" content="https://getbootstrap.com/docs/4.5/assets/img/favicons/browserconfig.xml">
-    <meta name="theme-color" content="#563d7c">
     <link rel="stylesheet" href="../static/css/index.css">
 
     <!-- FontAwesome -->
-    <!-- <script src="https://kit.fontawesome.com/6e14a40173.js" crossorigin="anonymous"></script> -->
+    <script src="https://kit.fontawesome.com/6e14a40173.js" crossorigin="anonymous"></script>
 
     <style>
         /* Page specific styling. */
@@ -43,7 +32,7 @@
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
         <header class="masthead mb-auto">
             <div class="inner">
-                <a class="masthead-brand" href="#">This Post Does Not Exist</a>
+                <a class="masthead-brand d-none d-md-block" href="#">This Post Does Not Exist</a>
                 <nav class="nav nav-masthead justify-content-center">
                     <a class="nav-link active" href="#">tifu</a>
                     <a class="nav-link" href="#">writingprompts</a>
@@ -108,18 +97,23 @@
             </a>
             <!-- Control buttons -->
             <div class="d-flex flex-row mt-2">
-                <a class="mr-3" href="">Permalink</a>
-                <a class="mr-3" href="">New post</a>
-                <a class="mr-auto" href="">Make your own</a>
-                <a href="">Settings</a>
+                <a class="text-link-secondary mr-3" href="">Permalink</a>
+                <a class="text-link-secondary mr-3" href="">New post</a>
+                <a class="text-link-secondary mr-auto" href="">Make your own</a>
+                <a class="text-link"
+                   href="https://twitter.com/intent/tweet?text=test" id="tweet-btn"
+                   target="_blank" rel="noopener noreferrer"
+                >
+                    <i class="fab fa-twitter pr-2"></i>Tweet
+                </a>
             </div>
         </main>
 
         <footer class="mastfoot mt-auto text-center">
             <div class="inner">
                 <p class="p-0 m-0">
-                    Created by <a href="https://github.com/galacticglum">Shon Verch</a>
-                    (<a href="https://twitter.com/galacticglum">@galacticglum</a>)
+                    Created by <a class="text-link-secondary" href="https://github.com/galacticglum">Shon Verch</a>
+                    (<a class="text-link-secondary" href="https://twitter.com/galacticglum">@galacticglum</a>)
                 </p>
                 <p class="p-0 m-0" style="font-size: 14px;"><i>Posts are not reviewed. Use at your own risk.</i></p>
             </div>
@@ -136,6 +130,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
         integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
         crossorigin="anonymous"></script>
+    <script src="../static/vendor/html2canvas.min.js"></script>
     <script src="../static/js/index.js"></script>
 </body>
 </html>

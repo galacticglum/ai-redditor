@@ -1,18 +1,20 @@
 $(document).ready(function() {
+    // Redacted text effect
     $('.redacted').hover(function() {
-        $('.redacted').toggleClass('redacted-remove-hover');
+        $(this).toggleClass('redacted-remove-hover');
     });
     
+    // Post body expand ("read more") button
     $('#collapse-toggle').on('click', function(e) {
         // Toggling truncation works by changing the display CSS attribute.
-        var expanded = $('#collapse-toggle').data('expanded');
+        var expanded = $(this).data('expanded');
         if (expanded === undefined) {
             expanded = false;
         }
 
         expanded = !expanded;
-        const expandTargetElement = $($('#collapse-toggle').data('expand-target'));
-        const expandLabelElement = $($('#collapse-toggle').data('expand-label-target'));
+        const expandTargetElement = $($(this).data('expand-target'));
+        const expandLabelElement = $($(this).data('expand-label-target'));
         if (expanded) {
             expandTargetElement.addClass('d-block');
             expandLabelElement.text('Read less');
