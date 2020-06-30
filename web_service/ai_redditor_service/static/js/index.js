@@ -1,9 +1,16 @@
 $(document).ready(function() {
+    $('body').show();
+
     // Redacted text effect
     $('.redacted').hover(function() {
         $(this).toggleClass('redacted-remove-hover');
     });
     
+    // Check if collapse-toggle should be active (is the source text overflowing?)
+    const postBodyTextElement = $($('#collapse-toggle').data('expand-target'));
+    const isReadmoreVisible = postBodyTextElement.width() >= postBodyTextElement[0].scrollWidth;
+    $('#collapse-toggle').toggle(isReadmoreVisible);
+
     // Post body expand ("read more") button
     $('#collapse-toggle').on('click', function(e) {
         // Toggling truncation works by changing the display CSS attribute.
