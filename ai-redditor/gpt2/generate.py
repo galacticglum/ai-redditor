@@ -128,6 +128,7 @@ with tqdm(total=args.samples) as progress_bar:
     while len(results) < args.samples and current_iteration < args.max_iterations:
         current_iteration += 1
 
+        remaining_samples = args.samples - len(results)
         # Multiply by some 'arbitrary' scale factor to pad the next attempt in case there are
         # any failed attempts. We use 1.5 as an approximation under the assumption that 50% of
         # the samples in iteration are failed (this is an overestimation for safety).
