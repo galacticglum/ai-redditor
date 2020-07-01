@@ -134,6 +134,11 @@ body {
     background: none;
 }
 
+/* Text utilities */
+.font-normal {
+    font-style: normal;
+}
+
 /*
 * Cover
 */

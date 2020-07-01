@@ -6,5 +6,6 @@ def init_app(app):
 
     '''
 
+    # Register blueprints
     app.register_blueprint(main.bp)
     app.register_blueprint(api.bp)

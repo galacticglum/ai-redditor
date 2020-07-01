@@ -1,8 +1,11 @@
-<!-- (href, id, caption, class) -->
+<!-- (href, id, caption, class-inactive, class-active) -->
 {% set navigation_bar = [
-    ('main.tifu_page', 'tifu', 'tifu', ''),
-    ('main.writingprompts_page', 'wp', 'writingprompts', ''),
-    ('main.phc_page', 'phc', 'p<i>orn</i>hub <span>&#128521</span>', 'redacted redacted-orange')
+    ('main.tifu_page', 'tifu', 'tifu', '', ''),
+    ('main.writingprompts_page', 'wp', 'writingprompts', '', ''),
+    (
+        'main.phc_page', 'phc', 'p<i class="font-normal">orn</i>hub <span>&#128521</span>',
+        'redacted redacted-orange', ''
+    )
 ] -%}
 
 {% set active_page = active_page|default('tifu') -%}
@@ -49,9 +52,9 @@
                 {% block main_menu %}
                 <nav class="nav nav-masthead justify-content-center">
                     {% block main_menu_items %}
-                    {% for href, id, caption, class in navigation_bar %}
-                        <a class="nav-link {% if id == active_page %}active{% endif %}
-                           {{ class|e }}" href="{{ url_for(href|e) }}">
+                    {% for href, id, caption, class_inactive, class_active in navigation_bar %}
+                        <a class="nav-link {% if id == active_page %}active {{ class_active|e }}
+                           {% else %}{{ class_inactive|e }}{% endif %}" href="{{ url_for(href|e) }}">
                            {{ caption|safe }}
                         </a>
                     {% endfor %}    
