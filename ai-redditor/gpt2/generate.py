@@ -115,7 +115,7 @@ class ProfileResult:
     
         '''
 
-        self.generate_durations = generate_durations or [0]
+        self.generate_durations = generate_durations or list()
         self.fail_count = fail_count
         self.iteration_count = iteration_count
 
@@ -192,7 +192,8 @@ if args.print_results:
 if args.show_profile:
     print('##### Profile Results #####')
     for index, profile_result in enumerate(profiling_results):
-        print('***** Sample {} *****'.format(index + 1))
+        if len(profile_result.generate_durations) == 0: continue
+        print('***** Iteration #{} *****'.format(index + 1))
         print('- Took {} iterations (failed {} times).'.format(
             profile_result.iteration_count, profile_result.fail_count
         ))
@@ -202,10 +203,9 @@ if args.show_profile:
         ))
         
         total_generate_duration = sum(profile_result.generate_durations)
-        if total_generate_duration > 0:
-            print('- Average Duration: {:.2f} seconds'.format(
-               total_generate_duration / len(profile_result.generate_durations)
-            ))
+        print('- Average Duration: {:.2f} seconds'.format(
+            total_generate_duration / len(profile_result.generate_durations)
+        ))
 
     print('###########################')
 
