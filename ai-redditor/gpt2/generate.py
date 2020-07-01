@@ -165,6 +165,7 @@ with tqdm(total=args.samples) as progress_bar:
             # Update profile results
             profile_result.iteration_count = current_iteration
             profiling_results.append(profile_result)
+            profile_result = ProfileResult()
 
 if args.output is not None:
     with open(args.output, 'w+') as output_file:
