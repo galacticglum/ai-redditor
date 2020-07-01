@@ -34,6 +34,9 @@ parser.add_argument('--max-length', type=int, default=1024, help='Maximum number
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
 parser.add_argument('--translate-token', type=str, default=None, help='The query/answer separator token (translation separator token). ' +
                     'If not specified, the first additional special token from the tokenizer is used.')
+parser.add_argument('--no-cuda', dest='no_cuda', action='store_true', help='Disable CUDA devices even when they are available.')
+parser.add_argument('--fp16', dest='fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
+parser.add_argument('--fp16-opt-level', type=str, default='O1', help='Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html.')
 parser.add_argument('--profile', dest='show_profile', action='store_true', help='Show profiling results.')
 args = parser.parse_args()
 
@@ -49,7 +52,19 @@ else:
 
 model = AutoModelWithLMHead.from_pretrained(args.model_name_or_path)
 
-print('- Loaded model and tokenizer from \'{}\''.format(args.model_name_or_path))
+ # Setup device
+device = torch.device('cuda' if torch.cuda.is_available() and not args.no_cuda else 'cpu')
+model.to(device)
+
+print('- Loaded model and tokenizer from \'{}\' (device: \'{}\')'.format(args.model_name_or_path, device))
+
+if args.fp16:
+    try:
+        from apex import amp
+    except ImportError:
+        raise ImportError('Please install apex from https://www.github.com/nvidia/apex to use fp16 inference.')
+    
+    model = amp.initialize(model, opt_level=args.fp16_opt_level)
 
 # Set seed to reproduce results.
 if args.seed is None:
