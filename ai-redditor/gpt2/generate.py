@@ -38,6 +38,9 @@ parser.add_argument('--no-cuda', dest='no_cuda', action='store_true', help='Disa
 parser.add_argument('--fp16', dest='fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
 parser.add_argument('--fp16-opt-level', type=str, default='O1', help='Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html.')
 parser.add_argument('--profile', dest='show_profile', action='store_true', help='Show profiling results.')
+parser.add_argument('--dump-batch', type=int, help='The number of records to generate before writing to file.', default=8)
+parser.add_argument('--no-indent-json', dest='indent_json', action='store_false',
+                    help='Don\'t indent the output JSON file. Default behaviour is to indent.')
 args = parser.parse_args()
 
 if args.tokenizer:
@@ -182,6 +185,13 @@ with tqdm(total=args.samples) as progress_bar:
                 'decoded': decoded
             })
 
+            if args.output is not None and (current_iteration + 1) % args.dump_batch == 0:
+                with open(args.output, 'w+') as output_file:
+                    json.dump(results, output_file, indent=args.indent_json)
+            
+                batch_index = (current_iteration + 1) // args.dump_batch
+                progress_bar.write('Writing to file (batch {})'.format(batch_index))
+
             # Update profile results
             profile_result.iteration_count = current_iteration
             profiling_results.append(profile_result)
@@ -189,7 +199,7 @@ with tqdm(total=args.samples) as progress_bar:
 
 if args.output is not None:
     with open(args.output, 'w+') as output_file:
-        json.dump(results, output_file)
+        json.dump(results, output_file, indent=args.indent_json)
 
 if args.print_results:
     print(results)
