@@ -25,13 +25,13 @@ def error_response(message, status_code, **kwargs):
 
     return response
 
-generate_record_schema = {
-    'type': 'object',
-    'additional'
-}
+# generate_record_schema = {
+#     'type': 'object',
+#     'additional'
+# }
 
 @bp.route('/r/generate', methods=['POST'])
-@expects_json(generate_record_schema)
+# @expects_json(generate_record_schema)
 def generate_record():
     '''
     Generates a record.

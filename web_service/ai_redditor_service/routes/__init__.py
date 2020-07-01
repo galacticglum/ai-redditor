@@ -1,4 +1,4 @@
-from ai_redditor_service.routes import api
+from ai_redditor_service.routes import api, main
 
 def init_app(app):
     '''
@@ -6,4 +6,5 @@ def init_app(app):
 
     '''
 
+    app.register_blueprint(main.bp)
     app.register_blueprint(api.bp)

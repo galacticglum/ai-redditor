@@ -1,7 +1,17 @@
+<!-- (href, id, caption, class) -->
+{% set navigation_bar = [
+    ('main.tifu_page', 'tifu', 'tifu', ''),
+    ('main.writingprompts_page', 'wp', 'writingprompts', ''),
+    ('main.phc_page', 'phc', 'p<i>orn</i>hub <span>&#128521</span>', 'redacted redacted-orange')
+] -%}
+
+{% set active_page = active_page|default('tifu') -%}
+
 <!doctype html>
 <html lang="en">
 
 <head>
+    {% block head %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -14,11 +24,12 @@
 
     <!-- Favicons -->
     <link rel="icon" href="https://getbootstrap.com/docs/4.5/assets/img/favicons/favicon.ico">
-    <link rel="stylesheet" href="../static/css/index.css">
+    <link rel="stylesheet" href="/static/css/index.css">
 
     <!-- FontAwesome -->
     <script src="https://kit.fontawesome.com/6e14a40173.js" crossorigin="anonymous"></script>
 
+    {% block head_style %}
     <style>
         /* Page specific styling. */
         html,
@@ -27,20 +38,30 @@
             background-color: #080d2d;
         }
     </style>
+    {% endblock %}
+    {% endblock %}
 </head>
 <body style="display: none;">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
         <header class="masthead mb-auto">
             <div class="inner">
-                <a class="masthead-brand d-none d-md-block" href="#">This Post Does Not Exist</a>
+                <a class="masthead-brand d-none d-md-block" href="{{ url_for('main.index') }}">This Post Does Not Exist</a>
+                {% block main_menu %}
                 <nav class="nav nav-masthead justify-content-center">
-                    <a class="nav-link active" href="#">tifu</a>
-                    <a class="nav-link" href="#">writingprompts</a>
-                    <a class="nav-link redacted redacted-orange" href="#">p<i>orn</i>hub <span>&#128521</span></a>
+                    {% block main_menu_items %}
+                    {% for href, id, caption, class in navigation_bar %}
+                        <a class="nav-link {% if id == active_page %}active{% endif %}
+                           {{ class|e }}" href="{{ url_for(href|e) }}">
+                           {{ caption|safe }}
+                        </a>
+                    {% endfor %}    
+                    {% endblock %}
                 </nav>
+                {% endblock %}
             </div>
         </header>
 
+        {% block main %}
         <main role="main" class="py-5">
             <p class="text-muted mb-1">r/tifu</p>
             <h3 class="font-weight-bold mb-3">TIFU BY leaving my cat outside on a leash while I was working</h3>
@@ -108,7 +129,9 @@
                 </a>
             </div>
         </main>
+        {% endblock %}
 
+        {% block footer %}
         <footer class="mastfoot mt-auto text-center">
             <div class="inner">
                 <p class="p-0 m-0">
@@ -118,7 +141,10 @@
                 <p class="p-0 m-0" style="font-size: 14px;"><i>Posts are not reviewed. Use at your own risk.</i></p>
             </div>
         </footer>
+        {% endblock %}
     </div>
+
+    {% block tail %}
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
@@ -130,6 +156,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
         integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
         crossorigin="anonymous"></script>
-    <script src="../static/js/index.js"></script>
+    <script src="/static/js/index.js"></script>
+    {% endblock %}
 </body>
 </html>
