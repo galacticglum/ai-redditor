@@ -151,7 +151,9 @@ with tqdm(total=args.samples) as progress_bar:
             do_sample=True
         )
 
-        profile_result.generate_durations.append(time.time() - start_time)
+        generation_duration = time.time() - start_time
+        profile_result.generate_durations.append(generation_duration)
+        progress_bar.write('- Took {:.2f} seconds to generate batch'.format(generation_duration))
 
         n = 0
         for i in range(generated.size()[0]):
