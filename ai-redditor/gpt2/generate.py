@@ -115,7 +115,7 @@ class ProfileResult:
     
         '''
 
-        self.generate_durations = generate_durations or list()
+        self.generate_durations = generate_durations or [0]
         self.fail_count = fail_count
         self.iteration_count = iteration_count
 
@@ -198,12 +198,14 @@ if args.show_profile:
         ))
 
         print('- Generate Durations: {} seconds'.format(', '.join(
-            str(round(duration, 2))for duration in profile_result.generate_durations)
+            str(round(duration, 2)) for duration in profile_result.generate_durations)
         ))
         
-        print('- Average Duration: {:.2f} seconds'.format(
-            sum(profile_result.generate_durations) / len(profile_result.generate_durations)
-        ))
+        total_generate_duration = sum(profile_result.generate_durations)
+        if total_generate_duration > 0:
+            print('- Average Duration: {:.2f} seconds'.format(
+               total_generate_duration / len(profile_result.generate_durations)
+            ))
 
     print('###########################')
 
