@@ -135,7 +135,7 @@ with tqdm(total=args.samples) as progress_bar:
         # Multiply by some 'arbitrary' scale factor to pad the next attempt in case there are
         # any failed attempts. We use 1.5 as an approximation under the assumption that 50% of
         # the samples in iteration are failed (this is an overestimation for safety).
-        num_return_sequences = int(min(remaining_samples, args.num_return_sequences) * 1.5)
+        num_return_sequences = min(int(remaining_samples * 1.5), args.num_return_sequences)
         start_time = time.time()
         generated = model.generate(
             prompt_ids,
