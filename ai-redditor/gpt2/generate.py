@@ -128,6 +128,7 @@ with tqdm(total=args.samples) as progress_bar:
     while len(results) < args.samples and current_iteration < args.max_iterations:
         current_iteration += 1
 
+        remaining_samples = args.samples - len(results)
         num_return_sequences = min(remaining_samples, args.num_return_sequences)
         start_time = time.time()
         generated = model.generate(
