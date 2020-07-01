@@ -42,7 +42,9 @@ parser.add_argument('--profile', dest='show_profile', action='store_true', help=
 parser.add_argument('--dump-batch', type=int, help='The number of records to generate before writing to file.', default=8)
 parser.add_argument('--no-indent-json', dest='indent_json', action='store_false',
                     help='Don\'t indent the output JSON file. Default behaviour is to indent.')
-parser.add_argument('--show-decoded-on-error', action='store_true', help='Print the decoded output from the model on error. Defaults to False.')
+parser.add_argument('--show-decoded-on-error', action='store_true', help='Print the decoded output from the model on error. ' +
+                    'Defaults to False.')
+parser.add_argumentd('--hide-logs', action='store_true', help='Hide INFO log statements while generating.')
 args = parser.parse_args()
 
 if args.tokenizer:
@@ -153,7 +155,9 @@ with tqdm(total=args.samples) as progress_bar:
 
         generation_duration = time.time() - start_time
         profile_result.generate_durations.append(generation_duration)
-        progress_bar.write('- Took {:.2f} seconds to generate batch'.format(generation_duration))
+        
+        if not args.hide_logs:
+            progress_bar.write('- Took {:.2f} seconds to generate batch'.format(generation_duration))
 
         n = 0
         for i in range(generated.size()[0]):
@@ -164,20 +168,24 @@ with tqdm(total=args.samples) as progress_bar:
 
             match = split_regex.match(decoded)
             if not match:
-                progress_bar.write(
-                    '- Could not split generated sequence into parts. Skipping...' +
-                    ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
-                )
+                if not args.hide_logs:
+                    progress_bar.write(
+                        '- Could not split generated sequence into parts. Skipping...' +
+                        ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
+                    )
+
                 profile_result.fail_count += 1
                 continue
 
             prompt = match.group('prompt')
             response = match.group('response')
             if prompt is None or response is None:
-                progress_bar.write(
-                    '- Generated sequence has no prompt or response. Skipping...' +
-                    ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
-                )
+                if not args.hide_logs:
+                    progress_bar.write(
+                        '- Generated sequence has no prompt or response. Skipping...' +
+                        ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
+                    )
+                    
                 profile_result.fail_count += 1
                 continue
 
