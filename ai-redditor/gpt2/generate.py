@@ -128,6 +128,7 @@ with tqdm(total=args.samples) as progress_bar:
     while len(results) < args.samples and current_iteration < args.max_iterations:
         current_iteration += 1
 
+        num_return_sequences = min(remaining_samples, args.num_return_sequences)
         start_time = time.time()
         generated = model.generate(
             prompt_ids,
@@ -135,7 +136,7 @@ with tqdm(total=args.samples) as progress_bar:
             eos_token_id=tokenizer.eos_token_id,
             pad_token_id=tokenizer.pad_token_id,
             top_k=args.top_k, top_p=args.top_p,
-            num_return_sequences=args.num_return_sequences,
+            num_return_sequences=num_return_sequences,
             min_length=args.min_length, max_length=args.max_length,
             do_sample=True
         )
