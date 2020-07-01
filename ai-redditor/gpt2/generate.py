@@ -153,6 +153,7 @@ with tqdm(total=args.samples) as progress_bar:
 
         profile_result.generate_durations.append(time.time() - start_time)
 
+        n = 0
         for i in range(generated.size()[0]):
             if len(results) >= args.samples: break
 
@@ -162,8 +163,8 @@ with tqdm(total=args.samples) as progress_bar:
             match = split_regex.match(decoded)
             if not match:
                 progress_bar.write(
-                    '- Could not split generated sequence into parts. Skipping...\n'
-                    '  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else ''
+                    '- Could not split generated sequence into parts. Skipping...' +
+                    ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
                 )
                 profile_result.fail_count += 1
                 continue
@@ -172,8 +173,8 @@ with tqdm(total=args.samples) as progress_bar:
             response = match.group('response')
             if prompt is None or response is None:
                 progress_bar.write(
-                    '- Generated sequence has no prompt or response. Skipping...\n'
-                    '  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else ''
+                    '- Generated sequence has no prompt or response. Skipping...' +
+                    ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
                 )
                 profile_result.fail_count += 1
                 continue
@@ -181,7 +182,7 @@ with tqdm(total=args.samples) as progress_bar:
             prompt = prompt.strip()
             response = response.strip()
 
-            progress_bar.update(1)
+            n += 1
             results.append({
                 'prompt': prompt,
                 'response': response,
@@ -199,6 +200,8 @@ with tqdm(total=args.samples) as progress_bar:
             profile_result.iteration_count = current_iteration
             profiling_results.append(profile_result)
             profile_result = ProfileResult()
+
+        progress_bar.update(n)
 
 if args.output is not None:
     with open(args.output, 'w+') as output_file:
