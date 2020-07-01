@@ -44,7 +44,7 @@ parser.add_argument('--no-indent-json', dest='indent_json', action='store_false'
                     help='Don\'t indent the output JSON file. Default behaviour is to indent.')
 parser.add_argument('--show-decoded-on-error', action='store_true', help='Print the decoded output from the model on error. ' +
                     'Defaults to False.')
-parser.add_argumentd('--hide-logs', action='store_true', help='Hide INFO log statements while generating.')
+parser.add_argument('--hide-logs', action='store_true', help='Hide INFO log statements while generating.')
 args = parser.parse_args()
 
 if args.tokenizer:
