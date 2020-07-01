@@ -66,6 +66,7 @@
 
         {% block main %}
         <main role="main" class="py-5">
+            {% block inner_main %}
             <p class="text-muted mb-1">r/tifu</p>
             <h3 class="font-weight-bold mb-3">TIFU BY leaving my cat outside on a leash while I was working</h3>
             <p class="truncate-block-3 mb-2" id="post-body">
@@ -121,16 +122,21 @@
             </a>
             <!-- Control buttons -->
             <div class="d-flex flex-row mt-2">
-                <a class="text-link-secondary mr-3" href="">Permalink</a>
-                <a class="text-link-secondary mr-3" href="">New post</a>
-                <a class="text-link-secondary mr-auto" href="">Make your own</a>
-                <a class="text-link"
-                   href="https://twitter.com/intent/tweet?text=test" id="tweet-btn"
-                   target="_blank" rel="noopener noreferrer"
-                >
-                    <i class="fab fa-twitter pr-2"></i>Tweet
-                </a>
+                {% for x in navigation_bar %}
+                    {% if x[1] == active_page %}
+                        <a class="text-link-secondary mr-3" href="permalink">Permalink</a>
+                        <a class="text-link-secondary mr-3" href="{{ url_for(x[0]|e) }}">New post</a>
+                        <a class="text-link-secondary mr-auto" href="generate">Make your own</a>
+                        <a class="text-link"
+                        href="https://twitter.com/intent/tweet?text=test" id="tweet-btn"
+                        target="_blank" rel="noopener noreferrer"
+                        >
+                            <i class="fab fa-twitter pr-2"></i>Tweet
+                        </a>
+                    {% endif %}
+                {% endfor %}
             </div>
+            {% endblock %}
         </main>
         {% endblock %}
 
