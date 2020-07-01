@@ -153,7 +153,7 @@ with tqdm(total=args.samples) as progress_bar:
             response = response.strip()
 
             progress_bar.update(1)
-            print(decoded)
+            progress_bar.write(decoded)
             results.append((prompt, response))
 
             # Update profile results
