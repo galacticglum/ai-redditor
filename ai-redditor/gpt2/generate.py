@@ -1,5 +1,6 @@
 import re
 import time
+import json
 import torch
 import argparse
 from tqdm import tqdm
@@ -13,6 +14,8 @@ from transformers import (
 
 parser = argparse.ArgumentParser(description='Generate text from a model with an language modelling head.')
 parser.add_argument('model_name_or_path', type=str, help='The model checkpoint for weights initialization (i.e. a pretrained model).')
+parser.add_argument('--output', type=Path, default=None, help='Output file name.')
+parser.add_argument('--no-print-results', dest='print_results', action='store_false', help='Print the results to standard output.')
 parser.add_argument('--tokenizer', default=None, type=str, help='Optional pretrained tokenizer name or path if not the same as the model ' + 
                     'checkpoint path. If both are None, a new tokenizer will be initialized.')
 parser.add_argument('--prompt', type=str, default=None, help='A prompt for the model. Leave to None for no prompt.')
@@ -153,14 +156,22 @@ with tqdm(total=args.samples) as progress_bar:
             response = response.strip()
 
             progress_bar.update(1)
-            progress_bar.write(decoded)
-            results.append((prompt, response))
+            results.append({
+                'prompt': prompt,
+                'response': response,
+                'decoded': decoded
+            })
 
             # Update profile results
             profile_result.iteration_count = current_iteration
             profiling_results.append(profile_result)
 
-print(results)
+if args.output is not None:
+    with open(args.output, 'w+') as output_file:
+        json.dump(results, output_file)
+
+if args.print_results:
+    print(results)
 
 if args.show_profile:
     print('##### Profile Results #####')
