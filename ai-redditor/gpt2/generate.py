@@ -185,11 +185,11 @@ with tqdm(total=args.samples) as progress_bar:
                 'decoded': decoded
             })
 
-            if args.output is not None and (current_iteration + 1) % args.dump_batch == 0:
+            if args.output is not None and (len(results) + 1) % args.dump_batch == 0:
                 with open(args.output, 'w+') as output_file:
                     json.dump(results, output_file, indent=args.indent_json)
             
-                batch_index = (current_iteration + 1) // args.dump_batch
+                batch_index = (len(results) + 1) // args.dump_batch
                 progress_bar.write('Writing to file (batch {})'.format(batch_index))
 
             # Update profile results
