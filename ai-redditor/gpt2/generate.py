@@ -26,7 +26,8 @@ parser.add_argument('--top-p', type=float, default=1, help='The cumulative proba
                     'vocabulary tokens to keep for nucleus sampling. Must be between 0 and 1. Default to 1.')
 parser.add_argument('--num-return-sequences', type=int, default=10, help='The number of sequences to return per iteration. ' + 
                     'Defaults to 10.')
-parser.add_argument('--max-iterations', type=int, default=10, help='Maximum number of iterations. Defaults to 10.')
+parser.add_argument('--max-iterations', type=int, default=10, help='Maximum number of iterations. Defaults to 10. ' +
+                    'If -1, there is no maximum number of iterations; the script will run until all samples are generated.')
 parser.add_argument('--min-length', type=int, default=250, help='Minimum number of tokens to generate in a single iteration. ' +
                     'Defaults to 250 tokens.')
 parser.add_argument('--max-length', type=int, default=1024, help='Maximum number of tokens to generate in a single iteration. ' +
@@ -41,6 +42,7 @@ parser.add_argument('--profile', dest='show_profile', action='store_true', help=
 parser.add_argument('--dump-batch', type=int, help='The number of records to generate before writing to file.', default=8)
 parser.add_argument('--no-indent-json', dest='indent_json', action='store_false',
                     help='Don\'t indent the output JSON file. Default behaviour is to indent.')
+parser.add_argument('--show-decoded-on-error', action='store_true', help='Print the decoded output from the model on error. Defaults to False.')
 args = parser.parse_args()
 
 if args.tokenizer:
@@ -128,9 +130,10 @@ profiling_results = []
 current_iteration = 0
 with tqdm(total=args.samples) as progress_bar:
     profile_result = ProfileResult()
-    while len(results) < args.samples and current_iteration < args.max_iterations:
+    while len(results) < args.samples:
+        if args.max_iterations != -1 and current_iteration > args.max_iterations: break
+        
         current_iteration += 1
-
         remaining_samples = args.samples - len(results)
         # Multiply by some 'arbitrary' scale factor to pad the next attempt in case there are
         # any failed attempts. We use 1.5 as an approximation under the assumption that 50% of
@@ -160,7 +163,7 @@ with tqdm(total=args.samples) as progress_bar:
             if not match:
                 progress_bar.write(
                     '- Could not split generated sequence into parts. Skipping...\n'
-                    '  -> \"{}\"'.format(decoded)
+                    '  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else ''
                 )
                 profile_result.fail_count += 1
                 continue
@@ -170,7 +173,7 @@ with tqdm(total=args.samples) as progress_bar:
             if prompt is None or response is None:
                 progress_bar.write(
                     '- Generated sequence has no prompt or response. Skipping...\n'
-                    '  -> \"{}\"'.format(decoded)
+                    '  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else ''
                 )
                 profile_result.fail_count += 1
                 continue
