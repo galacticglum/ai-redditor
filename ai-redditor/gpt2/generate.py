@@ -33,8 +33,9 @@ parser.add_argument('--min-length', type=int, default=250, help='Minimum number 
 parser.add_argument('--max-length', type=int, default=1024, help='Maximum number of tokens to generate in a single iteration. ' +
                     'Defaults to 1024 tokens.')
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
-parser.add_argument('--translate-token', type=str, default=None, help='The query/answer separator token (translation separator token). ' +
-                    'If not specified, the first additional special token from the tokenizer is used.')
+parser.add_argument('--translate-token', type=str, default='<|eq_tok|>', help='The query/answer separator token (translation ' + 
+                    'separator token). If not specified, the first additional special token from the tokenizer is used.')
+parser.add_argument('--end-of-likes-token', type=str, default='<|eol|>', help='The special token specifying the end of likes.')
 parser.add_argument('--no-cuda', dest='no_cuda', action='store_true', help='Disable CUDA devices even when they are available.')
 parser.add_argument('--fp16', dest='fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
 parser.add_argument('--fp16-opt-level', type=str, default='O1', help='Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html.')
@@ -45,6 +46,7 @@ parser.add_argument('--no-indent-json', dest='indent_json', action='store_false'
 parser.add_argument('--show-decoded-on-error', action='store_true', help='Print the decoded output from the model on error. ' +
                     'Defaults to False.')
 parser.add_argument('--hide-logs', action='store_true', help='Hide INFO log statements while generating.')
+parser.add_argument('--format', choices=['qk', 'phc'], help='The format of generated text. One of \'qk\' (query-key), \'phc\'.')
 args = parser.parse_args()
 
 if args.tokenizer:
@@ -85,14 +87,34 @@ set_seed(args.seed)
 
 print('- Set seed to {}'.format(args.seed))
 
-# The tokenizer should only have a single additional special token,
-# which is the translate token. If no overwrite is specified, we use this.
-translate_token = args.translate_token or tokenizer.additional_special_tokens[0]
-split_pattern = (
-    f'^{re.escape(tokenizer.bos_token)}(?P<prompt>.+?)'
-    f'(?:{re.escape(translate_token)}(?P<response>.+?))*'
-    f'{re.escape(tokenizer.eos_token)}'
-)
+# Verify special tokens
+special_tokens = set(tokenizer.additional_special_tokens)
+provided_special_tokens = {
+    'translate': args.translate_token,
+    'end_of_likes': args.end_of_likes_token
+}
+
+for token_name, token_value in provided_special_tokens.items():
+    if token_value in special_tokens: continue
+    raise ValueError('The {} token (\'{}\') is not marked as a special token.'.format(
+        token_name, token_value
+    ))
+
+if args.format == 'qk':
+    split_pattern = (
+        f'^{re.escape(tokenizer.bos_token)}(?P<prompt>.+?)'
+        f'(?:{re.escape(args.translate_token)}(?P<response>.+?))*'
+        f'{re.escape(tokenizer.eos_token)}'
+    )
+elif args.format == 'phc':
+    split_pattern = (
+        f'^{re.escape(tokenizer.bos_token)}(?P<likes>.+?)'
+        f'(?:{re.escape(args.end_of_likes_token)}(?P<author>.+?))*'
+        f'(?:{re.escape(args.translate_token)}(?P<comment_body>.+?))*'
+        f'{re.escape(tokenizer.eos_token)}'
+    )
+else:
+    ValueError('Invalid format (\'{}\') given. See usage for more information.'.format(args.format))
 
 split_regex = re.compile(split_pattern, flags=re.MULTILINE | re.DOTALL)
 
@@ -177,25 +199,34 @@ with tqdm(total=args.samples) as progress_bar:
                 profile_result.fail_count += 1
                 continue
 
-            prompt = match.group('prompt')
-            response = match.group('response')
-            if prompt is None or response is None:
+            if args.format == 'qk':
+                groups = {
+                    'prompt': match.group('prompt'),
+                    'response': match.group('response')
+                }
+            elif args.format == 'phc':
+                groups = {
+                    'likes': match.group('likes'),
+                    'author': match.group('author'),
+                    'comment_body': match.group('comment_body'),
+                }
+
+            if any(value is None for value in groups.values()):
                 if not args.hide_logs:
                     progress_bar.write(
-                        '- Generated sequence has no prompt or response. Skipping...' +
+                        '- Generated sequence has missing match groups. Skipping...' +
                         ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
                     )
                     
                 profile_result.fail_count += 1
                 continue
 
-            prompt = prompt.strip()
-            response = response.strip()
-
+            # Strip all match groups
+            groups = {key: value.strip() for key, value in groups.items()}
+  
             n += 1
             results.append({
-                'prompt': prompt,
-                'response': response,
+                'groups': groups,
                 'decoded': decoded
             })
 
