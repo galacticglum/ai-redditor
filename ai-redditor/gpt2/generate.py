@@ -189,6 +189,20 @@ with tqdm(total=args.samples) as progress_bar:
             sentence_tokens = generated[i, :].tolist()
             decoded = tokenizer.decode(sentence_tokens)
 
+            if args.format == 'phc':
+                # Filter out for pornhub links contained in the comment.
+                # Comments that contain links are often not very interesting (just advertisement).
+                urls = re.findall(r'(?P<url>(https?://)?.*pornhub\.com*[^\s]+)', decoded)
+                if len(urls) > 0:
+                    if not args.hide_logs:
+                        progress_bar.write(
+                            '- PHC generated text contained link. Skipping...' +
+                            ('\n  -> \"{}\"'.format(decoded) if args.show_decoded_on_error else '')
+                        )
+
+                    profile_result.fail_count += 1
+                    continue
+
             match = split_regex.match(decoded)
             if not match:
                 if not args.hide_logs:
