@@ -46,7 +46,8 @@ parser.add_argument('--no-indent-json', dest='indent_json', action='store_false'
 parser.add_argument('--show-decoded-on-error', action='store_true', help='Print the decoded output from the model on error. ' +
                     'Defaults to False.')
 parser.add_argument('--hide-logs', action='store_true', help='Hide INFO log statements while generating.')
-parser.add_argument('--format', required=True, choices=['qk', 'phc'], help='The format of generated text. One of \'qk\' (query-key), \'phc\'.')
+parser.add_argument('--format', required=True, choices=['qk', 'phc'], help='The format of generated text. ' +
+                    'One of \'qk\' (query-key), \'phc\'.')
 args = parser.parse_args()
 
 if args.tokenizer:
