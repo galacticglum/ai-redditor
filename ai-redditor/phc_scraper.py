@@ -65,6 +65,9 @@ def _add_schema_to_url(url, schema='https'):
 # The phc-bot provides the source for the comments based on r/pornhubcomments
 comments = api.search_comments(author='phc-bot', sort_type='score', sort='desc')
 results = []
+
+# Maintain a collection of all scraped URLs
+visited = set()
 with tqdm(total=args.limit) as progress_bar:
     for index, comment in enumerate(comments):
         progress_bar.update(1)
@@ -85,6 +88,9 @@ with tqdm(total=args.limit) as progress_bar:
                 urls[i] = url[:-1]
 
         for url in urls:
+            if url in visited: continue
+            visited.add(url)
+            
             progress_bar.write('- Scraping {}'.format(url))
             response = requests.get(url)
             soup = BeautifulSoup(response.content, 'html5lib')
