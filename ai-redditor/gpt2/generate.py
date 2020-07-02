@@ -36,8 +36,8 @@ parser.add_argument('--seed', type=int, default=None, help='The seed of the rand
 parser.add_argument('--translate-token', type=str, default='<|eq_tok|>', help='The query/answer separator token (translation ' + 
                     'separator token). If not specified, the first additional special token from the tokenizer is used.')
 parser.add_argument('--end-of-likes-token', type=str, default='<|eol|>', help='The special token specifying the end of likes.')
-parser.add_argument('--no-cuda', dest='no_cuda', action='store_true', help='Disable CUDA devices even when they are available.')
-parser.add_argument('--fp16', dest='fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
+parser.add_argument('--no-cuda', action='store_true', help='Disable CUDA devices even when they are available.')
+parser.add_argument('--fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
 parser.add_argument('--fp16-opt-level', type=str, default='O1', help='Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html.')
 parser.add_argument('--profile', dest='show_profile', action='store_true', help='Show profiling results.')
 parser.add_argument('--dump-batch', type=int, help='The number of records to generate before writing to file.', default=8)
@@ -48,6 +48,7 @@ parser.add_argument('--show-decoded-on-error', action='store_true', help='Print 
 parser.add_argument('--hide-logs', action='store_true', help='Hide INFO log statements while generating.')
 parser.add_argument('--format', required=True, choices=['qk', 'phc'], help='The format of generated text. ' +
                     'One of \'qk\' (query-key), \'phc\'.')
+parser.add_argument('--no-duplicates', action='store_true', help='Don\'t generate any duplicate records. Defaults to False.')
 args = parser.parse_args()
 
 if args.tokenizer:
@@ -150,6 +151,7 @@ class ProfileResult:
         self.iteration_count = iteration_count
 
 results = []
+visited = set()
 profiling_results = []
 
 current_iteration = 0
@@ -238,7 +240,19 @@ with tqdm(total=args.samples) as progress_bar:
 
             # Strip all match groups
             groups = {key: value.strip() for key, value in groups.items()}
-  
+            # Convert the groups dict to JSON and use it as a unique identifier.
+            groups_id = json.dumps(groups, sort_keys=True)
+            if args.no_duplicates:
+                if groups_id in visited:
+                    print(
+                        '- Generated duplicate. Skipping...'
+                        ('\n  -> \"{}\"'.format(groups) if args.show_decoded_on_error else '')
+                    )
+
+                    continue
+
+                visited.add(groups_id)
+
             n += 1
             results.append({
                 'groups': groups,

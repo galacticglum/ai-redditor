@@ -127,7 +127,7 @@ def main():
     parser = argparse.ArgumentParser('Train or fine-tune a GPT-2 model using casual language (CLM) loss.')
     parser.add_argument('train_dataset', type=Path, help='The preprocessed training dataset file.')
     parser.add_argument('--eval-dataset', type=Path, help='The preprocessed evalutation dataset file.')
-    parser.add_argument('--line-by-line', dest='line_by_line', action='store_true',
+    parser.add_argument('--line-by-line', action='store_true',
                         help='Indicates whether distinct lines of text in the input dataset are to be handled as ' +
                         'separate input sequences (i.e. whether to add the BOS and EOS tokens to each line).')
     parser.add_argument('--mlm', dest='use_masked_loss', action='store_true', help='Train with masked-language modelling ' +
@@ -171,8 +171,8 @@ def main():
     parser.add_argument('--save-frequency', type=int, default=500, help='The frequency, in training steps, at which the model checkpoint is saved.')
     parser.add_argument('--max-checkpoints', type=int, default=None, help='The maximum number of checkpoints to keep before deleting older ones. ' +
                         'A negative or None value means that there is no limit.')
-    parser.add_argument('--no-cuda', dest='no_cuda', action='store_true', help='Disable CUDA devices even when they are available.')
-    parser.add_argument('--fp16', dest='fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
+    parser.add_argument('--no-cuda', action='store_true', help='Disable CUDA devices even when they are available.')
+    parser.add_argument('--fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
     parser.add_argument('--fp16-opt-level', type=str, default='O1', help='Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html.')
     parser.add_argument('--local-rank', type=int, default=-1, help='The rank of the process; for distributed training. ' +
                         'A value of -1 means no distributed training.')
@@ -185,7 +185,7 @@ def main():
     # with the XLA launcher script, which injects the --tpu_num_cores argument.
     parser.add_argument('--tpu-num-cores', '--tpu_num_cores', type=int, default=None, help='Number of TPU cores.')
     parser.add_argument('--tpu-metrics-debug', action='store_true', help='Whether to print TPU debug metrics. Defaults to False.')
-    parser.add_argument('--dataloader-drop-last', dest='dataloader_drop_last', action='store_true', help='Drop the last incomplete ' +
+    parser.add_argument('--dataloader-drop-last', action='store_true', help='Drop the last incomplete ' +
                         'batch if it is not divisible by the batch size. Defaults to False.')
     args = parser.parse_args()
 
