@@ -1,3 +1,4 @@
+import mimetypes
 from pathlib import Path
 from flask import Flask
 
@@ -27,5 +28,9 @@ def create_app(instance_config_filename='local_config.py', test_config=None):
     routes.init_app(app)
     # views.init_app(app)
     cli.init_app(app)
+
+    # Register mimetypes
+    mimetypes.add_type('text/css', '.css')
+    mimetypes.add_type('text/javascript', '.js')
 
     return app
