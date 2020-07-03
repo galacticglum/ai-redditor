@@ -8,7 +8,7 @@ $(document).ready(function() {
     
     // Check if collapse-toggle should be active (is the source text overflowing?)
     const postBodyTextElement = $($('#collapse-toggle').data('expand-target'));
-    const isReadmoreVisible = postBodyTextElement.width() >= postBodyTextElement[0].scrollWidth;
+    const isReadmoreVisible = postBodyTextElement[0].scrollHeight > postBodyTextElement[0].clientHeight;
     $('#collapse-toggle').toggle(isReadmoreVisible);
 
     // Post body expand ("read more") button
