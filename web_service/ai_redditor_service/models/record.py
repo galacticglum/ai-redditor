@@ -8,6 +8,9 @@ class Record(db.Model):
         The primary-key integer id of the record.
     :ivar uuid:
         The hexadecimal UUID of the record.
+    :ivar is_custom:
+        Whether the record was generated with a custom prompt.
+        
     '''
 
     id = db.Column(db.Integer, primary_key=True)
