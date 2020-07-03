@@ -1,6 +1,6 @@
 from ai_redditor_service.extensions import db
 
-class Record(db.Model):
+class RecordMixin(object):
     '''
     The base model class for all records.
 
@@ -10,14 +10,14 @@ class Record(db.Model):
         The hexadecimal UUID of the record.
     :ivar is_custom:
         Whether the record was generated with a custom prompt.
-        
+
     '''
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(db.String(32))
     is_custom = db.Column(db.Boolean)
 
-class TIFURecord(Record):
+class TIFURecord(db.Model, RecordMixin):
     '''
     A TIFU post record.
 
@@ -32,7 +32,7 @@ class TIFURecord(Record):
     post_title = db.Column(db.String)
     post_body = db.Column(db.String)
 
-class WPRecord(Record):
+class WPRecord(db.Model, RecordMixin):
     '''
     A writingprompt and response pair record.
 
@@ -47,7 +47,7 @@ class WPRecord(Record):
     prompt = db.Column(db.String)
     prompt_response = db.Column(db.String)
 
-class PHCRecord(Record):
+class PHCRecord(db.Model, RecordMixin):
     '''
     A pornhub comment record.
 
