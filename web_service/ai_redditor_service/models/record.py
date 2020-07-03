@@ -12,6 +12,7 @@ class Record(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(db.String(32))
+    is_custom = db.Column(db.Boolean)
 
 class TIFURecord(Record):
     '''
