@@ -1,6 +1,5 @@
 import json
 
-from ai_redditor_service.models import Record
 from ai_redditor_service.extensions import db
 from flask_expects_json import expects_json
 from flask import Blueprint, jsonify, current_app as app, g

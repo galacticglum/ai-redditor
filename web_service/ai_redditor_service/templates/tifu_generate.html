@@ -1,0 +1,21 @@
+{% extends '_layout.html' %}
+{% set active_page = "tifu" %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tifu_generate.css') }}">
+{% endblock %}
+
+<!-- Configure post -->
+{% block post_category %}
+    r/tifu
+{% endblock %}
+
+{% block post_name %}
+    <input type="text" class="h3 form-control title-input" placeholder="title">
+<!-- TIFU BY leaving my cat outside on a leash while I was working -->
+{% endblock %}
+
+{% block post_content %}
+    <textarea rows="3" class="form-control post-body-input" placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tempor fermentum ligula sed accumsan. Cras ultrices sodales ligula, ut aliquam libero tincidunt et. Quisque vestibulum ut nisl non ullamcorper."></textarea>
+{% endblock %}

@@ -216,3 +216,28 @@ body {
     -webkit-box-orient: vertical;  
     -webkit-box-pack: end;
 }
+
+/* Form control style */
+.title-input {
+    background: transparent !important;
+    border: none !important;
+    padding: 0;
+    font-weight: bold;
+    font-size: 1.75rem !important;
+    color: white !important;
+}
+
+.title-input::placeholder {
+    color: rgba(255, 255, 255, 0.50) !important;
+}
+
+.post-body-input {
+    background: transparent !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.25);
+    border-width: 2px;
+}
+
+.post-body-input::placeholder {
+    color: rgba(255, 255, 255, 0.50) !important;
+}

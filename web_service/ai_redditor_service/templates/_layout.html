@@ -67,31 +67,51 @@
         {% block main %}
         <main role="main" class="py-5">
             {% block inner_main %}
-            {% block post %}
-            <p class="text-muted mb-1">{% block post_category %}post_category{% endblock %}</p>
-            <h3 class="font-weight-bold mb-3">{% block post_name %}post_name{% endblock %}</h3>
-            <p class="truncate-block-3 mb-2" id="post-body">
-                {% block post_content %}post_content{% endblock %}
-            </p>
-            {% endblock %}
-            <a class="text-link" id="collapse-toggle" data-expand-target="#post-body"
-               data-expand-label-target='#readmore-label' style="display: none;">
-                <small id="readmore-label">Read more</small>
-            </a>
+            <div id="post-view">
+                {% block post %}
+                <p class="text-muted mb-1">{% block post_category %}post_category{% endblock %}</p>
+                <h3 class="font-weight-bold mb-3">{% block post_name %}post_name{% endblock %}</h3>
+                <p class="truncate-block-3 mb-2" id="post-body">
+                    {% block post_content %}post_content{% endblock %}
+                </p>
+                {% endblock %}
 
-            <!-- Control buttons -->
-            <div class="d-flex flex-row mt-2">
-                <a class="text-link-secondary mr-3" href="permalink">Permalink</a>
-                <a class="text-link-secondary mr-3" href="{{ url_for('main.{}_page'.format(active_page)) }}">New post</a>
-                <a class="text-link-secondary mr-auto" href="{{ url_for('main.{}_generate_page'.format(active_page)) }}">
-                    Make your own
+                <a class="text-link" id="collapse-toggle" data-expand-target="#post-body"
+                data-expand-label-target='#readmore-label' style="display: none;">
+                    <small id="readmore-label">Read more</small>
                 </a>
-                <a class="text-link"
-                href="https://twitter.com/intent/tweet?text=test" id="tweet-btn"
-                target="_blank" rel="noopener noreferrer"
-                >
-                    <i class="fab fa-twitter pr-2"></i>Tweet
-                </a>
+
+                <!-- Control buttons -->
+                <div class="d-flex flex-row mt-2">
+                    <a class="text-link-secondary mr-3" href="permalink">Permalink</a>
+                    <a class="text-link-secondary mr-3" href="{{ url_for('main.{}_page'.format(active_page)) }}">New post</a>
+                    <a class="text-link-secondary mr-auto" data-post-view-target="#post-view"
+                       data-generate-view-target="#generate-view" id="generate-button">
+                        Make your own
+                    </a>
+
+                    <a class="text-link"
+                    href="https://twitter.com/intent/tweet?text=test" id="tweet-btn"
+                    target="_blank" rel="noopener noreferrer"
+                    >
+                        <i class="fab fa-twitter pr-2"></i>Tweet
+                    </a>
+                </div>
+            </div>
+            <div id="generate-view" class="d-none">
+                <p class="text-muted mb-1">{{ self.post_category() }}</p>
+                <h3 class="font-weight-bold mb-3">
+                    <input type="text" class="h3 form-control title-input" placeholder="title" value="" autocomplete="off">
+                </h3>
+                <p class="truncate-block-3 mb-2" id="post-body">
+                    <textarea rows="3" class="form-control post-body-input" value="" autocomplete="off" placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tempor fermentum ligula sed accumsan. Cras ultrices sodales ligula, ut aliquam libero tincidunt et. Quisque vestibulum ut nisl non ullamcorper."></textarea>
+                </p>
+
+                <!-- Control buttons -->
+                <div class="d-flex flex-row mt-2">
+                    <a class="text-link-secondary mr-auto" id="cancel-generate-button">Cancel</a>
+                    <a class="text-link">Generate!</a>
+                </div>
             </div>
             {% endblock %}
         </main>
