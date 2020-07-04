@@ -100,18 +100,32 @@
             </div>
             <div id="generate-view" class="d-none">
                 <p class="text-muted mb-1">{{ self.post_category() }}</p>
-                <h3 class="font-weight-bold mb-3">
-                    <input type="text" class="h3 form-control title-input" placeholder="title" value="" autocomplete="off">
-                </h3>
-                <p class="truncate-block-3 mb-2" id="post-body">
-                    <textarea rows="3" class="form-control post-body-input" value="" autocomplete="off" placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tempor fermentum ligula sed accumsan. Cras ultrices sodales ligula, ut aliquam libero tincidunt et. Quisque vestibulum ut nisl non ullamcorper."></textarea>
-                </p>
+                <form method="POST" action="{{ url_for('main.{}_page'.format(active_page)) }}">
+                    {{ generate_form.csrf_token() }}
+                    {{ generate_form.title(
+                        class='h3 form-control title-input',
+                        placeholder='title',
+                        value='',
+                        autocomplete='off'
+                    )}}
 
-                <!-- Control buttons -->
-                <div class="d-flex flex-row mt-2">
-                    <a class="text-link-secondary mr-auto" id="cancel-generate-button">Cancel</a>
-                    <a class="text-link">Submit</a>
+                    {{ generate_form.post_body(
+                        class='form-control post-body-input',
+                        placeholder='Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+                            'Donec tempor fermentum ligula sed accumsan. Cras ultrices sodales ' +
+                            'ligula, ut aliquam libero tincidunt et. Quisque vestibulum ut nisl ' +
+                            'non ullamcorper.',
+                        value='',
+                        autocomplete='off',
+                        rows=3
+                    )}}
+
+                    <!-- Control buttons -->
+                    <div class="d-flex flex-row mt-2">
+                        <a class="text-link-secondary mr-auto" id="cancel-generate-button">Cancel</a>
+                        {{ generate_form.submit(class_='text-link anchor-input') }}
                 </div>
+                </form>
             </div>
             {% endblock %}
         </main>

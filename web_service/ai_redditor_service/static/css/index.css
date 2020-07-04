@@ -240,3 +240,10 @@ body {
 .post-body-input::placeholder {
     color: rgba(255, 255, 255, 0.50) !important;
 }
+
+.anchor-input {
+    /* Styling to make an input element like an anchor. */
+    background: none;
+    border: none;
+    padding: 0;
+}
