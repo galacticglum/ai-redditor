@@ -46,8 +46,8 @@ parser.add_argument('--no-indent-json', dest='indent_json', action='store_false'
 parser.add_argument('--show-decoded-on-error', action='store_true', help='Print the decoded output from the model on error. ' +
                     'Defaults to False.')
 parser.add_argument('--hide-logs', action='store_true', help='Hide INFO log statements while generating.')
-parser.add_argument('--format', required=True, choices=['qk', 'phc'], help='The format of generated text. ' +
-                    'One of \'qk\' (query-key), \'phc\'.')
+parser.add_argument('--format', required=True, choices=['qa', 'phc'], help='The format of generated text. ' +
+                    'One of \'qa\' (query-answer), \'phc\'.')
 parser.add_argument('--no-duplicates', action='store_true', help='Don\'t generate any duplicate records. Defaults to False.')
 args = parser.parse_args()
 
@@ -102,7 +102,7 @@ for token_name, token_value in provided_special_tokens.items():
         token_name, token_value
     ))
 
-if args.format == 'qk':
+if args.format == 'qa':
     split_pattern = (
         f'^{re.escape(tokenizer.bos_token)}(?P<prompt>.+?)'
         f'(?:{re.escape(args.translate_token)}(?P<response>.+?))*'
@@ -216,7 +216,7 @@ with tqdm(total=args.samples) as progress_bar:
                 profile_result.fail_count += 1
                 continue
 
-            if args.format == 'qk':
+            if args.format == 'qa':
                 groups = {
                     'prompt': match.group('prompt'),
                     'response': match.group('response')
