@@ -46,7 +46,13 @@ def _load_wp_fixture(data, progress_bar):
     db.session.commit()
 
 def _load_phc_fixture(data, progress_bar):
-    pass
+    for entry in data:
+        progress_bar.update(1)
+
+        record =  PHCRecord(**entry)
+        db.session.add(record)
+
+    db.session.commit()
 
 _TYPE_HANDLER_MAP = {
     'tifu': _load_tifu_fixture,
