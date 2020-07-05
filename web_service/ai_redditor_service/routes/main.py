@@ -1,6 +1,6 @@
 import markdown
 from sqlalchemy import func
-from flask import Blueprint, redirect, url_for, render_template
+from flask import Blueprint, redirect, url_for, render_template, abort
 
 from ai_redditor_service.forms import GeneratePostForm
 from ai_redditor_service.models import TIFURecord, WPRecord, PHCRecord
@@ -14,14 +14,21 @@ def index():
 def _select_random(model_class, **filter_kwargs):
     return model_class.query.filter_by(**filter_kwargs).order_by(func.random()).first()
 
-@bp.route('/tifu', methods=('GET', 'POST'))
-def tifu_page():
+@bp.route('/tifu', defaults={'uuid': None}, methods=('GET', 'POST'))
+@bp.route('/tifu/<uuid>', methods=('GET', 'POST'))
+def tifu_page(uuid):
     generate_form = GeneratePostForm()
     if generate_form.validate_on_submit():
         # TODO: Use form data to generate post
         pass
 
-    record = _select_random(TIFURecord, is_custom=False)
+    if uuid is None:
+        record = _select_random(TIFURecord, is_custom=False)
+    else:
+        record = TIFURecord.query.filter_by(uuid=uuid).first()
+        if record is None:
+            abort(404)
+    
     return render_template('tifu.html', record=record, generate_form=generate_form)
 
 @bp.route('/wp')

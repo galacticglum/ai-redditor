@@ -85,7 +85,9 @@
 
                 <!-- Control buttons -->
                 <div class="d-flex flex-row mt-2">
-                    <a class="text-link-secondary mr-3" href="permalink">Permalink</a>
+                    <a class="text-link-secondary mr-3" href="{{ url_for('main.{}_page'.format(active_page), uuid=record.uuid) }}">
+                        Permalink
+                    </a>
                     <a class="text-link-secondary mr-3" href="{{ url_for('main.{}_page'.format(active_page)) }}">New post</a>
                     <a class="text-link-secondary mr-auto" data-post-view-target="#post-view"
                        data-generate-view-target="#generate-view" id="generate-button">
