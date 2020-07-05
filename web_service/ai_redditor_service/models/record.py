@@ -16,7 +16,7 @@ class RecordMixin(object):
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(db.String(32), unique=True, index=True)
-    is_custom = db.Column(db.Boolean)
+    is_custom = db.Column(db.Boolean, index=True)
 
     def __init__(self, uuid=None, is_custom=False):
         '''
