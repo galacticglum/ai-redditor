@@ -1,4 +1,4 @@
-import uuid
+import uuid as uuid_generator
 from ai_redditor_service.extensions import db
 
 class RecordMixin(object):
@@ -25,12 +25,12 @@ class RecordMixin(object):
         '''
 
         if uuid is None:
-            uuid = uuid.uuid4().hex
+            uuid = uuid_generator.uuid4().hex
 
         self.uuid = uuid
         self.is_custom = is_custom
         
-class TIFURecord(db.Model, RecordMixin):
+class TIFURecord(RecordMixin, db.Model):
     '''
     A TIFU post record.
 
@@ -61,11 +61,11 @@ class TIFURecord(db.Model, RecordMixin):
         
         '''
 
-        super(RecordMixin, self).__init__(uuid, is_custom)
+        super().__init__(uuid, is_custom)
         self.post_title = post_title
         self.post_body = post_body
 
-class WPRecord(db.Model, RecordMixin):
+class WPRecord(RecordMixin, db.Model):
     '''
     A writingprompt and response pair record.
 
@@ -96,11 +96,11 @@ class WPRecord(db.Model, RecordMixin):
         
         '''
 
-        super(RecordMixin, self).__init__(uuid, is_custom)
+        super().__init__(uuid, is_custom)
         self.prompt = prompt
         self.prompt_response = prompt_response
 
-class PHCRecord(db.Model, RecordMixin):
+class PHCRecord(RecordMixin, db.Model):
     '''
     A pornhub comment record.
 
@@ -136,7 +136,7 @@ class PHCRecord(db.Model, RecordMixin):
         
         '''
 
-        super(RecordMixin, self).__init__(uuid, is_custom)
+        super().__init__(uuid, is_custom)
         self.author_username = author_username
         self.likes = likes
         self.comment = comment
