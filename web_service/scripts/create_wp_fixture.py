@@ -1,5 +1,5 @@
 '''
-Creates a TIFURecord fixture from generated samples.
+Creates a WPRecord fixture from generated samples.
 
 '''
 
@@ -8,7 +8,7 @@ import argparse
 from pathlib import Path
 from create_fixture_utils import get_special_tokens_match_pattern
 
-parser = argparse.ArgumentParser(description='Creates a TIFURecord fixture from generated samples.')
+parser = argparse.ArgumentParser(description='Creates a WPRecord fixture from generated samples.')
 parser.add_argument('input_filename', type=Path, help='The input JSON file.')
 parser.add_argument('output_filename', type=Path, help='The output JSON file.')
 parser.add_argument('--special-tokens', dest='special_tokens_map_filename', type=Path,
@@ -27,8 +27,8 @@ with open(args.input_filename) as input_file, \
         response = special_tokens_match_pattern.sub('', sample['response'])
 
         output_data.append({
-            'post_title': prompt,
-            'post_body': response
+            'prompt': prompt,
+            'prompt_response': response
         })
 
     json.dump(output_data, output_file, indent=args.indent_json)
