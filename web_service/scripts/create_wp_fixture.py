@@ -6,7 +6,10 @@ Creates a WPRecord fixture from generated samples.
 import json
 import argparse
 from pathlib import Path
-from create_fixture_utils import get_special_tokens_match_pattern
+from create_fixture_utils import (
+    get_special_tokens_match_pattern,
+    unescape_unicode
+)
 
 parser = argparse.ArgumentParser(description='Creates a WPRecord fixture from generated samples.')
 parser.add_argument('input_filename', type=Path, help='The input JSON file.')
@@ -27,8 +30,8 @@ with open(args.input_filename) as input_file, \
         response = special_tokens_match_pattern.sub('', sample['response'])
 
         output_data.append({
-            'prompt': prompt,
-            'prompt_response': response
+            'prompt': unescape_unicode(prompt),
+            'prompt_response': unescape_unicode(response)
         })
 
     json.dump(output_data, output_file, indent=args.indent_json)

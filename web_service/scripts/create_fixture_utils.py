@@ -19,3 +19,14 @@ def get_special_tokens_match_pattern(special_tokens_map_filename):
                     special_tokens.append(item)
 
     return re.compile('|'.join(re.escape(token) for token in special_tokens))
+
+def unescape_unicode(string):
+    '''
+    Unescape a string encoded with unicode_escape.
+
+    :param string:
+        A string value containing escaped unicode characters.
+    
+    '''
+
+    return string.encode().decode('unicode_escape', errors='ignore')

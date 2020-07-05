@@ -9,7 +9,10 @@ import json
 import random
 import argparse
 from pathlib import Path
-from create_fixture_utils import get_special_tokens_match_pattern
+from create_fixture_utils import (
+    get_special_tokens_match_pattern,
+    unescape_unicode
+)
 
 parser = argparse.ArgumentParser(description='Creates a PHCRecord fixture from generated samples.')
 parser.add_argument('input_filename', type=Path, help='The input JSON file.')
@@ -53,8 +56,8 @@ with open(args.input_filename) as input_file, \
             
         output_data.append({
             'likes': likes,
-            'author_username': author_username,
-            'comment': comment_body
+            'author_username': unescape_unicode(author_username),
+            'comment': unescape_unicode(comment_body)
         })
 
     json.dump(output_data, output_file, indent=args.indent_json)
