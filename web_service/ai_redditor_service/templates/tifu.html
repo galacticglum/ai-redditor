@@ -11,5 +11,5 @@
 {% endblock %}
 
 {% block post_content %}
-    {{ record.post_body }}
+    {{ record.post_body|markdown|remove_p_tags|safe }}
 {% endblock %}

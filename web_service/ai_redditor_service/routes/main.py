@@ -1,3 +1,4 @@
+import markdown
 from sqlalchemy import func
 from flask import Blueprint, redirect, url_for, render_template
 
@@ -6,12 +7,12 @@ from ai_redditor_service.models import TIFURecord, WPRecord, PHCRecord
 
 bp = Blueprint('main', __name__, url_prefix='/')
 
-def _select_random(model_class, **filter_kwargs):
-    return model_class.query.filter_by(**filter_kwargs).order_by(func.random()).first()
-
 @bp.route('/')
 def index():
     return redirect(url_for('main.tifu_page'))
+
+def _select_random(model_class, **filter_kwargs):
+    return model_class.query.filter_by(**filter_kwargs).order_by(func.random()).first()
 
 @bp.route('/tifu', methods=('GET', 'POST'))
 def tifu_page():

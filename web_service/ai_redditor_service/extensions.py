@@ -1,5 +1,6 @@
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+import ai_redditor_service.md_extensions as md_extensions
 
 db = SQLAlchemy()
 migrate = Migrate(db=db)
@@ -11,6 +12,8 @@ def init_app(app):
     '''
 
     db.init_app(app)
+    md_extensions.init_app(app)
+    
     _init_migrate(app)
 
 def _init_migrate(app):

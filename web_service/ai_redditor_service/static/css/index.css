@@ -247,3 +247,7 @@ body {
     border: none;
     padding: 0;
 }
+
+hr {
+    border-top: 1px solid white;
+}
