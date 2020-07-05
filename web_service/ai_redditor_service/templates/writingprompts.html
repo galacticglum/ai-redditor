@@ -4,3 +4,11 @@
 {% block post_category %}
     r/writingprompts
 {% endblock %}
+
+{% block post_name %}
+    {{ record.prompt }}
+{% endblock %}
+
+{% block post_content %}
+    {{ record.prompt_response }}
+{% endblock %}
