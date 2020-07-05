@@ -39,7 +39,7 @@ with open(args.input_filename) as input_file, \
         output_data.append({
             'likes': likes,
             'author_username': author_username,
-            'comment_body': comment_body
+            'comment': comment_body
         })
 
     json.dump(output_data, output_file, indent=args.indent_json)
