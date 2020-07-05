@@ -21,12 +21,10 @@ def create_app(instance_config_filename='local_config.py', test_config=None):
     except OSError:
         pass
 
-    # from ai_redditor_service import routes, models, extensions, views, cli
     from ai_redditor_service import routes, models, extensions, cli
 
     extensions.init_app(app)
     routes.init_app(app)
-    # views.init_app(app)
     cli.init_app(app)
 
     # Register mimetypes
