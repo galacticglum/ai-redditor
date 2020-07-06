@@ -12,8 +12,8 @@ def init_app(app):
     def markdown_filter(string):
         return markdown.markdown(string, extensions=['nl2br'])
 
-    @app.template_filter('remove_p_tags')
-    def remove_p_tags_filter(string):
+    @app.template_filter('sanitize_for_md')
+    def sanitize_for_md(string):
         string = re.sub(r'</p>(?=.*</p>)', '<br/><br/>', string, flags=re.DOTALL)
         string = re.sub(r'<p>|</p>', '', string)
         return string

@@ -12,7 +12,7 @@ $(document).ready(function() {
     $('#collapse-toggle').toggle(isReadmoreVisible);
 
     // Post body expand ("read more") button
-    $('#collapse-toggle').on('click', function(e) {
+    $('#collapse-toggle').on('click', function() {
         // Toggling truncation works by changing the display CSS attribute.
         var expanded = $(this).data('expanded');
         if (expanded === undefined) {
@@ -50,11 +50,31 @@ $(document).ready(function() {
     }
 
     // Handle changing the view between generated post and generate new post
-    $('#generate-button').on('click', function(e) {
+    $('#generate-button').on('click', function() {
         togglePostViewVisibility(false);
     });
 
-    $('#cancel-generate-button').on('click', function(e) {
+    $('#cancel-generate-button').on('click', function() {
         togglePostViewVisibility(true);
+    });
+
+    // Initialize copy to clipboard action for permalink button
+    new ClipboardJS('#permalink');
+
+    // Enable tooltips everywhere
+    $('[data-toggle="tooltip"]').tooltip();
+    // $('#permalink').on('mouseleave', function() {
+    //     $(this).tooltip('hide');
+    // });
+
+    // Disable permalink link action
+    $('#permalink').on('click', function(e) {
+        const element = $(this);
+        element.tooltip('show');
+        setTimeout(function() {
+            element.tooltip('hide');
+        }, 500);
+
+        e.preventDefault();
     });
 });

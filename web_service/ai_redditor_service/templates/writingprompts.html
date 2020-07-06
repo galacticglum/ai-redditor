@@ -10,5 +10,5 @@
 {% endblock %}
 
 {% block post_content %}
-    {{ record.prompt_response|markdown|remove_p_tags|safe }}
+    {{ record.prompt_response|markdown|sanitize_for_md|safe }}
 {% endblock %}
