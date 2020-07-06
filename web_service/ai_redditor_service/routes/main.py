@@ -15,7 +15,7 @@ def _select_random(model_class, **filter_kwargs):
     return model_class.query.filter_by(**filter_kwargs).order_by(func.random()).first()
 
 @bp.route('/tifu', defaults={'uuid': None}, methods=('GET', 'POST'))
-@bp.route('/tifu/<uuid>', methods=('GET', 'POST'))
+@bp.route('/tifu/<string:uuid>', methods=('GET', 'POST'))
 def tifu_page(uuid):
     generate_form = GeneratePostForm()
     if generate_form.validate_on_submit():
