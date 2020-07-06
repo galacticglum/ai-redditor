@@ -63,9 +63,6 @@ $(document).ready(function() {
 
     // Enable tooltips everywhere
     $('[data-toggle="tooltip"]').tooltip();
-    // $('#permalink').on('mouseleave', function() {
-    //     $(this).tooltip('hide');
-    // });
 
     // Disable permalink link action
     $('#permalink').on('click', function(e) {
