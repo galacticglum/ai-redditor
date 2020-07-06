@@ -31,14 +31,21 @@ def tifu_page(uuid):
     
     return render_template('tifu.html', record=record, generate_form=generate_form)
 
-@bp.route('/wp')
-def writingprompts_page():
+@bp.route('/wp', defaults={'uuid': None}, methods=('GET', 'POST'))
+@bp.route('/wp/<string:uuid>', methods=('GET', 'POST'))
+def writingprompts_page(uuid):
     generate_form = GeneratePostForm()
     if generate_form.validate_on_submit():
         # TODO: Use form data to generate post
         pass
 
-    record = _select_random(WPRecord, is_custom=False)
+    if uuid is None:
+        record = _select_random(WPRecord, is_custom=False)
+    else:
+        record = WPRecord.query.filter_by(uuid=uuid).first()
+        if record is None:
+            abort(404)
+    
     return render_template('writingprompts.html', record=record, generate_form=generate_form)
 
 @bp.route('/phc')
