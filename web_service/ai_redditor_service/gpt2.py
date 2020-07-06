@@ -1,5 +1,5 @@
 '''
-Inference functionality for GPT2 fine-tuned model.
+Inference functionality for GPT2 finetuned model.
 
 '''
 
@@ -11,6 +11,17 @@ from transformers import (
     AutoTokenizer,
     AutoModelWithLMHead
 )
+
+@unique
+class ModelType(Enum):
+    '''
+    The type of GPT2 finetuned model.
+
+    '''
+
+    TIFU = 'tifu'
+    WP = 'wp'
+    PHC = 'phc'
 
 @unique
 class DecodeFormat(Enum):
