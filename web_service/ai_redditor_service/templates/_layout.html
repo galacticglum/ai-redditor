@@ -98,7 +98,11 @@
                     </a>
 
                     <a class="text-link"
-                    href="https://twitter.com/intent/tweet?text=test" id="tweet-btn"
+                       href="https://twitter.com/intent/tweet?text={{ '{}\n\n{}'.format(
+                            self.post_name().unescape().strip().replace('\n', ''),
+                            permalink_url
+                        )|urlencode}}"
+                       id="tweet-btn"
                     target="_blank" rel="noopener noreferrer"
                     >
                         <i class="fab fa-twitter pr-2"></i>Tweet
