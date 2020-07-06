@@ -8,8 +8,7 @@ from pathlib import Path
 from transformers import (
     set_seed,
     AutoTokenizer, 
-    AutoModelWithLMHead,
-    SpecialTokensMixin
+    AutoModelWithLMHead
 )
 
 parser = argparse.ArgumentParser(description='Generate text from a model with an language modelling head.')
