@@ -21,7 +21,6 @@ def init_app(app):
 
     @app.template_filter('urlencode')
     def urlencode_filter(value):
-        print(value)
         if isinstance(value, Markup):
             value = value.unescape()
 
