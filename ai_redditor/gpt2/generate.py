@@ -33,8 +33,7 @@ parser.add_argument('--min-length', type=int, default=250, help='Minimum number 
 parser.add_argument('--max-length', type=int, default=1024, help='Maximum number of tokens to generate in a single iteration. ' +
                     'Defaults to 1024 tokens.')
 parser.add_argument('--seed', type=int, default=None, help='The seed of the random engine.')
-parser.add_argument('--translate-token', type=str, default='<|eq_tok|>', help='The query/answer separator token (translation ' + 
-                    'separator token). If not specified, the first additional special token from the tokenizer is used.')
+parser.add_argument('--translate-token', type=str, default='<|eq_tok|>', help='The query/answer separator token (translation separator token).')
 parser.add_argument('--end-of-likes-token', type=str, default='<|eol|>', help='The special token specifying the end of likes.')
 parser.add_argument('--no-cuda', action='store_true', help='Disable CUDA devices even when they are available.')
 parser.add_argument('--fp16', action='store_true', help='Use 16-bit (mixed) precision floats.')
