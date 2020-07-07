@@ -25,7 +25,7 @@ class ModelType(Enum):
     PHC = 'phc'
 
 @unique
-class DecodeFormat(Enum):
+class ModelDecodeFormat(Enum):
     '''
     The decoding format of the generated text.
         
@@ -150,7 +150,7 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
         A :class:`transformers.PreTrainedTokenizer` to use to encode
         input sequences to token and to decode output sequences to text.
     :param decode_format:
-        A :class:`DecodeFormat` representing the format of the model output.
+        A :class:`ModelDecodeFormat` representing the format of the model output.
     :param prompt:
         A prompt for the model. Defaults to None, meaning no prompt is given.
     :param samples:
@@ -174,9 +174,9 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
         Maximum number of tokens to generate in a single iteration. Defaults to 1024 tokens.
     :param translate_token:
         The query/answer separator token (translation separator token). Used for both 
-        :var:`DecodeFormat.QUERY_ANSWER` and :var:`DecodeFormat.PHC` decoding.
+        :var:`ModelDecodeFormat.QUERY_ANSWER` and :var:`ModelDecodeFormat.PHC` decoding.
     :param end_of_likes_token:
-        The special token specifying the end of likes. Used for :var:`DecodeFormat.PHC` decoding.
+        The special token specifying the end of likes. Used for :var:`ModelDecodeFormat.PHC` decoding.
     :param fp16:
         Use 16-bit (mixed) precision floats (note: requires NVIDIA Apex!). Defaults to False.
     :param fp16_opt_level:
@@ -195,7 +195,7 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
         'translate': translate_token,
     }
 
-    if decode_format == DecodeFormat.PHC:
+    if decode_format == ModelDecodeFormat.PHC:
         provided_special_tokens['end_of_likes'] = end_of_likes_token
 
     _verify_special_tokens(tokenizer,  **provided_special_tokens)   
@@ -203,12 +203,12 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
     # A mapping defining the regex pattern to use to split
     # the model output into groups of data based on the decode format.
     DECODE_REGEX_MAPPING = {
-        DecodeFormat.QUERY_ANSWER: (
+        ModelDecodeFormat.QUERY_ANSWER: (
             f'^{re.escape(tokenizer.bos_token)}(?P<prompt>.+?)'
             f'(?:{re.escape(translate_token)}(?P<response>.+?))*'
             f'{re.escape(tokenizer.eos_token)}'
         ),
-        DecodeFormat.PHC: (
+        ModelDecodeFormat.PHC: (
             f'^{re.escape(tokenizer.bos_token)}(?P<likes>.+?)'
             f'(?:{re.escape(end_of_likes_token)}(?P<author>.+?))*'
             f'(?:{re.escape(translate_token)}(?P<comment_body>.+?))*'
@@ -256,7 +256,7 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
             if len(results) >= samples: break
 
             raw_text = tokenizer.decode(output[i, :].tolist())
-            if decode_format == DecodeFormat.PHC:
+            if decode_format == ModelDecodeFormat.PHC:
                 # Filter out for pornhub links contained in the comment.
                 # Comments that contain links are often not very interesting (just advertisement).
                 urls = re.findall(r'(?P<url>(https?://)?.*pornhub\.com*[^\s]+)', decoded)
@@ -266,12 +266,12 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
             # Check if the decode regex matched the decoded string
             if not match: continue
 
-            if decode_format == DecodeFormat.QUERY_ANSWER:
+            if decode_format == ModelDecodeFormat.QUERY_ANSWER:
                 groups = {
                     'prompt': match.group('prompt'),
                     'response': match.group('response')
                 }
-            elif decode_format == DecodeFormat.PHC:
+            elif decode_format == ModelDecodeFormat.PHC:
                 groups = {
                     'likes': match.group('likes'),
                     'author': match.group('author'),
