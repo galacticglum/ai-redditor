@@ -13,7 +13,6 @@ from ai_redditor_service.gpt2 import (
     generate as gpt2_model_generate
 )
 
-
 bp = Blueprint('main', __name__, url_prefix='/')
 
 @bp.route('/')
