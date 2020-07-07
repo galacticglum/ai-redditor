@@ -6,7 +6,7 @@ Inference functionality for GPT2 finetuned model.
 import re
 import json
 import torch
-from enum import Enum, unique
+from enum import IntEnum, unique
 from transformers import (
     set_seed,
     AutoTokenizer,
@@ -14,18 +14,18 @@ from transformers import (
 )
 
 @unique
-class ModelType(Enum):
+class ModelType(IntEnum):
     '''
     The type of GPT2 finetuned model.
 
     '''
 
-    TIFU = 'tifu'
-    WP = 'wp'
-    PHC = 'phc'
+    TIFU = 0
+    WP = 1
+    PHC = 2
 
 @unique
-class ModelDecodeFormat(Enum):
+class ModelDecodeFormat(IntEnum):
     '''
     The decoding format of the generated text.
         
@@ -48,8 +48,8 @@ class ModelDecodeFormat(Enum):
 
     '''
 
-    QUERY_ANSWER = 'qa'
-    PHC = 'phc'
+    QUERY_ANSWER = 0
+    PHC = 1
 
 class RawRecord:
     '''

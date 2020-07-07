@@ -5,13 +5,7 @@ from flask import Blueprint, redirect, url_for, render_template, abort, current_
 
 from ai_redditor_service.extensions import db
 from ai_redditor_service.forms import GeneratePostForm
-from ai_redditor_service.string_utils import unescape_unicode
 from ai_redditor_service.models import TIFURecord, WPRecord, PHCRecord
-from ai_redditor_service.gpt2 import (
-    ModelType,
-    DecodeFormat,
-    generate as gpt2_model_generate
-)
 
 bp = Blueprint('main', __name__, url_prefix='/')
 
@@ -21,9 +15,6 @@ def index():
 
 def _select_random(model_class, **filter_kwargs):
     return model_class.query.filter_by(**filter_kwargs).order_by(func.random()).first()
-
-def get_special_tokens_match_pattern(special_tokens):
-    return re.compile('|'.join(re.escape(token) for token in special_tokens))
 
 @bp.route('/tifu', defaults={'uuid': None}, methods=('GET', 'POST'))
 @bp.route('/tifu/<string:uuid>', methods=('GET', 'POST'))
@@ -41,7 +32,7 @@ def tifu_page(uuid):
         start_time = time.time()
         output = gpt2_model_generate(
             model, tokenizer,
-            DecodeFormat.QUERY_ANSWER,
+            ModelDecodeFormat.QUERY_ANSWER,
             prompt=prompt, samples=1
         )
 
@@ -50,7 +41,10 @@ def tifu_page(uuid):
         # Clean the model output:
         #  * remove specials tokens
         #  * decode unicode
-        special_tokens_match_pattern = get_special_tokens_match_pattern(tokenizer.all_special_tokens)
+        special_tokens_match_pattern = re.compile(
+            '|'.join(re.escape(token) for token in tokenizer.all_special_tokens)
+        )
+
         groups = {
             key: unescape_unicode(special_tokens_match_pattern.sub('', value)) \
                 for key, value in output[0].groups.items()
@@ -93,25 +87,26 @@ def phc_page():
 
 # CELERY STUFF
 # TODO: FIX ME
-from flask import request
 import ai_redditor_service.tasks as tasks
 from celery.result import AsyncResult
 from ai_redditor_service.extensions import celery as celery_app
+from ai_redditor_service.gpt2 import ModelType, ModelDecodeFormat
 
-@bp.route('/add_task')
+@bp.route('/generate_tifu')
 def test_celery():
-    result = tasks.add.delay(
-        request.args.get('x', type=int),
-        request.args.get('y', type=int)
+    result = tasks.gpt2_generate.delay(
+        ModelType.TIFU,
+        ModelDecodeFormat.QUERY_ANSWER,
+        prompt='<|bos|>TIFU', samples=1
     )
-
+    
     return str(result.id)
 
-@bp.route('/add_task/<string:task_id>')
+@bp.route('/task/<string:task_id>')
 def task_status(task_id):
-    result = AsyncResult(task_id, app=celery_app)
-    is_ready = result.ready()
+    result_handle = AsyncResult(task_id, app=celery_app)
+    is_ready = result_handle.ready()
     if is_ready:
-        return '{} (code: {})'.format(result.get(), result.state)
+        return '{} (code: {})'.format(result_handle.result, result_handle.state)
     else:
         return 'task not ready :('

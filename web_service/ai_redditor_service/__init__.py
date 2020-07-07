@@ -21,9 +21,12 @@ def create_app(instance_config_filename='local_config.py', test_config=None):
     except OSError:
         pass
 
-    from ai_redditor_service import routes, models, extensions, cli
-
+    # Extensions has to be imported first so that the
+    # celery base task is properly initialized
+    from ai_redditor_service import extensions
     extensions.init_app(app)
+
+    from ai_redditor_service import routes, models, cli
     routes.init_app(app)
     cli.init_app(app)
 

@@ -2,7 +2,6 @@ import time
 from celery import Celery
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from ai_redditor_service.gpt2 import ModelType, load_model
 import ai_redditor_service.template_filters as template_filters
 
 db = SQLAlchemy()
@@ -23,29 +22,6 @@ def init_app(app):
     
     _init_migrate(app)
     _init_celery(app)
-
-    # # Load the GPT2 models
-    # model_loading_start_time = time.time()
-
-    # app.config['GPT2_MODELS'] = {
-    #     ModelType.TIFU: load_model(
-    #         app.config['TIFU_MODEL_PATH'],
-    #         app.config.get('TIFU_TOKENIZER_PATH', None)
-    #     ),
-    #     ModelType.WP: load_model(
-    #         app.config['WP_MODEL_PATH'],
-    #         app.config.get('WP_TOKENIZER_PATH', None)
-    #     ),
-    #     ModelType.PHC: load_model(
-    #         app.config['PHC_MODEL_PATH'],
-    #         app.config.get('PHC_TOKENIZER_PATH', None)
-    #     )
-    # }
-
-    # app.logger.info('Loaded GPT2 models ({}) ({} seconds)'.format(
-    #     ', '.join(str(x) for x in app.config['GPT2_MODELS'].keys()),
-    #     round(time.time() - model_loading_start_time, 2)
-    # ))
 
 def _init_celery(app):
     '''
