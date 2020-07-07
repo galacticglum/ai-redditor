@@ -90,3 +90,28 @@ def writingprompts_page(uuid):
 @bp.route('/phc')
 def phc_page():
     return render_template('phc.html')
+
+# CELERY STUFF
+# TODO: FIX ME
+from flask import request
+import ai_redditor_service.tasks as tasks
+from celery.result import AsyncResult
+from ai_redditor_service.extensions import celery as celery_app
+
+@bp.route('/add_task')
+def test_celery():
+    result = tasks.add.delay(
+        request.args.get('x', type=int),
+        request.args.get('y', type=int)
+    )
+
+    return str(result.id)
+
+@bp.route('/add_task/<string:task_id>')
+def task_status(task_id):
+    result = AsyncResult(task_id, app=celery_app)
+    is_ready = result.ready()
+    if is_ready:
+        return '{} (code: {})'.format(result.get(), result.state)
+    else:
+        return 'task not ready :('

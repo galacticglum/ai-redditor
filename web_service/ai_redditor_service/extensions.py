@@ -7,7 +7,10 @@ import ai_redditor_service.template_filters as template_filters
 
 db = SQLAlchemy()
 migrate = Migrate(db=db)
-celery = Celery('ai_redditor_service', include=['ai_redditor_service.tasks'])
+celery = Celery(
+    'ai_redditor_service',
+    include=['ai_redditor_service.tasks']
+)
 
 def init_app(app):
     '''
