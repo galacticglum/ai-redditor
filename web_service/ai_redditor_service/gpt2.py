@@ -248,7 +248,7 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
             if decode_format == ModelDecodeFormat.PHC:
                 # Filter out for pornhub links contained in the comment.
                 # Comments that contain links are often not very interesting (just advertisement).
-                urls = re.findall(r'(?P<url>(https?://)?.*pornhub\.com*[^\s]+)', decoded)
+                urls = re.findall(r'(?P<url>(https?://)?.*pornhub\.com*[^\s]+)', raw_text)
                 if len(urls) > 0: continue
             
             match = decode_regex.match(raw_text)
