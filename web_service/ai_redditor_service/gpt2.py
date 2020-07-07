@@ -5,6 +5,7 @@ Inference functionality for GPT2 finetuned model.
 
 import re
 import json
+import torch
 from enum import Enum, unique
 from transformers import (
     set_seed,
@@ -99,7 +100,7 @@ def _verify_special_tokens(tokenizer, **kwargs):
             token_name, token_value
         ))
 
-def load_model(model_path, tokenizer_path=None):
+def load_model(model_path, tokenizer_path=None, no_cuda=False):
     '''
     Loads a pretrained language model and tokenzier.
     
@@ -110,6 +111,8 @@ def load_model(model_path, tokenizer_path=None):
         Optional pretrained tokenizer name or path if not
         the same as the model checkpoint path. If both None,
         a new tokenizer will be initialized.
+    :param no_cuda:
+        Disable CUDA devices even when they are available. Defaults to False.
     :returns:
         A :class:`transformers.PreTrainedModel` and a
         :class:`transformers.PreTrainedTokenizer`.
@@ -127,12 +130,17 @@ def load_model(model_path, tokenizer_path=None):
         )
     
     model = AutoModelWithLMHead.from_pretrained(model_path)
+
+     # Setup device
+    device = torch.device('cuda' if torch.cuda.is_available() and not no_cuda else 'cpu')
+    model.to(device)
+
     return model, tokenizer
 
 def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
              top_p=1, num_return_sequences=10, max_iterations=10, min_length=250,
              max_length=1024, translate_token='<|eq_tok|>', end_of_likes_token='<|eol|>',
-             no_cuda=False, fp16=False, fp16_opt_level='O1', no_duplicates=False):
+             fp16=False, fp16_opt_level='O1', no_duplicates=False):
     '''
     Generate text from a model with a language modelling head.
 
@@ -169,8 +177,6 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
         :var:`DecodeFormat.QUERY_ANSWER` and :var:`DecodeFormat.PHC` decoding.
     :param end_of_likes_token:
         The special token specifying the end of likes. Used for :var:`DecodeFormat.PHC` decoding.
-    :param no_cuda:
-        Disable CUDA devices even when they are available. Defaults to False.
     :param fp16:
         Use 16-bit (mixed) precision floats (note: requires NVIDIA Apex!). Defaults to False.
     :param fp16_opt_level:
@@ -185,24 +191,27 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
     if fp16:
         model = _init_fp16(model, opt_levl=fp16_opt_level)
 
-    _verify_special_tokens(
-        tokenizer, 
-        translate=translate_token,
-        end_of_likes=end_of_likes_token
-    )   
+    provided_special_tokens = {
+        'translate': translate_token,
+    }
+
+    if decode_format == DecodeFormat.PHC:
+        provided_special_tokens['end_of_likes'] = end_of_likes_token
+
+    _verify_special_tokens(tokenizer,  **provided_special_tokens)   
 
     # A mapping defining the regex pattern to use to split
     # the model output into groups of data based on the decode format.
     DECODE_REGEX_MAPPING = {
         DecodeFormat.QUERY_ANSWER: (
             f'^{re.escape(tokenizer.bos_token)}(?P<prompt>.+?)'
-            f'(?:{re.escape(args.translate_token)}(?P<response>.+?))*'
+            f'(?:{re.escape(translate_token)}(?P<response>.+?))*'
             f'{re.escape(tokenizer.eos_token)}'
         ),
         DecodeFormat.PHC: (
             f'^{re.escape(tokenizer.bos_token)}(?P<likes>.+?)'
-            f'(?:{re.escape(args.end_of_likes_token)}(?P<author>.+?))*'
-            f'(?:{re.escape(args.translate_token)}(?P<comment_body>.+?))*'
+            f'(?:{re.escape(end_of_likes_token)}(?P<author>.+?))*'
+            f'(?:{re.escape(translate_token)}(?P<comment_body>.+?))*'
             f'{re.escape(tokenizer.eos_token)}'
         )
     }
