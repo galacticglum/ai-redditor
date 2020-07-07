@@ -141,3 +141,6 @@ notebooks/samples/*
 # outdir
 output/*
 apex/
+
+# TODO
+*.todo
