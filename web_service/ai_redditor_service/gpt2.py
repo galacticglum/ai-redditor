@@ -14,17 +14,6 @@ from transformers import (
 )
 
 @unique
-class ModelType(IntEnum):
-    '''
-    The type of GPT2 finetuned model.
-
-    '''
-
-    TIFU = 0
-    WP = 1
-    PHC = 2
-
-@unique
 class ModelDecodeFormat(IntEnum):
     '''
     The decoding format of the generated text.

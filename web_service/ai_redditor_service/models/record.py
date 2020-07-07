@@ -1,5 +1,17 @@
 import uuid as uuid_generator
+from enum import IntEnum, unique
 from ai_redditor_service.extensions import db
+
+@unique
+class RecordType(IntEnum):
+    '''
+    The type of GPT2 finetuned model.
+
+    '''
+
+    TIFU = 0
+    WP = 1
+    PHC = 2
 
 class RecordMixin(object):
     '''

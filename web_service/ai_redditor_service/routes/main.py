@@ -84,29 +84,3 @@ def writingprompts_page(uuid):
 @bp.route('/phc')
 def phc_page():
     return render_template('phc.html')
-
-# CELERY STUFF
-# TODO: FIX ME
-import ai_redditor_service.tasks as tasks
-from celery.result import AsyncResult
-from ai_redditor_service.extensions import celery as celery_app
-from ai_redditor_service.gpt2 import ModelType, ModelDecodeFormat
-
-@bp.route('/generate_tifu')
-def test_celery():
-    result = tasks.gpt2_generate.delay(
-        ModelType.TIFU,
-        ModelDecodeFormat.QUERY_ANSWER,
-        prompt='<|bos|>TIFU', samples=1
-    )
-    
-    return str(result.id)
-
-@bp.route('/task/<string:task_id>')
-def task_status(task_id):
-    result_handle = AsyncResult(task_id, app=celery_app)
-    is_ready = result_handle.ready()
-    if is_ready:
-        return '{} (code: {})'.format(result_handle.result, result_handle.state)
-    else:
-        return 'task not ready :('
