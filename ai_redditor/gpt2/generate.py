@@ -91,8 +91,11 @@ print('- Set seed to {}'.format(args.seed))
 special_tokens = set(tokenizer.additional_special_tokens)
 provided_special_tokens = {
     'translate': args.translate_token,
-    'end_of_likes': args.end_of_likes_token
 }
+
+if args.format == 'phc':
+    provided_special_tokens['end_of_likes'] = args.end_of_likes_token
+
 
 for token_name, token_value in provided_special_tokens.items():
     if token_value in special_tokens: continue
