@@ -130,7 +130,7 @@ _RECORD_GENERATE_CONFIGS = {
         ModelDecodeFormat.PHC,
         lambda groups, *args, **kwargs: PHCRecord(
             groups['author'], int(re.sub('[^0-9]', '', groups['likes']) or 0),
-            *args, **kwargs
+            groups['comment_body'], *args, **kwargs
         )
     )
 }
