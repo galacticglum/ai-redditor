@@ -6,6 +6,7 @@ Inference functionality for GPT2 finetuned model.
 import re
 import json
 import torch
+import transformers
 from enum import IntEnum, unique
 from transformers import (
     set_seed,
@@ -89,7 +90,7 @@ def _verify_special_tokens(tokenizer, **kwargs):
             token_name, token_value
         ))
 
-def load_model(model_path, tokenizer_path=None, no_cuda=False):
+def load_model(model_path, tokenizer_path=None, no_cuda=False, quantize=False):
     '''
     Loads a pretrained language model and tokenzier.
     
@@ -102,11 +103,18 @@ def load_model(model_path, tokenizer_path=None, no_cuda=False):
         a new tokenizer will be initialized.
     :param no_cuda:
         Disable CUDA devices even when they are available. Defaults to False.
+    :param quantize:
+        Indicates whether to load quantize the model.
     :returns:
         A :class:`transformers.PreTrainedModel` and a
         :class:`transformers.PreTrainedTokenizer`.
 
     '''
+
+    # Setup device
+    device = torch.device('cuda' if torch.cuda.is_available() and not no_cuda else 'cpu')
+    if quantize and device != 'cpu':
+        raise RuntimeError('Model quantization only available on CPU devices.')
 
     if tokenizer_path:
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
@@ -119,12 +127,15 @@ def load_model(model_path, tokenizer_path=None, no_cuda=False):
         )
     
     model = AutoModelWithLMHead.from_pretrained(model_path)
+    if quantize:
+        model = torch.quantization.quantize_dynamic(
+            model, {
+                torch.nn.Linear, torch.nn.Embedding,
+                transformers.modeling_utils.Conv1D
+            }, dtype=torch.qint8
+        )
 
-     # Setup device
-    device = torch.device('cuda' if torch.cuda.is_available() and not no_cuda else 'cpu')
-    model.to(device)
-
-    return model, tokenizer
+    return model.to(device), tokenizer
 
 def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
              top_p=1, num_return_sequences=10, max_iterations=10, min_length=250,

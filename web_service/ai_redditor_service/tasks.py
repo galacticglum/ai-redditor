@@ -59,20 +59,25 @@ class GPT2GenerateTask(SqlAlchemyTask):
 
         '''
 
-        # Load the GPT2 models
+        no_cuda = current_app.config.get('GPT2_NO_CUDA', False),
+        quantize = current_app.config.get('GPT2_QUANTIZE', False)
         start_time = time.time()
+
         models = {
             RecordType.TIFU: load_model(
                 current_app.config['TIFU_MODEL_PATH'],
-                current_app.config.get('TIFU_TOKENIZER_PATH', None)
+                current_app.config.get('TIFU_TOKENIZER_PATH', None),
+                no_cuda=no_cuda, quantize=quantize
             ),
             RecordType.WP: load_model(
                 current_app.config['WP_MODEL_PATH'],
-                current_app.config.get('WP_TOKENIZER_PATH', None)
+                current_app.config.get('WP_TOKENIZER_PATH', None),
+                no_cuda=no_cuda, quantize=quantize
             ),
             RecordType.PHC: load_model(
                 current_app.config['PHC_MODEL_PATH'],
-                current_app.config.get('PHC_TOKENIZER_PATH', None)
+                current_app.config.get('PHC_TOKENIZER_PATH', None),
+                no_cuda=no_cuda, quantize=quantize
             )
         }
 
