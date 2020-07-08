@@ -15,8 +15,8 @@ def error_response(message, status_code, **kwargs):
     return response
 
 _RECORD_PROMPT_PREFIXES = {
-    RecordType.TIFU: 'TIFU',
-    RecordType.WP: '[WP]',
+    RecordType.TIFU: 'TIFU ',
+    RecordType.WP: '[WP] ',
     RecordType.PHC: ''
 }
 
@@ -35,10 +35,21 @@ generate_schema = {
 def generate_record(record_type):
     # Convert record type argument to enum
     record_type = RecordType[record_type.upper()]
+    bos_token = current_app.config['GPT2_BOS_TOKEN']
+    prompt_prefix = _RECORD_PROMPT_PREFIXES[record_type]
+
     prompt = g.data['prompt']
     if prompt is None:
-        prompt_prefix = _RECORD_PROMPT_PREFIXES[record_type]
-        prompt = current_app.config['GPT2_BOS_TOKEN'] + prompt_prefix
+        prompt = bos_token + prompt_prefix
+    else:
+        # Make sure that the prompt starts with the bos token and prompt prefix
+        if prompt.startswith(bos_token):
+            prompt = prompt.replace(bos_token,  '')
+        
+        if prompt.startswith(prompt_prefix):
+            prompt = prompt.replace(prompt_prefix, '')
+
+        prompt = bos_token + prompt_prefix + prompt
     
     result = tasks.generate_record.delay(record_type, prompt=prompt, samples=1) 
     response_message = 'Queued up {} record generation.'.format(record_type.name)
