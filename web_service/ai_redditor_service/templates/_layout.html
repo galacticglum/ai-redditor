@@ -187,11 +187,39 @@
                 }, 2500);
             }
             
+            const BOS_TOKEN = "{{ config['GPT2_BOS_TOKEN']|safe }}"; 
+            const TRANSLATE_TOKEN = "{{ config['GPT2_TRANSLATE_TOKEN']|safe }}"; 
+            const END_OF_LIKES_TOKEN = "{{ config['GPT2_END_OF_LIKES_TOKEN']|safe }}"; 
+
+            {% block process_prompt_func %}
+                function formToPrompt(form) {
+                    var prompt = BOS_TOKEN;
+                    if (form['title']) {
+                        prompt += form['title'];
+                    }
+
+                    if (form['post_body']) {
+                        prompt += TRANSLATE_TOKEN + form['post_body'];
+                    }
+
+                    return prompt;
+                }
+            {% endblock %}
+            
+            function formToJson(form) {
+                result = {};
+                $.map(form.serializeArray(), (n, i) => {
+                    result[n['name']] = n['value']
+                });
+
+                return result;
+            }
+
             $.ajax({
                 type: 'POST',
                 url: "{{ url_for('api.generate_record', record_type=active_page) }}",
                 data: JSON.stringify({
-                    'prompt': null
+                    'prompt': formToPrompt(formToJson($('#generate-form')))
                 }),
                 dataType: 'json',
                 contentType: 'application/json',
