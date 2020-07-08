@@ -209,7 +209,7 @@
             function formToJson(form) {
                 result = {};
                 $.map(form.serializeArray(), (n, i) => {
-                    result[n['name']] = n['value']
+                    result[n['name']] = n['value'];
                 });
 
                 return result;
