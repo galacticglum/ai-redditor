@@ -144,3 +144,6 @@ apex/
 
 # TODO
 *.todo
+
+# VS Code
+.vscode/
