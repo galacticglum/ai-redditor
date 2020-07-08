@@ -42,6 +42,8 @@ def generate_record(record_type):
     if prompt is None:
         prompt = bos_token + prompt_prefix
     else:
+        prompt = prompt.strip()
+        
         # Make sure that the prompt starts with the bos token and prompt prefix
         if prompt.startswith(bos_token):
             prompt = prompt.replace(bos_token,  '')
