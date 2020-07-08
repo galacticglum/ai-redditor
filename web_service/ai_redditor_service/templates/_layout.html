@@ -1,12 +1,12 @@
-<!-- (href, id, caption, class-inactive, class-active) -->
-{% set navigation_bar = [
-    ('main.tifu_page', 'tifu', 'tifu', '', ''),
-    ('main.writingprompts_page', 'wp', 'writingprompts', '', ''),
-    (
-        'main.phc_page', 'phc', 'p<i class="font-normal">orn</i>hub <span>&#128521</span>',
+<!-- (href, caption, class-inactive, class-active) -->
+{% set navigation_bar = {
+    'tifu': ('main.tifu_page', 'tifu', '', ''),
+    'wp': ('main.writingprompts_page', 'writingprompts', '', ''),
+    'phc': (
+        'main.phc_page', 'p<i class="font-normal">orn</i>hub <span>&#128521</span>',
         'redacted redacted-orange', ''
     )
-] -%}
+ } -%}
 
 {% set active_page = active_page|default('tifu') -%}
 
@@ -52,10 +52,10 @@
                 {% block main_menu %}
                 <nav class="nav nav-masthead justify-content-center">
                     {% block main_menu_items %}
-                    {% for href, id, caption, class_inactive, class_active in navigation_bar %}
-                        <a class="nav-link {% if id == active_page %}active {{ class_active|e }}
-                           {% else %}{{ class_inactive|e }}{% endif %}" href="{{ url_for(href|e) }}">
-                           {{ caption|safe }}
+                    {% for id, value in navigation_bar.items() %}
+                        <a class="nav-link {% if id == active_page %}active {{ value[3]|e }}
+                           {% else %}{{ value[2]|e }}{% endif %}" href="{{ url_for(value[0]|e) }}">
+                           {{ value[1]|safe }}
                         </a>
                     {% endfor %}    
                     {% endblock %}
@@ -87,11 +87,11 @@
                 <div class="d-flex flex-row mt-2">
                     <a class="text-link-secondary mr-3" id="permalink" data-toggle="tooltip"
                        data-placement="bottom" title="Copied!" data-trigger="manual"
-                       {% set permalink_url=url_for('main.{}_page'.format(active_page), uuid=record.uuid, _external=True) -%}
+                       {% set permalink_url=url_for(navigation_bar[active_page][0], uuid=record.uuid, _external=True) -%}
                        href="{{permalink_url}}" data-clipboard-text="{{permalink_url}}">
                         Permalink
                     </a>
-                    <a class="text-link-secondary mr-3" href="{{ url_for('main.{}_page'.format(active_page)) }}">New post</a>
+                    <a class="text-link-secondary mr-3" href="{{ url_for(navigation_bar[active_page][0]) }}">New post</a>
                     <a class="text-link-secondary mr-auto" data-post-view-target="#post-view"
                        data-generate-view-target="#generate-view" id="generate-button">
                         Make your own
