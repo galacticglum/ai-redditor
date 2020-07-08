@@ -106,9 +106,11 @@ class RecordGenerateConfig:
 
     '''
 
-    def __init__(self, decode_format, group_to_record_func):
+    def __init__(self, decode_format, group_to_record_func, min_length=250, max_length=1024):
         self.decode_format = decode_format
         self.group_to_record_func = group_to_record_func
+        self.min_length = min_length
+        self.max_length = max_length
 
 # Maps record type to a value configuration
 _RECORD_GENERATE_CONFIGS = {
@@ -131,7 +133,7 @@ _RECORD_GENERATE_CONFIGS = {
         lambda groups, *args, **kwargs: PHCRecord(
             groups['author'], int(re.sub('[^0-9]', '', groups['likes']) or 0),
             groups['comment_body'], *args, **kwargs
-        )
+        ), min_length=10, max_length=200
     )
 }
 
@@ -144,6 +146,7 @@ def generate_record(record_type, **kwargs):
         model, tokenizer, record_config.decode_format,
         translate_token=current_app.config['GPT2_TRANSLATE_TOKEN'],
         end_of_likes_token=current_app.config['GPT2_END_OF_LIKES_TOKEN'],
+        min_length=record_config.min_length, max_length=record_config.max_length,
         **kwargs
     )
 
