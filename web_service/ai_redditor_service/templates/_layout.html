@@ -138,6 +138,13 @@
                 </div>
                 </form>
             </div>
+            <div id="loading-view" class="d-none">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>   
+            </div>
             {% endblock %}
         </main>
         {% endblock %}
@@ -225,6 +232,10 @@
                 contentType: 'application/json',
                 success: function(data) {
                     getTaskStatus(data.task_status_endpoint);
+
+                    // Toggle the loading view
+                    $('#generate-view').addClass('d-none');
+                    $('#loading-view').removeClass('d-none');
                 },
             });
 
