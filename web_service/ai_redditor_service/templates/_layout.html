@@ -192,18 +192,18 @@
             const END_OF_LIKES_TOKEN = "{{ config['GPT2_END_OF_LIKES_TOKEN']|safe }}"; 
 
             {% block process_prompt_func %}
-                function formToPrompt(form) {
-                    var prompt = BOS_TOKEN;
-                    if (form['title']) {
-                        prompt += form['title'];
-                    }
-
-                    if (form['post_body']) {
-                        prompt += TRANSLATE_TOKEN + form['post_body'];
-                    }
-
-                    return prompt;
+            function formToPrompt(form) {
+                var prompt = BOS_TOKEN;
+                if (form['title']) {
+                    prompt += form['title'];
                 }
+
+                if (form['post_body']) {
+                    prompt += TRANSLATE_TOKEN + form['post_body'];
+                }
+
+                return prompt;
+            }
             {% endblock %}
             
             function formToJson(form) {
