@@ -1,6 +1,6 @@
 from celery.result import AsyncResult
 from flask_expects_json import expects_json
-from flask import Blueprint, current_app, g, jsonify
+from flask import Blueprint, current_app, g, jsonify, url_for
 
 import ai_redditor_service.tasks as tasks
 from ai_redditor_service.models import RecordType
@@ -35,6 +35,7 @@ generate_schema = {
 def generate_record(record_type):
     # Convert record type argument to enum
     record_type = RecordType[record_type.upper()]
+    print(record_type, g.data)
 
     prompt = g.data['prompt']
     if prompt is None:
@@ -43,7 +44,13 @@ def generate_record(record_type):
     
     result = tasks.generate_record.delay(record_type, prompt=prompt, samples=1) 
     response_message = 'Queued up {} record generation.'.format(record_type.name)
-    return jsonify(task_id=result.id, message=response_message, success=True), 202
+
+    return jsonify(
+        task_id=result.id,
+        task_status_endpoint=url_for('api.generate_record_task_status', task_id=result.id),
+        message=response_message,
+        success=True
+    ), 202
 
 @bp.route('/r/generate/<string:task_id>')
 def generate_record_task_status(task_id):
