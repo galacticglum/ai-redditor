@@ -42,7 +42,7 @@ def generate_record(record_type):
         prompt = current_app.config['GPT2_BOS_TOKEN'] + prompt_prefix
     
     result = tasks.generate_record.delay(record_type, prompt=prompt, samples=1) 
-    response_message = 'Queued up {} record generation.'.format(record_type)
+    response_message = 'Queued up {} record generation.'.format(record_type.name)
     return jsonify(task_id=result.id, message=response_message, success=True), 202
 
 @bp.route('/r/generate/<string:task_id>')
