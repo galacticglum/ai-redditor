@@ -180,7 +180,7 @@
                             if (!data.is_ready) {
                                 getTaskStatus(url);
                             } else {
-                                console.log(data.uuid);
+                                window.location.href = data.permalink;
                             }
                         }
                     })

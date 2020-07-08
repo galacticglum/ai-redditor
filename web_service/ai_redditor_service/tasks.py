@@ -167,4 +167,4 @@ def generate_record(record_type, **kwargs):
         db.session.add(record)
 
     db.session.commit()
-    return record_uuids
+    return record_type, record_uuids

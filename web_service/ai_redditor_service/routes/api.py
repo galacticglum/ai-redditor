@@ -35,8 +35,6 @@ generate_schema = {
 def generate_record(record_type):
     # Convert record type argument to enum
     record_type = RecordType[record_type.upper()]
-    print(record_type, g.data)
-
     prompt = g.data['prompt']
     if prompt is None:
         prompt_prefix = _RECORD_PROMPT_PREFIXES[record_type]
@@ -52,6 +50,12 @@ def generate_record(record_type):
         success=True
     ), 202
 
+_RECORD_ROUTE_MAP = {
+    RecordType.TIFU: 'tifu',
+    RecordType.WP: 'writingprompts',
+    RecordType.PHC: 'phc',
+}
+
 @bp.route('/r/generate/<string:task_id>')
 def generate_record_task_status(task_id):
     result_handle = AsyncResult(task_id, app=celery_app)
@@ -63,7 +67,11 @@ def generate_record_task_status(task_id):
     }
 
     if is_ready:
-        kwargs['uuid'] = result_handle.result[0]
+        record_type, uuids = result_handle.result
+        kwargs['uuid'] = uuids[0]
+
+        route = 'main.{}_page'.format(_RECORD_ROUTE_MAP[record_type])
+        kwargs['permalink'] = url_for(route, uuid=uuids[0])
 
     status_code = 201 if is_ready else 202
     return jsonify(success=True, **kwargs), status_code
