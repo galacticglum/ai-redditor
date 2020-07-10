@@ -15,39 +15,28 @@ def index():
 def _select_random(model_class, **filter_kwargs):
     return model_class.query.filter_by(**filter_kwargs).order_by(func.random()).first()
 
+def _record_route(record_class, template_name, generate_form, uuid=None):
+    if uuid is None:
+        record = _select_random(record_class, is_custom=False)
+    else:
+        record = record_class.query.filter_by(uuid=uuid).first()
+        if record is None:
+            abort(404)
+        
+    return render_template(template_name, record=record, generate_form=generate_form)
+
 @bp.route('/tifu', defaults={'uuid': None})
 @bp.route('/tifu/<string:uuid>')
 def tifu_page(uuid):
-    if uuid is None:
-        record = _select_random(TIFURecord, is_custom=False)
-    else:
-        record = TIFURecord.query.filter_by(uuid=uuid).first()
-        if record is None:
-            abort(404)
-    
-    return render_template('tifu.html', record=record, generate_form=GeneratePostForm())
+    return _record_route(TIFURecord, 'tifu.html', GeneratePostForm(), uuid=uuid)
 
 @bp.route('/wp', defaults={'uuid': None})
 @bp.route('/wp/<string:uuid>')
 def writingprompts_page(uuid):
-    if uuid is None:
-        record = _select_random(WPRecord, is_custom=False)
-    else:
-        record = WPRecord.query.filter_by(uuid=uuid).first()
-        if record is None:
-            abort(404)
-    
-    return render_template('writingprompts.html', record=record, generate_form=GeneratePostForm())
+    return _record_route(WPRecord, 'writingprompts.html', GeneratePostForm(), uuid=uuid)
 
 @bp.route('/phc', defaults={'uuid': None})
 @bp.route('/phc/<string:uuid>')
 def phc_page(uuid):
-    if uuid is None:
-        record = _select_random(PHCRecord, is_custom=False)
-    else:
-        record = PHCRecord.query.filter_by(uuid=uuid).first()
-        if record is None:
-            abort(404)
-        
     # TODO: change form to one specific for pornhub comments
-    return render_template('phc.html', record=record, generate_form=GeneratePostForm())
+    return _record_route(PHCRecord, 'phc.html', GeneratePostForm(), uuid=uuid)
