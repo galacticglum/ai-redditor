@@ -1,1 +1,1 @@
-from ai_redditor_service.forms.generate_post_form import GeneratePostForm
+from ai_redditor_service.forms.generate_forms import GeneratePostForm, GeneratePHCForm

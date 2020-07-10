@@ -112,6 +112,7 @@
                 </div>
             </div>
             <div id="generate-view" class="d-none">
+                {% block generate_view%}
                 <p class="text-muted mb-1">{{ self.post_category() }}</p>
                 <form method="POST" id="generate-form" action="javascript:void(0);">
                     {{ generate_form.csrf_token() }}
@@ -139,6 +140,7 @@
                         {{ generate_form.submit(class_='text-link anchor-input') }}
                 </div>
                 </form>
+                {% endblock %}
             </div>
             <div id="loading-view" class="d-none">
                 <div class="d-flex justify-content-center">
@@ -204,11 +206,11 @@
             function formToPrompt(form) {
                 var prompt = BOS_TOKEN;
                 if (form['title']) {
-                    prompt += form['title'];
+                    prompt += form['title'].trim();
                 }
 
                 if (form['post_body']) {
-                    prompt += TRANSLATE_TOKEN + form['post_body'];
+                    prompt += TRANSLATE_TOKEN + form['post_body'].trim();
                 }
 
                 return prompt;

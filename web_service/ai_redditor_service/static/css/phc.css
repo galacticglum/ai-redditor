@@ -31,3 +31,47 @@
     color: #f9f871 !important;
     text-decoration: none;
 }
+
+/* Form control style */
+.username-input {
+    background: transparent !important;
+    border: none !important;
+    padding: 0;
+    font-weight: bold;
+    color: #ffa31a !important;
+    height: 100%;
+}
+
+.username-input::placeholder {
+    color: rgba(255, 255, 255, 0.50) !important;
+}
+
+.comment-body-input {
+    background: transparent !important;
+    color: #b8b8b8 !important;
+    border-color: rgba(255, 255, 255, 0.25);
+    border-width: 0.5px;
+    border-radius: 0.5px;
+    font-size: 13px;
+
+    /* Padding */
+    padding-top: 5px;
+    padding-bottom: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.comment-body-input::placeholder {
+    color: rgba(255, 255, 255, 0.50) !important;
+}
+
+.like-input {
+    background: transparent !important;
+    border: none !important;
+    padding: 0;
+    color: #8faf1d !important;
+    height: 100%;
+    padding: 0px;
+    font-size: 13px !important;
+    width: 5%;
+}

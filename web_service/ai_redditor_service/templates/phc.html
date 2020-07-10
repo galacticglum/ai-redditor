@@ -2,14 +2,14 @@
 {% set active_page = "phc" %}
 
 {% block head_style %}
-    {{ super() }}
-    <style>
-        html,
-        body {
-            background-color: #101010;
-        }
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/phc.css') }}">
+{{ super() }}
+<style>
+    html,
+    body {
+        background-color: #101010;
+    }
+</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/phc.css') }}">
 {% endblock %}
 
 {% block post %}
@@ -36,5 +36,85 @@
 </p> -->
 {% endblock %}
 
+{% block generate_view%}
+<form method="POST" id="generate-form" action="javascript:void(0);">
+    {{ generate_form.csrf_token() }}
+    <div class="d-flex flex-row">
+        <img class="avatar mr-2" src="{{ url_for('static', filename='img/phc_avatar.png') }}" alt="Avatar">
+        <div class="d-flex flex-column w-100">
+            <div class="d-flex flex-row mb-2">
+                {{ generate_form.author_username(
+                    class='form-control username-input font-weight-bold',
+                    placeholder='username',
+                    value='',
+                    autocomplete='off'
+                )}}
+            </div>
+            {{ generate_form.comment(
+                class='form-control comment-body-input',
+                placeholder='Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+                    'Donec tempor fermentum ligula sed accumsan. Cras ultrices sodales ' +
+                    'ligula, ut aliquam libero tincidunt et. Quisque vestibulum ut nisl ' +
+                    'non ullamcorper.',
+                value='',
+                autocomplete='off',
+                rows=3
+            )}}
+            <!-- <p class="comment-text mb-0">{{ record.comment }}</p> -->
+            <div class="d-flex flex-row align-items-center mt-1">
+                {{ generate_form.likes(
+                    class='form-control like-input',
+                    value='0',
+                    autocomplete='off'
+                )}}
+                <!-- <span class="like-text">{{ record.likes }}</span> -->
+                <span class="thumb-icons text-muted">
+                    <i class="fas fa-thumbs-up ml-2"></i>
+                    <i class="fas fa-thumbs-down ml-1"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control buttons -->
+    <div class="d-flex flex-row mt-2">
+        <a class="text-link-secondary mr-auto" id="cancel-generate-button">Cancel</a>
+        {{ generate_form.submit(class_='text-link anchor-input') }}
+    </div>
+</form>
+{% endblock %}
+
 <!-- Remove the readmore button -->
 {% block readmore %}{% endblock %}
+
+{% block tail %}
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"
+    integrity="sha512-UdIMMlVx0HEynClOIFSyOrPggomfhBKJE28LKl8yR3ghkgugPnG6iLfRfHwushZl1MOPSY6TsuBDGPK2X4zYKg=="
+    crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $('#submit').on('click', function () {
+        // const validator = $('#generate-form').validate();
+    });
+</script>
+{% endblock %}
+
+{% block process_prompt_func %}
+    function formToPrompt(form) {
+        var prompt = BOS_TOKEN;
+        if (form['likes']) {
+            prompt += form['likes'].trim() + END_OF_LIKES_TOKEN
+        }
+        
+        if (form['author_username']) {
+            prompt += form['author_username'].trim();
+        }
+
+        if (form['comment']) {
+            prompt += TRANSLATE_TOKEN + form['comment'].trim();
+        }
+
+        console.log(prompt);
+        return prompt;
+    }
+{% endblock %}

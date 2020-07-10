@@ -3,7 +3,7 @@ import time
 from sqlalchemy import func
 from flask import Blueprint, redirect, url_for, render_template, abort, current_app
 
-from ai_redditor_service.forms import GeneratePostForm
+from ai_redditor_service.forms import GeneratePostForm, GeneratePHCForm
 from ai_redditor_service.models import TIFURecord, WPRecord, PHCRecord
 
 bp = Blueprint('main', __name__, url_prefix='/')
@@ -39,4 +39,4 @@ def writingprompts_page(uuid):
 @bp.route('/phc/<string:uuid>')
 def phc_page(uuid):
     # TODO: change form to one specific for pornhub comments
-    return _record_route(PHCRecord, 'phc.html', GeneratePostForm(), uuid=uuid)
+    return _record_route(PHCRecord, 'phc.html', GeneratePHCForm(), uuid=uuid)
