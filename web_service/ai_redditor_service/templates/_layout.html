@@ -102,11 +102,9 @@
                         Make your own
                     </a>
 
+                    {% set tweet_content = tweet_content|default(self.post_name().unescape().strip().replace('\n', '')) -%}
                     <a class="text-link"
-                       href="https://twitter.com/intent/tweet?text={{ '{}\n\n{}'.format(
-                            self.post_name().unescape().strip().replace('\n', ''),
-                            permalink_url
-                        )|urlencode}}"
+                       href="https://twitter.com/intent/tweet?text={{ '{}\n\n{}'.format(tweet_content, permalink_url)|urlencode}}"
                        id="tweet-btn"
                     target="_blank" rel="noopener noreferrer"
                     >
