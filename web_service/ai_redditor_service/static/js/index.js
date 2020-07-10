@@ -7,33 +7,36 @@ $(document).ready(function() {
     });
     
     // Check if collapse-toggle should be active (is the source text overflowing?)
-    const postBodyTextElement = $($('#collapse-toggle').data('expand-target'));
-    const isReadmoreVisible = postBodyTextElement[0].scrollHeight > postBodyTextElement[0].clientHeight;
-    $('#collapse-toggle').toggle(isReadmoreVisible);
+    const collapseToggleElement = $('#collapse-toggle');
+    if (collapseToggleElement.length) {
+        const postBodyTextElement = $(collapseToggleElement.data('expand-target'));
+        const isReadmoreVisible = postBodyTextElement[0].scrollHeight > postBodyTextElement[0].clientHeight;
+        collapseToggleElement.toggle(isReadmoreVisible);
 
-    // Post body expand ("read more") button
-    $('#collapse-toggle').on('click', function() {
-        // Toggling truncation works by changing the display CSS attribute.
-        var expanded = $(this).data('expanded');
-        if (expanded === undefined) {
-            expanded = false;
-        }
+        // Post body expand ("read more") button
+        collapseToggleElement.on('click', function() {
+            // Toggling truncation works by changing the display CSS attribute.
+            var expanded = $(this).data('expanded');
+            if (expanded === undefined) {
+                expanded = false;
+            }
 
-        expanded = !expanded;
-        const expandTargetElement = $($(this).data('expand-target'));
-        const expandLabelElement = $($(this).data('expand-label-target'));
-        if (expanded) {
-            expandTargetElement.addClass('d-block');
-            expandLabelElement.text('Read less');
-        } else {
-            expandTargetElement.removeClass('d-block');
-            expandLabelElement.text('Read more');
-        }
+            expanded = !expanded;
+            const expandTargetElement = $($(this).data('expand-target'));
+            const expandLabelElement = $($(this).data('expand-label-target'));
+            if (expanded) {
+                expandTargetElement.addClass('d-block');
+                expandLabelElement.text('Read less');
+            } else {
+                expandTargetElement.removeClass('d-block');
+                expandLabelElement.text('Read more');
+            }
 
-        // Toggle padding on the footer
-        $('.mastfoot').toggleClass('pb-3');
-        $('#collapse-toggle').data('expanded', expanded);
-    });
+            // Toggle padding on the footer
+            $('.mastfoot').toggleClass('pb-3');
+            collapseToggleElement.data('expanded', expanded);
+        });
+    }
 
     function togglePostViewVisibility(isPostViewActive) {
         const generateButtonElement = $('#generate-button');

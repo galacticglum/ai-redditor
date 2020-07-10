@@ -1,0 +1,33 @@
+.avatar {
+    width: 60px;
+    height: 60px;
+}
+
+.username {
+    color: #ffa31a !important;
+}
+
+.comment-text {
+    color: #b8b8b8 !important;
+    font-size: 13px;
+}
+
+.thumb-icons {
+    font-size: 11px !important;
+    color: #505050 !important;
+}
+
+.like-text {
+    font-size: 13px !important;
+    color: #8faf1d !important;
+}
+
+.text-link {
+    color: #ffa31a !important; 
+    cursor: pointer;
+}
+
+.text-link:hover, .text-link:active {
+    color: #f9f871 !important;
+    text-decoration: none;
+}
