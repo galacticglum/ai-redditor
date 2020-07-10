@@ -27,8 +27,8 @@ def tifu_page(uuid):
     
     return render_template('tifu.html', record=record, generate_form=GeneratePostForm())
 
-@bp.route('/wp', defaults={'uuid': None}, methods=('GET', 'POST'))
-@bp.route('/wp/<string:uuid>', methods=('GET', 'POST'))
+@bp.route('/wp', defaults={'uuid': None})
+@bp.route('/wp/<string:uuid>')
 def writingprompts_page(uuid):
     if uuid is None:
         record = _select_random(WPRecord, is_custom=False)
