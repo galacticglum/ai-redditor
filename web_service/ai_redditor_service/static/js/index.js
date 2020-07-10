@@ -1,16 +1,3 @@
-// $.fn.truncatedText = function() {
-//     // Gets the truncated text of an element
-//     // Source: https://stackoverflow.com/a/30328736/7614083
-//     var o = s = this.text();
-//     while (s.length && (this[0].scrollWidth > this.innerWidth())) {
-//         s = s.slice(0, -1);
-//         this.text(s + "…");
-//     }
-
-//     this.text(o);
-//     return s;
-// }
-
 $.fn.truncate = function (lines) {
     lines = typeof lines !== 'undefined' ? lines : 1;
     var lineHeight = parseInt(this.css('line-height'));
