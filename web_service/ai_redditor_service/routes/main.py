@@ -39,6 +39,15 @@ def writingprompts_page(uuid):
     
     return render_template('writingprompts.html', record=record, generate_form=GeneratePostForm())
 
-@bp.route('/phc')
-def phc_page():
-    return render_template('phc.html')
+@bp.route('/phc', defaults={'uuid': None})
+@bp.route('/phc/<string:uuid>')
+def phc_page(uuid):
+    if uuid is None:
+        record = _select_random(PHCRecord, is_custom=False)
+    else:
+        record = PHCRecord.query.filter_by(uuid=uuid).first()
+        if record is None:
+            abort(404)
+        
+    # TODO: change form to one specific for pornhub comments
+    return render_template('phc.html', record=record, generate_form=GeneratePostForm())
