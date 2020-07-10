@@ -5,5 +5,7 @@ GPT2_BOS_TOKEN = '<|bos|>'
 GPT2_TRANSLATE_TOKEN = '<|eq_tok|>'
 GPT2_END_OF_LIKES_TOKEN = '<|eol|>'
 
-# Database configuration
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+# The client will send an AJAX request every 2.5 seconds
+# asking about the status of the text generation task.
+TASK_STATUS_TIMEOUT_MS = 2500 

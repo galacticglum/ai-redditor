@@ -198,7 +198,7 @@
                             }
                         }
                     })
-                }, 2500);
+                },  {{ config['TASK_STATUS_TIMEOUT_MS'] }});
             }
             
             const BOS_TOKEN = "{{ config['GPT2_BOS_TOKEN']|safe }}"; 
