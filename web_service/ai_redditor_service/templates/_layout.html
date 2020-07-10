@@ -71,10 +71,8 @@
                 {% block post %}
                 <p class="text-muted mb-1">{% block post_category %}post_category{% endblock %}</p>
                 <h3 class="font-weight-bold mb-3">{% block post_name %}post_name{% endblock %}</h3>
-                <p class="truncate-block-3 mb-2" id="post-body">
-                    {% block post_content %}
-                        post_content
-                    {% endblock %}
+                <div id="post-content" class="d-none">{% block post_content %}post_content{% endblock %}</div>
+                <p class="mb-2" id="post-body">
                 </p>
                 {% endblock %}
 

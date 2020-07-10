@@ -11,5 +11,5 @@
 {% endblock %}
 
 {% block post_content %}
-    {{ record.post_body|markdown|sanitize_for_md|safe }}
+    {{ record.post_body|markdown|e }}
 {% endblock %}
