@@ -47,6 +47,7 @@ parser.add_argument('--hide-logs', action='store_true', help='Hide INFO log stat
 parser.add_argument('--format', required=True, choices=['qa', 'phc'], help='The format of generated text. ' +
                     'One of \'qa\' (query-answer), \'phc\'.')
 parser.add_argument('--no-duplicates', action='store_true', help='Don\'t generate any duplicate records. Defaults to False.')
+parser.add_argument('--filter', type=str, default=None, help='A regex filter applied on the decoded output. If the text matches this filter, it is skipped.')
 args = parser.parse_args()
 
 if args.tokenizer:
@@ -151,6 +152,8 @@ class ProfileResult:
         self.fail_count = fail_count
         self.iteration_count = iteration_count
 
+decode_filter = re.compile(args.filter) if args.filter is not None else None
+
 results = []
 visited = set()
 profiling_results = []
@@ -191,6 +194,14 @@ with tqdm(total=args.samples) as progress_bar:
 
             sentence_tokens = generated[i, :].tolist()
             decoded = tokenizer.decode(sentence_tokens)
+
+            # Skip if matches decode filter
+            if decode_filter is not None and bool(decode_filter.match(decoded)):
+                if not args.hide_logs:
+                    progress_bar.write('- Generated text matched decode filter. Skipping...')
+                
+                profile_result.fail_count += 1
+                continue
 
             if args.format == 'phc':
                 # Filter out for pornhub links contained in the comment.
