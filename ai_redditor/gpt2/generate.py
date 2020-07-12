@@ -245,11 +245,7 @@ with tqdm(total=args.samples) as progress_bar:
             groups_id = json.dumps(groups, sort_keys=True)
             if args.no_duplicates:
                 if groups_id in visited:
-                    print(
-                        '- Generated duplicate. Skipping...'
-                        ('\n  -> \"{}\"'.format(groups) if args.show_decoded_on_error else '')
-                    )
-
+                    progress_bar.write('- Generated duplicate. Skipping...')
                     continue
 
                 visited.add(groups_id)
