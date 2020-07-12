@@ -1,6 +1,9 @@
+from sqlalchemy import func
 import uuid as uuid_generator
+from abc import abstractmethod
 from enum import IntEnum, unique
 from ai_redditor_service.extensions import db
+from ai_redditor_service.utils import merge_dicts
 
 @unique
 class RecordType(IntEnum):
@@ -41,7 +44,30 @@ class RecordMixin(object):
 
         self.uuid = uuid
         self.is_custom = is_custom
-        
+
+    @abstractmethod
+    def to_dict(self):
+        '''
+        Gets a dictionary object representing the record.
+
+        '''
+
+        return {
+            'id': self.id,
+            'uuid': self.uuid,
+            'is_custom': self.is_custom
+        }
+
+    @classmethod
+    def select_random(cls, **filter_kwargs):
+        '''
+        Selects a random record from a pool filtered using the
+        specified kwargs.
+
+        '''
+
+        return cls.query.filter_by(**filter_kwargs).order_by(func.random()).first()
+    
 class TIFURecord(RecordMixin, db.Model):
     '''
     A TIFU post record.
@@ -77,6 +103,17 @@ class TIFURecord(RecordMixin, db.Model):
         self.post_title = post_title
         self.post_body = post_body
 
+    def to_dict(self):
+        '''
+        Gets a dictionary object representing the record.
+
+        '''
+
+        return merge_dicts(super().to_dict(), {
+            'post_title': self.post_title,
+            'post_body': self.post_body  
+        })
+
 class WPRecord(RecordMixin, db.Model):
     '''
     A writingprompt and response pair record.
@@ -111,6 +148,17 @@ class WPRecord(RecordMixin, db.Model):
         super().__init__(uuid, is_custom)
         self.prompt = prompt
         self.prompt_response = prompt_response
+
+    def to_dict(self):
+        '''
+        Gets a dictionary object representing the record.
+
+        '''
+
+        return merge_dicts(super().to_dict(), {
+            'prompt': self.prompt,
+            'prompt_response': self.prompt_response
+        })
 
 class PHCRecord(RecordMixin, db.Model):
     '''
@@ -152,3 +200,21 @@ class PHCRecord(RecordMixin, db.Model):
         self.author_username = author_username
         self.likes = likes
         self.comment = comment
+
+    def to_dict(self):
+        '''
+        Gets a dictionary object representing the record.
+
+        '''
+
+        return merge_dicts(super().to_dict(), {
+            'author_username': self.author_username,
+            'likes': self.likes,
+            'comment': self.comment
+        })
+
+RECORD_MODEL_CLASSES = {
+    RecordType.TIFU: TIFURecord,
+    RecordType.WP: WPRecord,
+    RecordType.PHC: PHCRecord
+}

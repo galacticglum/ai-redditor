@@ -12,12 +12,9 @@ bp = Blueprint('main', __name__, url_prefix='/')
 def index():
     return redirect(url_for('main.tifu_page'))
 
-def _select_random(model_class, **filter_kwargs):
-    return model_class.query.filter_by(**filter_kwargs).order_by(func.random()).first()
-
 def _record_route(record_class, template_name, generate_form, uuid=None):
     if uuid is None:
-        record = _select_random(record_class, is_custom=False)
+        record = record_class.select_random(is_custom=False)
     else:
         record = record_class.query.filter_by(uuid=uuid).first()
         if record is None:

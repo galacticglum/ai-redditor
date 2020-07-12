@@ -9,7 +9,7 @@ import time
 from flask import current_app
 from celery.utils import cached_property, log
 from ai_redditor_service.extensions import celery, db
-from ai_redditor_service.string_utils import unescape_unicode
+from ai_redditor_service.utils import unescape_unicode
 from ai_redditor_service.gpt2 import (
     ModelDecodeFormat,
     load_model,
