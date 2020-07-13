@@ -14,7 +14,7 @@ def index():
 
 def _record_route(record_class, template_name, generate_form, uuid=None):
     if uuid is None:
-        record = record_class.select_random(is_custom=False)
+        record = record_class.select_random(is_custom=False, is_generated=True)
     else:
         record = record_class.query.filter_by(uuid=uuid).first()
         if record is None:
