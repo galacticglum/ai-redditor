@@ -89,7 +89,7 @@ class TIFURecord(RecordMixin, db.Model):
     post_title = db.Column(db.String)
     post_body = db.Column(db.String)
 
-    def __init__(self, post_title, post_body):
+    def __init__(self, post_title, post_body, **kwargs):
         '''
         Initializes an instance of :class:`TIFURecord`.
 
@@ -139,7 +139,7 @@ class WPRecord(RecordMixin, db.Model):
     prompt = db.Column(db.String)
     prompt_response = db.Column(db.String)
 
-    def __init__(self, prompt, prompt_response):
+    def __init__(self, prompt, prompt_response, **kwargs):
         '''
         Initializes an instance of :class:`WPRecord`.
 
