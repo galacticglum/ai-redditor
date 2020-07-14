@@ -26,8 +26,8 @@ with open(args.input_filename) as input_file, \
     data = json.load(input_file)
     output_data = []
     for sample in data:
-        prompt = special_tokens_match_pattern.sub('', sample['prompt'])
-        response = special_tokens_match_pattern.sub('', sample['response'])
+        prompt = special_tokens_match_pattern.sub('', sample['groups']['prompt'])
+        response = special_tokens_match_pattern.sub('', sample['groups']['response'])
 
         output_data.append({
             'prompt': unescape_unicode(prompt),
