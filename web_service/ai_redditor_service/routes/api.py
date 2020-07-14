@@ -52,9 +52,9 @@ def get_random_record(record_type):
     if is_custom is not None:
         filter_kwargs['is_custom'] = is_custom
     
-    # is_generated = g.data['is_generated']
-    # if is_generated is not None:
-    #     filter_kwargs['is_generated'] = is_generated
+    is_generated = g.data['is_generated']
+    if is_generated is not None:
+        filter_kwargs['is_generated'] = is_generated
 
     # Convert record type argument to enum
     record_type = RecordType[record_type.upper()]
