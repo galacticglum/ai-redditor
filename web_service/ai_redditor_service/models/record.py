@@ -61,7 +61,8 @@ class RecordMixin(object):
         return {
             'id': self.id,
             'uuid': self.uuid,
-            'is_custom': self.is_custom
+            'is_custom': self.is_custom,
+            'is_generated': self.is_generated
         }
 
     @classmethod
