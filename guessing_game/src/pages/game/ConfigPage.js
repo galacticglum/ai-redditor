@@ -4,6 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import RangeSlider from 'react-bootstrap-range-slider';
+import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
@@ -115,6 +116,11 @@ export default class ConfigPage extends Component {
                                         onChange={this.maxGuessingTimeChange}
                                     />
                                 </Form.Group>
+                                <div className="text-center mt-4">
+                                    <Button size="lg" className="ready-btn">
+                                        ready!
+                                    </Button>    
+                                </div> 
                             </Form>
                         </div>
                     </Col>

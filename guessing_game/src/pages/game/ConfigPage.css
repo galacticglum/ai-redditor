@@ -39,6 +39,13 @@ label[for="max-guessing-time-toggle"][disabled=""] {
     opacity: 0.5 !important;
 }
 
+.ready-btn {
+    background: #FFC15E !important;
+    color: black !important;
+    border: 3px solid black !important;
+    font-weight: bold !important;
+}
+
 /* 
  * CUSTOM RANGE SLIDE STYLING
 */
