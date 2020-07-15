@@ -28,7 +28,7 @@ get_random_record_schema = {
     }
 }
 
-@bp.route('/r/<any(tifu, wp, phc):record_type>/random', method=['POST'])
+@bp.route('/r/<any(tifu, wp, phc):record_type>/random', methods=['POST'])
 @expects_json(get_random_record_schema, fill_defaults=True)
 def get_random_record(record_type):
     '''
