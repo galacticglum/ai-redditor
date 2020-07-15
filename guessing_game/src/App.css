@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,900&display=swap');
+
+#root {
+    height: 100% !important;
+}
+
+body, html {
+    height: 100vh;
+    background: #FFC15E !important;
+    font-family: 'Source Code Pro', monospace !important;
+}
+
+#container {
+    padding-top: 100px;
+}
+
+.title {
+    color: #A14402;
+    line-height: 1.2;
+}
+
+.title-responsive-size { 
+    font-size: 96px;
+}
+
+.explanation-text {
+    font-size: 20px;
+    line-height: 1.5;
+    max-width: 700px;    
+}
+
+.play-btn {
+    background: transparent !important;
+    color: #A14402 !important;
+    font-weight: bold !important;
+    border-width: 3px !important;
+    padding: 10px 40px !important;
+    border-color: #A14402 !important;
+    box-shadow: none !important;
+}
+
+.play-btn:hover, .play-btn:focus {
+    box-shadow: 4px 4px #A14402 !important;
+}
+
+/* Text anchor style */
+.text-link {
+    color: #212529;
+    font-weight: bold;
+}
+
+.text-link:hover {
+    text-decoration: none;
+    color: white;
+    background-color: #CC5803;
+}
+
+/* bootstrap small screen size media query */
+@media (max-width: 576px) {   
+    .title-responsive-size {
+        font-size: 64px;
+    }
+}
