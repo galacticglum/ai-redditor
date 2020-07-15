@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
-import './styles/HomePage.css';
+import './HomePage.css';
 
 export default class HomePage extends Component {
     render() {
@@ -18,9 +19,13 @@ export default class HomePage extends Component {
                             href="https://en.wikipedia.org/wiki/Human">human</a>.
                         </p>
                     </div>
-                    <Button size="lg" className="my-5 play-btn">
-                        play
-                    </Button>
+
+                    <Link to="/game">
+                        <Button size="lg" className="my-5 play-btn">
+                            play
+                        </Button>
+                    </Link>
+                    
                     <div className="pt-4 explanation-text text-center">
                         built by <a className="text-link" href="https://github.com/galacticglum">shon verch</a> (<a 
                         class="text-link" href="https://twitter.com/galacticglum">@galacticglum</a>) using a
