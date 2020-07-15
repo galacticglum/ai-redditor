@@ -7,7 +7,7 @@ import './HomePage.css';
 export default class HomePage extends Component {
     render() {
         return (
-            <Container className="d-flex flex-column align-items-center" id="container">
+            <Container className="d-flex flex-column align-items-center p-100">
                 <div className="text-center title title-responsive-size">
                     ai or human?
                 </div> 

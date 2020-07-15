@@ -1,0 +1,37 @@
+.settings-panel {
+    border: 3px solid black;
+    border-radius: px;
+    background: white;
+    margin-top: 200px;
+    color: black !important;
+    padding: 24px;
+}
+
+.record-type-checkbox .custom-control-label::before,
+.record-type-checkbox .custom-control-label::after {
+    top: 0.1rem !important;
+    left: -2rem !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    /* checkbox border */
+    border: 3px solid black !important;
+    border-radius: 3px !important;
+    transition: none !important;
+    box-shadow: none !important;
+    
+}
+
+.record-type-checkbox .custom-control-label {
+    margin-left: 0.5rem !important;
+    font-size: 1rem !important;
+}
+
+.record-type-checkbox.custom-checkbox .custom-control-input:active~.custom-control-label::after  {
+    background-color: #91b597;
+}
+
+.record-type-checkbox.custom-checkbox .custom-control-input:checked~.custom-control-label::after {
+    /* hide checkbox icon */
+    background-image: none !important;
+    background-color: #5ea26a;
+}

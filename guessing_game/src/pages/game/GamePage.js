@@ -4,9 +4,7 @@ import ConfigPage from './ConfigPage';
 export default class GamePage extends Component {
     render() {
         return (
-            <div>
-                <ConfigPage />
-            </div>
+            <ConfigPage />
         )
     }
 }
