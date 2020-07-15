@@ -117,7 +117,7 @@ export default class ConfigPage extends Component {
                                     />
                                 </Form.Group>
                                 <div className="text-center mt-4">
-                                    <Button size="lg" className="ready-btn">
+                                    <Button size="lg" className="ready-btn" onClick={() => this.props.action(this.state)}>
                                         ready!
                                     </Button>    
                                 </div> 
