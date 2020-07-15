@@ -68,8 +68,8 @@ def get_random_record(record_type):
 
     # Convert record type argument to enum
     record_type = RecordType[record_type.upper()]
-    records = RECORD_MODEL_CLASSES[record_type].select_random(count=g.data['count'], **filter_kwargs)
-    if records is None:
+    records = RECORD_MODEL_CLASSES[record_type].select_random_n(g.data['count'], **filter_kwargs)
+    if records is None or len(records) == 0:
         return error_response('No {} record could be found with the provided constraints'.format(
             record_type.name
         ), 404)

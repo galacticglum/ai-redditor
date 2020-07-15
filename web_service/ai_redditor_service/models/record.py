@@ -66,19 +66,32 @@ class RecordMixin(object):
         }
 
     @classmethod
-    def select_random(cls, count=1, **filter_kwargs):
+    def select_random_n(cls, count, **filter_kwargs):
         '''
-        Selects a random record from a pool filtered using the
-        specified kwargs.
+        Selects the specified number of random records from
+        a pool filtered using the specified kwargs.
 
         :param count:
-            The number of records to select. Defaults to 1.
+            The number of records to select.
         :returns:
             A list of record objects.
 
         '''
 
+        if count <= 0:
+            raise ValueError('Count must be a positive integer.')
+
         return cls.query.filter_by(**filter_kwargs).order_by(func.random()).limit(count).all()
+
+    @classmethod
+    def select_random(cls, **filter_kwargs):
+        '''
+        Selects a random record from a pool filtered
+        using the specified kwargs.
+
+        '''
+
+        return cls.select_random_n(1, **filter_kwargs)[0]
     
 class TIFURecord(RecordMixin, db.Model):
     '''
