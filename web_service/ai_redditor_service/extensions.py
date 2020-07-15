@@ -1,10 +1,12 @@
 import time
 from celery import Celery
+from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import ai_redditor_service.template_filters as template_filters
 
 db = SQLAlchemy()
+cors = CORS()
 migrate = Migrate(db=db)
 celery = Celery(
     'ai_redditor_service',
@@ -18,6 +20,7 @@ def init_app(app):
     '''
 
     db.init_app(app)
+    cors.init_app(app)
     template_filters.init_app(app)
     
     _init_migrate(app)
