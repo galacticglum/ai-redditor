@@ -52,7 +52,7 @@ export default class ConfigPage extends Component {
         return (
             <Container>
                 <Row>
-                    <Col sm="9" md="7" lg="5" className="mx-auto">
+                    <Col sm="12" md="8" lg="6" className="mx-auto">
                         <div className="settings-panel">
                             <h4 className="text-center mt-2 font-weight-bold">settings</h4>
                             <Form className="mt-4">
@@ -84,6 +84,10 @@ export default class ConfigPage extends Component {
                                             </WithTooltip>
                                         </Form.Check>  
                                     </div>
+                                </Form.Group>
+                                <Form.Group className="mt-4">
+                                    <Form.Label className="font-weight-bold">max guessing time (seconds)</Form.Label>
+                                    <Form.Control type="range" custom />
                                 </Form.Group>
                             </Form>
                         </div>
