@@ -19,7 +19,7 @@ export default class HomePage extends Component {
                     </p>
                 </div>
 
-                <Link to="/game">
+                <Link to="/play">
                     <Button size="lg" className="my-5 play-btn">
                         play
                     </Button>
