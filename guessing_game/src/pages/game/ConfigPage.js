@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
-
+import RangeSlider from 'react-bootstrap-range-slider';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
@@ -35,7 +35,9 @@ export default class ConfigPage extends Component {
                 tifu: false,
                 wp: false,
                 phc: true
-            }
+            },
+            maxGuessingTimeEnabled: false,
+            maxGuessingTime: 30
         };
     }
 
@@ -45,6 +47,18 @@ export default class ConfigPage extends Component {
                 ...this.state.recordTypes,
                 [event.target.id]: event.target.checked
             }
+        });
+    }
+
+    maxGuessingTimeChange = (event) => {
+        this.setState({
+            maxGuessingTime: event.target.value
+        });
+    }
+
+    maxGuessingTimeToggleChange = (event) => {
+        this.setState({
+            maxGuessingTimeEnabled: event.target.checked
         });
     }
 
@@ -62,7 +76,7 @@ export default class ConfigPage extends Component {
                                         <Form.Check id="tifu" inline custom className="record-type-checkbox">
                                             <Form.Check.Input type="checkbox"
                                                 onChange={this.recordTypeToggleChange}
-                                                checked={this.state.recordTypes['tifu']} />
+                                                checked={this.state.recordTypes.tifu} />
                                             <WithTooltip text="today i fucked up">
                                                 <Form.Check.Label>tifu</Form.Check.Label>
                                             </WithTooltip>
@@ -70,15 +84,15 @@ export default class ConfigPage extends Component {
                                         <Form.Check id="wp" inline custom className="record-type-checkbox">
                                             <Form.Check.Input type="checkbox"
                                                 onChange={this.recordTypeToggleChange}
-                                                checked={this.state.recordTypes['wp']} />
-                                            <WithTooltip checked={this.state.recordTypes['wp']} text="writing prompts">
+                                                checked={this.state.recordTypes.wp} />
+                                            <WithTooltip text="writing prompts">
                                                 <Form.Check.Label>wp</Form.Check.Label>
                                             </WithTooltip>
                                         </Form.Check>
                                         <Form.Check id="phc" inline custom className="record-type-checkbox">
                                             <Form.Check.Input type="checkbox"
                                                 onChange={this.recordTypeToggleChange}
-                                                checked={this.state.recordTypes['phc']} />
+                                                checked={this.state.recordTypes.phc} />
                                             <WithTooltip text="pornhub comments">
                                                 <Form.Check.Label>phc</Form.Check.Label>
                                             </WithTooltip>
@@ -86,8 +100,20 @@ export default class ConfigPage extends Component {
                                     </div>
                                 </Form.Group>
                                 <Form.Group className="mt-4">
-                                    <Form.Label className="font-weight-bold">max guessing time (seconds)</Form.Label>
-                                    <Form.Control type="range" custom />
+                                    <Form.Check id="max-guessing-time-toggle" custom className="record-type-checkbox">
+                                        <Form.Check.Input type="checkbox" 
+                                            onChange={this.maxGuessingTimeToggleChange}
+                                            checked={this.state.maxGuessingTimeEnabled} />
+                                        <Form.Check.Label className="font-weight-bold"
+                                            disabled={!this.state.maxGuessingTimeEnabled}
+                                        >
+                                            max guessing time (seconds)
+                                        </Form.Check.Label>
+                                    </Form.Check>
+                                    <RangeSlider disabled={!this.state.maxGuessingTimeEnabled} value={this.state.maxGuessingTime}
+                                        min="0" max="60" className="max-guessing-time-range-slider"
+                                        onChange={this.maxGuessingTimeChange}
+                                    />
                                 </Form.Group>
                             </Form>
                         </div>

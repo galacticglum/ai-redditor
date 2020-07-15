@@ -17,8 +17,6 @@
     border: 3px solid black !important;
     border-radius: 3px !important;
     transition: none !important;
-    box-shadow: none !important;
-    
 }
 
 .record-type-checkbox .custom-control-label {
@@ -34,4 +32,49 @@
     /* hide checkbox icon */
     background-image: none !important;
     background-color: #5ea26a;
+}
+
+label[for="max-guessing-time-toggle"][disabled=""] {
+    color: black !important;
+    opacity: 0.5 !important;
+}
+
+/* 
+ * CUSTOM RANGE SLIDE STYLING
+*/
+
+/* mozilla: enabled style */
+.max-guessing-time-range-slider.range-slider::-moz-range-thumb {
+    background: #5ea26a !important;
+    border: 3px solid black !important;
+}
+
+/* mozilla: disabled style */
+.max-guessing-time-range-slider.range-slider.disabled::-moz-range-thumb {
+    background: #E9E9E8 !important;
+    border: none !important;
+}
+
+/* webkit: enabled style */
+.max-guessing-time-range-slider.range-slider::-webkit-slider-thumb {
+    background: #5ea26a !important;
+    border: 3px solid black !important;
+}
+
+/* webkit: disabled style */
+.max-guessing-time-range-slider.range-slider.disabled::-webkit-slider-thumb {
+    background: #E9E9E8 !important;
+    border: none !important;
+}
+
+/* microsoft: enabled style */
+.max-guessing-time-range-slider.range-slider::-ms-thumb {
+    background: #5ea26a !important;
+    border: 3px solid black !important;
+}
+
+/* microsoft: disabled style */
+.max-guessing-time-range-slider.range-slider.disabled::-ms-thumb {
+    background: #E9E9E8 !important;
+    border: none !important;
 }
