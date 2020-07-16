@@ -45,7 +45,7 @@ function Record(props) {
         case 'phc':
             recordView = (
                 <div className="d-flex flex-column">
-                    <span class="font-weight-bold username">{props.data.author_username}</span>
+                    <span class="font-weight-bold phc-username">{props.data.author_username}</span>
                     <p class="comment-text mb-0">{props.data.comment}</p>
                 </div>
             );
@@ -56,7 +56,7 @@ function Record(props) {
     }
 
     return (
-        <div className={postPanelClass}>
+        <div className={`${postPanelClass} ${props.className}`}>
             {recordView}
         </div>  
     )
@@ -68,6 +68,8 @@ export default class GamePage extends Component {
         this.state = {
             isConfigPanelVisible: true,
             hasError: false,
+            hasGuessed: false,
+            isGuessCorrect: false
         };
     }
 
@@ -109,7 +111,7 @@ export default class GamePage extends Component {
             'is_generated': isGenerated,
         };
 
-        this.setState({hasError: false});
+        this.setState({hasError: false, hasGuessed: false});
         axios.post(`${API_BASE_URL}/r/${recordType}/random`, {
             ...requestData,    
             headers: {
@@ -138,7 +140,14 @@ export default class GamePage extends Component {
             console.log('you fucking suck');
         }
 
-        this.nextRecord();
+        this.setState({
+            hasGuessed: true,
+            isGuessCorrect: isCorrect
+        });
+
+        setTimeout(() => {
+            this.nextRecord();
+        }, 500);
     }
 
     render() {
@@ -162,14 +171,34 @@ export default class GamePage extends Component {
                                 : (
                                     <div>
                                         <Record type={this.state.currentRecord.type}
-                                            data={this.state.currentRecord.data} />
+                                            data={this.state.currentRecord.data}
+                                            className={this.state.hasGuessed ? 
+                                                (this.state.currentRecord.data.is_generated ? 
+                                                    'post-ai' : 'post-human'
+                                                ) : ''
+                                            }
+                                        />
                                         <div className="d-flex flex-row mt-4">
-                                            <Button onClick={() => this.onGuessButtonClicked(true)}
-                                                size="lg" className="w-100 mr-3 select-btn select-ai-btn">
+                                            <Button onClick={() => this.onGuessButtonClicked(true)} disabled={this.state.hasGuessed}
+                                                size="lg" className={
+                                                    `w-100 mr-3 select-btn select-ai-btn ${(
+                                                        this.state.hasGuessed &&
+                                                        !this.state.isGuessCorrect &&
+                                                        this.state.currentRecord.data.is_generated ?
+                                                        'highlight-border' : '')}`
+                                                    }
+                                            >
                                                 robot
                                             </Button>
-                                            <Button onClick={() => this.onGuessButtonClicked(false)}
-                                                size="lg" className="w-100 select-btn select-human-btn">
+                                            <Button onClick={() => this.onGuessButtonClicked(false)} disabled={this.state.hasGuessed}
+                                                size="lg" className={
+                                                    `w-100 select-btn select-human-btn ${(
+                                                        this.state.hasGuessed &&
+                                                        !this.state.isGuessCorrect &&
+                                                        !this.state.currentRecord.data.is_generated ?
+                                                        'highlight-border' : '')}`
+                                                    }
+                                            >
                                                 human
                                             </Button>
                                         </div>

@@ -27,13 +27,14 @@
     color: white !important;
 }
 
-.username {
+.phc-username {
     color: #ffa31a;
 }
 
 .select-btn {
     border: 3px solid white !important;
     font-weight: bold !important;
+    transition: none !important;
 }
 
 .select-ai-btn {
@@ -48,4 +49,34 @@
 
 .warn-footer {
     max-width: 500px;
+}
+
+.post-ai,
+.post-ai .phc-username {
+    border-color: #009265 !important;
+    color: #009265 !important;
+}
+
+.post-human,
+.post-human .phc-username {
+    border-color: #c2554f !important;
+    color: #c2554f !important;
+}
+
+.highlight-border {
+    border-color: black !important;
+}
+
+button[disabled=""].highlight-border {
+    opacity: 1 !important;
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+button[disabled=""].highlight-border.select-btn-human {
+    opacity: 1 !important;
+    background-color: rgba(254, 138, 128, 0.65) !important;
+}
+
+button[disabled=""].highlight-border.select-btn-ai {
+    background-color: rgba(0, 201, 152, 0.65) !important;
 }
