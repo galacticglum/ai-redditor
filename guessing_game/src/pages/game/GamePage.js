@@ -74,7 +74,8 @@ export default class GamePage extends Component {
             isConfigPanelVisible: true,
             hasError: false,
             hasGuessed: false,
-            isGuessCorrect: false
+            isGuessCorrect: false,
+            guessIsGenerated: false
         };
     }
 
@@ -159,12 +160,25 @@ export default class GamePage extends Component {
 
         this.setState({
             hasGuessed: true,
-            isGuessCorrect: isCorrect
+            isGuessCorrect: isCorrect,
+            guessIsGenerated: guessIsGenerated
         });
 
         setTimeout(() => {
             this.nextRecord();
         }, GUESS_RESULT_DURATION_MS);
+    }
+
+    recordButtonText = (guessIsGenerated, defaultText) => {
+        return this.state.hasGuessed && this.state.guessIsGenerated === guessIsGenerated ? (
+            this.state.isGuessCorrect ? 'correct!' : 'incorrect!'
+        ) : defaultText;
+    }
+
+    recordButtonResultClassName = (guessIsGenerated) => {
+        return this.state.hasGuessed ? (
+            this.state.guessIsGenerated === guessIsGenerated ? 'highlight-border' : 'opacity-30'
+        ) : '';
     }
 
     render() {
@@ -190,33 +204,25 @@ export default class GamePage extends Component {
                                         <Record type={this.state.currentRecord.type}
                                             data={this.state.currentRecord.data}
                                             className={this.state.hasGuessed ? 
-                                                (this.state.currentRecord.data.is_generated ? 
-                                                    'post-ai' : 'post-human'
+                                                (this.state.isGuessCorrect ? 
+                                                    'post-correct' : 'post-incorrect'
                                                 ) : ''
                                             }
                                         />
                                         <div className="d-flex flex-row mt-4">
                                             <Button onClick={() => this.onGuessButtonClicked(true)} disabled={this.state.hasGuessed}
-                                                size="lg" className={
-                                                    `w-100 mr-3 select-btn select-ai-btn ${(
-                                                        this.state.hasGuessed &&
-                                                        !this.state.isGuessCorrect &&
-                                                        this.state.currentRecord.data.is_generated ?
-                                                        'highlight-border' : '')}`
-                                                    }
+                                                size="lg" className={`w-100 mr-3 select-btn select-ai-btn 
+                                                    ${this.recordButtonResultClassName(true)}`
+                                                }
                                             >
-                                                robot
+                                                {this.recordButtonText(true, 'robot')}
                                             </Button>
                                             <Button onClick={() => this.onGuessButtonClicked(false)} disabled={this.state.hasGuessed}
-                                                size="lg" className={
-                                                    `w-100 select-btn select-human-btn ${(
-                                                        this.state.hasGuessed &&
-                                                        !this.state.isGuessCorrect &&
-                                                        !this.state.currentRecord.data.is_generated ?
-                                                        'highlight-border' : '')}`
-                                                    }
+                                                size="lg" className={`w-100 select-btn select-human-btn
+                                                    ${this.recordButtonResultClassName(false)}`
+                                                }
                                             >
-                                                human
+                                                {this.recordButtonText(false, 'human')}
                                             </Button>
                                         </div>
                                     </div>

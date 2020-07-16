@@ -51,16 +51,20 @@
     max-width: 500px;
 }
 
-.post-ai,
-.post-ai .phc-username {
+.post-correct,
+.post-correct .phc-username {
     border-color: #009265 !important;
     color: #009265 !important;
 }
 
-.post-human,
-.post-human .phc-username {
+.post-incorrect,
+.post-incorrect .phc-username {
     border-color: #c2554f !important;
     color: #c2554f !important;
+}
+
+.opacity-30 {
+    opacity: 0.3 !important;
 }
 
 .highlight-border {
