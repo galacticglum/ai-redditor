@@ -1,0 +1,15 @@
+#view-wrapper {
+    margin-top: 200px;
+}
+
+.error-alert.alert {
+    background: white !important;
+    border: 3px solid red !important;
+    border-radius: 5px !important;
+    color: black !important;
+    font-weight: bold;
+}
+
+.error-alert .alert-heading {
+    color: red !important;
+}
