@@ -138,8 +138,9 @@ export default class GamePage extends Component {
     }
 
     render() {
+        const showConfigPanel = this.state.currentRecord === undefined;
         return (
-            <Container>
+            <Container className="w-100 h-100 d-flex flex-column">
                 <Row>
                     <Col sm="12" md="8" lg="6" className="mx-auto">
                         <div id="view-wrapper">
@@ -152,7 +153,7 @@ export default class GamePage extends Component {
                                 : null)
                             }
                             {
-                                (this.state.currentRecord === undefined ? 
+                                (showConfigPanel ? 
                                     (<ConfigPanel action={this.onConfigPanelReady} />)
                                 : (
                                     <p>
@@ -164,6 +165,16 @@ export default class GamePage extends Component {
                         </div>    
                     </Col>
                 </Row>
+
+                {
+                    (showConfigPanel ? 
+                        (<div className="mx-auto mt-auto py-4 text-center warn-footer">
+                            <span className="font-weight-bold">warning:</span> posts are not reviewed and are probably <a 
+                            href="https://en.wikipedia.org/wiki/Not_safe_for_work" className="text-link">NSFW</a>, 
+                            use at your own risk!
+                        </div>)
+                    : null)
+                }    
             </Container>
         );
     }

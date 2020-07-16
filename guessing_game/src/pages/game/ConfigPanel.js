@@ -130,7 +130,7 @@ export default class ConfigPanel extends Component {
                         </Button>    
                     </div> 
                 </Form>
-            </div>         
+            </div>    
         )
     }
 }

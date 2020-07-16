@@ -45,3 +45,7 @@
     border-color: #c2554f !important;
     background: #fe8a80 !important;
 }
+
+.warn-footer {
+    max-width: 500px;
+}
