@@ -69,14 +69,14 @@
 
 button[disabled=""].highlight-border {
     opacity: 1 !important;
-    color: rgba(255, 255, 255, 0.65) !important;
+    /* color: rgba(255, 255, 255, 0.65) !important; */
 }
 
-button[disabled=""].highlight-border.select-btn-human {
+/* button[disabled=""].highlight-border.select-btn-human {
     opacity: 1 !important;
     background-color: rgba(254, 138, 128, 0.65) !important;
 }
 
 button[disabled=""].highlight-border.select-btn-ai {
     background-color: rgba(0, 201, 152, 0.65) !important;
-}
+} */
