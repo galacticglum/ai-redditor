@@ -13,3 +13,36 @@
 .error-alert .alert-heading {
     color: red !important;
 }
+
+.post-panel {
+    border: 3px solid black;
+    border-radius: 5px;
+    background: white;
+    color: black !important;
+    padding: 24px;
+}
+
+.phc-panel {
+    background: #101010;
+    /* border: 3px solid rgb(121, 121, 121); */
+    color: white !important;
+}
+
+.username {
+    color: #ffa31a;
+}
+
+.select-btn {
+    border: 3px solid white !important;
+    font-weight: bold !important;
+}
+
+.select-ai-btn {
+    border-color: #009265 !important;
+    background: #00c998 !important;
+}
+
+.select-human-btn {
+    border-color: #c2554f !important;
+    background: #fe8a80 !important;
+}

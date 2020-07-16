@@ -4,6 +4,7 @@ import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import './GamePage.css';
 
 import axios from 'axios';
@@ -24,16 +25,47 @@ function DismissibleAlert(props) {
 }
 
 function Record(props) {
+    let recordView = null;
+    let postPanelClass = "post-panel";
     switch (props.type) {
         case 'tifu':
-            return ( 'tifu' );
+            recordView = (
+                <h4 className="text-center mt-2 font-weight-bold">{props.data.post_title}</h4>
+            );
+            break;
         case 'wp':
-            return ( 'wp' );
+            recordView = (
+                <h4 className="text-center mt-2 font-weight-bold">{props.data.prompt}</h4>
+            );
+            break;
         case 'phc':
-            return ( 'phc' );
+            recordView = (
+                <div className="d-flex flex-column">
+                    <span class="font-weight-bold username">{props.data.author_username}</span>
+                    <p class="comment-text mb-0">{props.data.comment}</p>
+                </div>
+            );
+            postPanelClass += " phc-panel"
+            break;
         default:
             return ( 'invalid record type!' )
     }
+
+    return (
+        <div>
+            <div className={postPanelClass}>
+                {recordView}
+            </div>
+            <div className="d-flex flex-row mt-4">
+                <Button size="lg" className="w-100 mr-3 select-btn select-ai-btn">
+                    robot
+                </Button>
+                <Button size="lg" className="w-100 select-btn select-human-btn">
+                    human
+                </Button>
+            </div>  
+        </div>
+    )
 }
 
 export default class GamePage extends Component {
