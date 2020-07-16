@@ -30,12 +30,16 @@ function Record(props) {
     switch (props.type) {
         case 'tifu':
             recordView = (
-                <h4 className="text-center mt-2 font-weight-bold">{props.data.post_title}</h4>
+                <h4 className="text-center mt-2 font-weight-bold">
+                    {props.data.post_title}
+                </h4>
             );
             break;
         case 'wp':
             recordView = (
-                <h4 className="text-center mt-2 font-weight-bold">{props.data.prompt}</h4>
+                <h4 className="text-center mt-2 font-weight-bold">
+                    {props.data.prompt}
+                </h4>
             );
             break;
         case 'phc':
