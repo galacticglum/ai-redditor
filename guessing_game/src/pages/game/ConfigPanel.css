@@ -33,7 +33,6 @@
     background-color: #5ea26a;
 }
 
-
 .record-type-checkbox input.is-invalid + label {
     color: red !important;
     font-weight: bold !important;
