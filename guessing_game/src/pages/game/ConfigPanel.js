@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-import './ConfigPage.css';
+import './ConfigPanel.css';
 
 const WithTooltip = (props) => (
     <OverlayTrigger
@@ -25,7 +25,7 @@ WithTooltip.defaultProps = {
     placement: "top"
 }
 
-export default class ConfigPage extends Component {
+export default class ConfigPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {

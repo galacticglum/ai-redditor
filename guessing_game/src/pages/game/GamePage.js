@@ -1,5 +1,5 @@
 import React, { Component, useState } from 'react';
-import ConfigPage from './ConfigPage';
+import ConfigPanel from './ConfigPanel';
 import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -23,16 +23,29 @@ function DismissibleAlert(props) {
     return null;
 }
 
+function Record(props) {
+    switch (props.type) {
+        case 'tifu':
+            return ( 'tifu' );
+        case 'wp':
+            return ( 'wp' );
+        case 'phc':
+            return ( 'phc' );
+        default:
+            return ( 'invalid record type!' )
+    }
+}
+
 export default class GamePage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isConfigPageVisible: true,
+            isConfigPanelVisible: true,
             hasError: false,
         };
     }
 
-    onConfigPageReady = (configState) => {
+    onConfigPanelReady = (configState) => {
         // Map the record types from a (string, bool) key/value pair to
         // an array of strings indicating the types to sample from.
         let recordTypes = [];
@@ -76,7 +89,10 @@ export default class GamePage extends Component {
         })
         .then(response => {
             this.setState({
-                currentRecord: response.data
+                currentRecord: {
+                    data: response.data,
+                    type: recordType
+                }
             });
         })
         .catch(error => {
@@ -101,8 +117,13 @@ export default class GamePage extends Component {
                             }
                             {
                                 (this.state.currentRecord === undefined ? 
-                                    (<ConfigPage action={this.onConfigPageReady} />)
-                                : null)
+                                    (<ConfigPanel action={this.onConfigPanelReady} />)
+                                : (
+                                    <p>
+                                        <Record type={this.state.currentRecord.type}
+                                            data={this.state.currentRecord.data} />
+                                    </p>
+                                ))
                             }
                         </div>    
                     </Col>
