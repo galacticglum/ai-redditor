@@ -35,7 +35,8 @@ export default class ConfigPanel extends Component {
                 phc: true
             },
             maxGuessingTimeEnabled: false,
-            maxGuessingTime: 30
+            maxGuessingTime: 30,
+            isValid: true
         };
     }
 
@@ -60,6 +61,19 @@ export default class ConfigPanel extends Component {
         });
     }
 
+    onReady = () => {
+        // Reset the validation state of the form.
+        this.setState({isValid: true});
+        // Make sure that at least one record type is selected
+        const noRecordTypesSelected = Object.keys(this.state.recordTypes).every(k => !this.state.recordTypes[k]);
+        if (noRecordTypesSelected) {
+            this.setState({isValid: false});
+            return;
+        }
+
+        this.props.action(this.state);
+    }
+
     render() {
         return (    
             <div className="settings-panel">
@@ -71,7 +85,7 @@ export default class ConfigPanel extends Component {
                             <Form.Check id="tifu" inline custom className="record-type-checkbox">
                                 <Form.Check.Input type="checkbox"
                                     onChange={this.recordTypeToggleChange}
-                                    checked={this.state.recordTypes.tifu} />
+                                    checked={this.state.recordTypes.tifu} isInvalid={!this.state.isValid} />
                                 <WithTooltip text="today i fucked up">
                                     <Form.Check.Label>tifu</Form.Check.Label>
                                 </WithTooltip>
@@ -79,7 +93,7 @@ export default class ConfigPanel extends Component {
                             <Form.Check id="wp" inline custom className="record-type-checkbox">
                                 <Form.Check.Input type="checkbox"
                                     onChange={this.recordTypeToggleChange}
-                                    checked={this.state.recordTypes.wp} />
+                                    checked={this.state.recordTypes.wp} isInvalid={!this.state.isValid} />
                                 <WithTooltip text="writing prompts">
                                     <Form.Check.Label>wp</Form.Check.Label>
                                 </WithTooltip>
@@ -87,7 +101,7 @@ export default class ConfigPanel extends Component {
                             <Form.Check id="phc" inline custom className="record-type-checkbox">
                                 <Form.Check.Input type="checkbox"
                                     onChange={this.recordTypeToggleChange}
-                                    checked={this.state.recordTypes.phc} />
+                                    checked={this.state.recordTypes.phc} isInvalid={!this.state.isValid} />
                                 <WithTooltip text="pornhub comments">
                                     <Form.Check.Label>phc</Form.Check.Label>
                                 </WithTooltip>
@@ -106,12 +120,12 @@ export default class ConfigPanel extends Component {
                             </Form.Check.Label>
                         </Form.Check>
                         <RangeSlider disabled={!this.state.maxGuessingTimeEnabled} value={this.state.maxGuessingTime}
-                            min="0" max="60" className="max-guessing-time-range-slider"
+                            min="5" max="60" className="max-guessing-time-range-slider"
                             onChange={this.maxGuessingTimeChange}
                         />
                     </Form.Group>
                     <div className="text-center mt-4">
-                        <Button size="lg" className="ready-btn" onClick={() => this.props.action(this.state)}>
+                        <Button size="lg" className="ready-btn" onClick={this.onReady}>
                             ready!
                         </Button>    
                     </div> 

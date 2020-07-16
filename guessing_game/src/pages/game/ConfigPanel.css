@@ -33,6 +33,12 @@
     background-color: #5ea26a;
 }
 
+
+.record-type-checkbox input.is-invalid + label {
+    color: red !important;
+    font-weight: bold !important;
+}
+
 label[for="max-guessing-time-toggle"][disabled=""] {
     color: black !important;
     opacity: 0.5 !important;
