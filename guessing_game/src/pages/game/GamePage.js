@@ -114,7 +114,7 @@ export default class GamePage extends Component {
     }
 
     nextRecord = (onComplete=null) => {
-        if (this.state.hasGuessed && !this.state.isGuessCorrect) {
+        if (this.state.hasGuessed && !this.state.isGuessCorrect && !this.state.isGameover) {
             this.onGameOver();
         } else {
             // Randomly select record type
