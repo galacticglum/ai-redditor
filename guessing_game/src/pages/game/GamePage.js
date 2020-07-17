@@ -81,7 +81,8 @@ export default class GamePage extends Component {
             isGuessCorrect: false,
             guessIsGenerated: false,
             guessingTimeCountdownStarted: false,
-            guessingTimeCountdownFinished: false
+            guessingTimeCountdownFinished: false,
+            score: 0
         };
     }
 
@@ -127,8 +128,12 @@ export default class GamePage extends Component {
             'is_generated': isGenerated,
         };
 
-        let waitTime = GUESS_RESULT_DURATION_MS;
-        this.setState({hasError: false, isLoadingRecord: true});
+        // Reset state variables
+        this.setState({
+            hasError: false,
+            isLoadingRecord: true
+        });
+
         axios.post(`${API_BASE_URL}/r/${recordType}/random`, {
             ...requestData,    
             headers: {
@@ -136,7 +141,7 @@ export default class GamePage extends Component {
             }
         })
         .then(response => {
-            waitTime -= response.duration;
+            let waitTime = GUESS_RESULT_DURATION_MS - response.duration;
             const currentRecord = {
                 data: response.data,
                 type: recordType
@@ -153,12 +158,17 @@ export default class GamePage extends Component {
                 });
 
                 if (this.state.gameConfig.maxGuessingTimeEnabled) {
+                    const currentScore = this.state.score;
                     setTimeout(() => {
+                        if (this.state.hasGuessed || this.state.score !== currentScore) return;
+
                         this.onGameOver();
                         this.setState({
                             guessingTimeCountdownFinished: true
                         });
-                    }, this.state.gameConfig.maxGuessingTime * 1000);
+                    // Delay the function by an additional 500 ms so that if the
+                    // user guesses at the last second, the guess is processed. 
+                    }, this.state.gameConfig.maxGuessingTime * 1000 + 500);
                 }
             }, Math.max(0, waitTime));
         })
@@ -170,8 +180,10 @@ export default class GamePage extends Component {
 
     onGuessButtonClicked = (guessIsGenerated) => {
         const isCorrect = guessIsGenerated === this.state.currentRecord.data.is_generated;
+        let newScore = this.state.score;
         if (isCorrect) {
             console.log('WOWOWOWOWOOW AMAZING YOU GOT IT RIGHT');
+            newScore += 1;
         } else {
             console.log('you fucking suck');
         }
@@ -181,8 +193,8 @@ export default class GamePage extends Component {
             isGuessCorrect: isCorrect,
             guessIsGenerated: guessIsGenerated,
             guessingTimeCountdownStarted: false,
-            guessingTimeCountdownFinished: false
-            
+            guessingTimeCountdownFinished: false,
+            score: newScore
         });
 
         setTimeout(() => {
