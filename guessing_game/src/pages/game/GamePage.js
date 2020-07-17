@@ -73,7 +73,6 @@ export default class GamePage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isConfigPanelVisible: true,
             gameConfig: {},
             isLoadingRecord: false,
             hasError: false,
