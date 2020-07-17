@@ -72,6 +72,7 @@ export default class GamePage extends Component {
         super(props);
         this.state = {
             isConfigPanelVisible: true,
+            isLoadingRecord: false,
             hasError: false,
             hasGuessed: false,
             isGuessCorrect: false,
@@ -123,7 +124,7 @@ export default class GamePage extends Component {
         };
 
         let waitTime = GUESS_RESULT_DURATION_MS;
-        this.setState({hasError: false});
+        this.setState({hasError: false, isLoadingRecord: true});
         axios.post(`${API_BASE_URL}/r/${recordType}/random`, {
             ...requestData,    
             headers: {
@@ -140,12 +141,13 @@ export default class GamePage extends Component {
             setTimeout(() => {
                 this.setState({
                     currentRecord: currentRecord,
-                    hasGuessed: false
+                    hasGuessed: false,
+                    isLoadingRecord: false
                 })
             }, Math.max(0, waitTime));
         })
         .catch(error => {
-            this.setState({hasError: true});
+            this.setState({hasError: true, isLoadingRecord: false});
             console.log(error);
         });
     }
@@ -198,7 +200,7 @@ export default class GamePage extends Component {
                             }
                             {
                                 (showConfigPanel ? 
-                                    (<ConfigPanel action={this.onConfigPanelReady} />)
+                                    (<ConfigPanel action={this.onConfigPanelReady} disabled={this.state.isLoadingRecord} />)
                                 : (
                                     <div>
                                         <Record type={this.state.currentRecord.type}
