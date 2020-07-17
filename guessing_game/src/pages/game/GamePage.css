@@ -35,6 +35,10 @@
     color: #ffa31a;
 }
 
+.phc-comment-text {
+    word-wrap: break-word;
+}
+
 .select-btn {
     border: 3px solid white !important;
     font-weight: bold !important;

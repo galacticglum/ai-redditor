@@ -49,7 +49,7 @@ function Record(props) {
             recordView = (
                 <div className="d-flex flex-column">
                     <span class="font-weight-bold phc-username">{props.data.author_username}</span>
-                    <p class="comment-text mb-0">{props.data.comment}</p>
+                    <p class="phc-comment-text mb-0">{props.data.comment}</p>
                 </div>
             );
             postPanelClass += " phc-panel"
