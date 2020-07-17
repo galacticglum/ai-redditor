@@ -1,0 +1,13 @@
+.action-btn {
+    color: black !important;
+    border: 3px solid black !important;
+    font-weight: bold !important;
+}
+
+.action-btn-quit {
+    background: #ffefd6 !important;
+}
+
+.action-btn-restart {
+    background: #FFC15E !important;
+}

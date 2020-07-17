@@ -163,13 +163,14 @@ export default class GamePage extends Component {
                     setTimeout(() => {
                         if (this.state.hasGuessed || this.state.score !== currentScore) return;
 
-                        this.onGameOver();
+                        setTimeout(() => {
+                            this.onGameOver();
+                        }, GUESS_RESULT_DURATION_MS);
+
                         this.setState({
                             guessingTimeCountdownFinished: true
                         });
-                    // Delay the function by an additional 500 ms so that if the
-                    // user guesses at the last second, the guess is processed. 
-                    }, this.state.gameConfig.maxGuessingTime * 1000 + 500);
+                    }, this.state.gameConfig.maxGuessingTime * 1000);
                 }
             }, Math.max(0, waitTime));
         })
@@ -298,7 +299,15 @@ export default class GamePage extends Component {
                             }
                             {
                                 isGameover && (
-                                    <GameOverPanel />
+                                    <GameOverPanel
+                                        title={this.state.guessingTimeCountdownFinished ? 'times up!' : 'you suck'}
+                                        content={(
+                                            <p className="mt-3 mb-4">{this.state.guessingTimeCountdownFinished ?
+                                                'next time try to think faster' :
+                                                'bested by an artificial intelligence'
+                                            }</p>
+                                        )}
+                                    />
                                 )
                             }
                         </div>    
