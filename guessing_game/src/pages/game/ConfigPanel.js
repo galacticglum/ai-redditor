@@ -25,7 +25,7 @@ WithTooltip.defaultProps = {
     placement: "top"
 }
 
-export default class ConfigPanel extends Component {
+class ConfigPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -83,7 +83,7 @@ export default class ConfigPanel extends Component {
                         <Form.Label className="font-weight-bold">types of posts?</Form.Label>
                         <div>
                             <Form.Check id="tifu" inline custom className="record-type-checkbox">
-                                <Form.Check.Input type="checkbox"
+                                <Form.Check.Input type="checkbox" disabled={this.props.disabled}
                                     onChange={this.recordTypeToggleChange}
                                     checked={this.state.recordTypes.tifu} isInvalid={!this.state.isValid} />
                                 <WithTooltip text="today i fucked up">
@@ -91,7 +91,7 @@ export default class ConfigPanel extends Component {
                                 </WithTooltip>
                             </Form.Check>
                             <Form.Check id="wp" inline custom className="record-type-checkbox">
-                                <Form.Check.Input type="checkbox"
+                                <Form.Check.Input type="checkbox" disabled={this.props.disabled}
                                     onChange={this.recordTypeToggleChange}
                                     checked={this.state.recordTypes.wp} isInvalid={!this.state.isValid} />
                                 <WithTooltip text="writing prompts">
@@ -99,7 +99,7 @@ export default class ConfigPanel extends Component {
                                 </WithTooltip>
                             </Form.Check>
                             <Form.Check id="phc" inline custom className="record-type-checkbox">
-                                <Form.Check.Input type="checkbox"
+                                <Form.Check.Input type="checkbox" disabled={this.props.disabled}
                                     onChange={this.recordTypeToggleChange}
                                     checked={this.state.recordTypes.phc} isInvalid={!this.state.isValid} />
                                 <WithTooltip text="pornhub comments">
@@ -110,7 +110,7 @@ export default class ConfigPanel extends Component {
                     </Form.Group>
                     <Form.Group className="mt-4">
                         <Form.Check id="max-guessing-time-toggle" custom className="record-type-checkbox">
-                            <Form.Check.Input type="checkbox" 
+                            <Form.Check.Input type="checkbox" disabled={this.props.disabled}
                                 onChange={this.maxGuessingTimeToggleChange}
                                 checked={this.state.maxGuessingTimeEnabled} />
                             <Form.Check.Label className="font-weight-bold"
@@ -125,7 +125,7 @@ export default class ConfigPanel extends Component {
                         />
                     </Form.Group>
                     <div className="text-center mt-4">
-                        <Button size="lg" className="ready-btn" onClick={this.onReady}>
+                        <Button size="lg" className="ready-btn" onClick={this.onReady} disabled={this.props.disabled}>
                             ready!
                         </Button>    
                     </div> 
@@ -134,3 +134,9 @@ export default class ConfigPanel extends Component {
         )
     }
 }
+
+ConfigPanel.defaultProps = {
+    disabled: false
+}
+
+export default ConfigPanel;

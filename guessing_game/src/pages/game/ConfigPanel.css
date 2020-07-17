@@ -23,7 +23,7 @@
     font-size: 1rem !important;
 }
 
-.record-type-checkbox.custom-checkbox .custom-control-input:active~.custom-control-label::after  {
+.record-type-checkbox.custom-checkbox .custom-control-input:active:enabled~.custom-control-label::after  {
     background-color: #91b597;
 }
 
