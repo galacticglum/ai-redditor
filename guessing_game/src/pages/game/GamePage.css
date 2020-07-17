@@ -1,3 +1,7 @@
+:root {
+    --timer-progress-bar-duration: 30s
+}
+
 #view-wrapper {
     margin-top: 200px;
 }
@@ -73,4 +77,40 @@
 
 button[disabled=""].highlight-border {
     opacity: 1 !important;
+}
+
+.timer-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 10px;
+    background: #CC5803;
+}
+
+.timer-progress-bar-enter {
+    width: 0%;
+}
+
+.timer-progress-bar-enter-active {
+    width: 100%;
+    -webkit-transition: width var(--timer-progress-bar-duration) linear !important;
+    -moz-transition: width var(--timer-progress-bar-duration) linear !important;
+    -o-transition: width var(--timer-progress-bar-duration) linear !important;
+    transition: width var(--timer-progress-bar-duration) linear !important;
+}
+
+.timer-progress-bar-enter-done {
+    width: 100%;
+}
+
+.timer-progress-bar-exit,
+.timer-progress-bar-exit-active {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+}
+
+.timer-progress-bar.timer-progress-bar-background {
+    opacity: 0.3;
 }

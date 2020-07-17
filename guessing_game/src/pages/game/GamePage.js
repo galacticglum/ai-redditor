@@ -1,10 +1,12 @@
 import React, { Component, useState } from 'react';
-import ConfigPanel from './ConfigPanel';
 import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
+import { CSSTransition } from 'react-transition-group';
+
+import ConfigPanel from './ConfigPanel';
 import './GamePage.css';
 
 import axios from 'axios';
@@ -72,11 +74,13 @@ export default class GamePage extends Component {
         super(props);
         this.state = {
             isConfigPanelVisible: true,
+            gameConfig: {},
             isLoadingRecord: false,
             hasError: false,
             hasGuessed: false,
             isGuessCorrect: false,
-            guessIsGenerated: false
+            guessIsGenerated: false,
+            guessingTimeCountdownStarted: false
         };
     }
 
@@ -101,8 +105,7 @@ export default class GamePage extends Component {
 
     nextRecord = () => {
         if (this.state.hasGuessed && !this.state.isGuessCorrect) {
-            // An incorrect guess ends the game; show the game over view.
-            console.log('GAMEOVER!');
+            this.onGameOver();
         } else {
             // Randomly select record type
             const recordTypes = this.state.gameConfig.recordTypes;
@@ -139,11 +142,17 @@ export default class GamePage extends Component {
             };
 
             setTimeout(() => {
+                const maxGuessingTimeEnabled = this.state.gameConfig.maxGuessingTimeEnabled;
                 this.setState({
                     currentRecord: currentRecord,
                     hasGuessed: false,
-                    isLoadingRecord: false
-                })
+                    isLoadingRecord: false,
+                    guessingTimeCountdownStarted: maxGuessingTimeEnabled
+                });
+
+                if (this.state.gameConfig.maxGuessingTimeEnabled) {
+                    setTimeout(() => this.onGameOver(), this.state.gameConfig.maxGuessingTime * 1000);
+                }
             }, Math.max(0, waitTime));
         })
         .catch(error => {
@@ -163,12 +172,17 @@ export default class GamePage extends Component {
         this.setState({
             hasGuessed: true,
             isGuessCorrect: isCorrect,
-            guessIsGenerated: guessIsGenerated
+            guessIsGenerated: guessIsGenerated,
+            guessingTimeCountdownStarted: false
         });
 
         setTimeout(() => {
             this.nextRecord();
         }, GUESS_RESULT_DURATION_MS);
+    }
+
+    onGameOver = () => {
+        console.log('GAMEOVER!');
     }
 
     recordButtonText = (guessIsGenerated, defaultText) => {
@@ -187,6 +201,22 @@ export default class GamePage extends Component {
         const showConfigPanel = this.state.currentRecord === undefined;
         return (
             <Container className="w-100 h-100 d-flex flex-column">
+                <div>
+                    <CSSTransition
+                        in={this.state.guessingTimeCountdownStarted}
+                        timeout={1000 * this.state.gameConfig.maxGuessingTime}
+                        classNames="timer-progress-bar"
+                    >
+                        {!showConfigPanel && this.state.gameConfig.maxGuessingTimeEnabled ? (
+                            <div key="timer-progress-bar" className="timer-progress-bar" style={{
+                                '--timer-progress-bar-duration': `${this.state.gameConfig.maxGuessingTime}s`
+                            }} />
+                        ) : <div key="css-transition-placeholder" />}
+                    </CSSTransition>
+                    {!showConfigPanel && this.state.gameConfig.maxGuessingTimeEnabled && (
+                        <div className="timer-progress-bar timer-progress-bar-background w-100" />
+                    )}
+                </div>
                 <Row>
                     <Col sm="12" md="8" lg="6" className="mx-auto">
                         <div id="view-wrapper">
@@ -202,7 +232,7 @@ export default class GamePage extends Component {
                                 (showConfigPanel ? 
                                     (<ConfigPanel action={this.onConfigPanelReady} disabled={this.state.isLoadingRecord} />)
                                 : (
-                                    <div>
+                                    <div>  
                                         <Record type={this.state.currentRecord.type}
                                             data={this.state.currentRecord.data}
                                             className={this.state.hasGuessed ? 
