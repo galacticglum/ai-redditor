@@ -80,7 +80,8 @@ export default class GamePage extends Component {
             hasGuessed: false,
             isGuessCorrect: false,
             guessIsGenerated: false,
-            guessingTimeCountdownStarted: false
+            guessingTimeCountdownStarted: false,
+            guessingTimeCountdownFinished: false
         };
     }
 
@@ -147,11 +148,17 @@ export default class GamePage extends Component {
                     currentRecord: currentRecord,
                     hasGuessed: false,
                     isLoadingRecord: false,
-                    guessingTimeCountdownStarted: maxGuessingTimeEnabled
+                    guessingTimeCountdownStarted: maxGuessingTimeEnabled,
+                    guessingTimeCountdownFinished: false
                 });
 
                 if (this.state.gameConfig.maxGuessingTimeEnabled) {
-                    setTimeout(() => this.onGameOver(), this.state.gameConfig.maxGuessingTime * 1000);
+                    setTimeout(() => {
+                        this.onGameOver();
+                        this.setState({
+                            guessingTimeCountdownFinished: true
+                        });
+                    }, this.state.gameConfig.maxGuessingTime * 1000);
                 }
             }, Math.max(0, waitTime));
         })
@@ -173,7 +180,9 @@ export default class GamePage extends Component {
             hasGuessed: true,
             isGuessCorrect: isCorrect,
             guessIsGenerated: guessIsGenerated,
-            guessingTimeCountdownStarted: false
+            guessingTimeCountdownStarted: false,
+            guessingTimeCountdownFinished: false
+            
         });
 
         setTimeout(() => {
@@ -192,9 +201,15 @@ export default class GamePage extends Component {
     }
 
     recordButtonResultClassName = (guessIsGenerated) => {
-        return this.state.hasGuessed ? (
-            this.state.guessIsGenerated === guessIsGenerated ? 'highlight-border' : 'opacity-30'
-        ) : '';
+        if (this.state.hasGuessed) {
+            return this.state.guessIsGenerated === guessIsGenerated ? 'highlight-border' : 'opacity-30';
+        }
+        
+        if (this.state.guessingTimeCountdownFinished) {
+            return 'opacity-30';
+        }
+
+        return '';
     }
 
     render() {
@@ -242,15 +257,17 @@ export default class GamePage extends Component {
                                             }
                                         />
                                         <div className="d-flex flex-row mt-4">
-                                            <Button onClick={() => this.onGuessButtonClicked(true)} disabled={this.state.hasGuessed}
-                                                size="lg" className={`w-100 mr-3 select-btn select-ai-btn 
+                                            <Button onClick={() => this.onGuessButtonClicked(true)} disabled={this.state.hasGuessed 
+                                                || this.state.guessingTimeCountdownFinished} size="lg"
+                                                className={`w-100 mr-3 select-btn select-ai-btn 
                                                     ${this.recordButtonResultClassName(true)}`
                                                 }
                                             >
                                                 {this.recordButtonText(true, 'robot')}
                                             </Button>
-                                            <Button onClick={() => this.onGuessButtonClicked(false)} disabled={this.state.hasGuessed}
-                                                size="lg" className={`w-100 select-btn select-human-btn
+                                            <Button onClick={() => this.onGuessButtonClicked(false)} disabled={this.state.hasGuessed
+                                                || this.state.guessingTimeCountdownFinished} size="lg"
+                                                className={`w-100 select-btn select-human-btn
                                                     ${this.recordButtonResultClassName(false)}`
                                                 }
                                             >
