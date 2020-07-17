@@ -15,6 +15,14 @@ body, html {
     font-family: 'Roboto Mono', monospace !important;
 }
 
+.panel {
+    border: 3px solid black;
+    border-radius: 5px;
+    background: white;
+    color: black !important;
+    padding: 24px;
+}
+
 /* Padding classes */
 .p-100 {
     padding-top: 100px;

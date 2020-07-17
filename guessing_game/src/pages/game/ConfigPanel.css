@@ -1,11 +1,3 @@
-.settings-panel {
-    border: 3px solid black;
-    border-radius: 5px;
-    background: white;
-    color: black !important;
-    padding: 24px;
-}
-
 .record-type-checkbox .custom-control-label::before,
 .record-type-checkbox .custom-control-label::after {
     top: 0.1rem !important;

@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import { CSSTransition } from 'react-transition-group';
 
 import ConfigPanel from './ConfigPanel';
+import GameOverPanel from './GameOverPanel';
 import './GamePage.css';
 
 import axios from 'axios';
@@ -81,7 +82,8 @@ export default class GamePage extends Component {
             guessIsGenerated: false,
             guessingTimeCountdownStarted: false,
             guessingTimeCountdownFinished: false,
-            score: 0
+            score: 0,
+            isGameover: false
         };
     }
 
@@ -202,6 +204,10 @@ export default class GamePage extends Component {
     }
 
     onGameOver = () => {
+        this.setState({
+            isGameover: true
+        });
+
         console.log('GAMEOVER!');
     }
 
@@ -225,6 +231,8 @@ export default class GamePage extends Component {
 
     render() {
         const showConfigPanel = this.state.currentRecord === undefined;
+        const isGameover = this.state.isGameover;
+
         return (
             <Container className="w-100 h-100 d-flex flex-column">
                 <div>
@@ -247,18 +255,18 @@ export default class GamePage extends Component {
                     <Col sm="12" md="8" lg="6" className="mx-auto">
                         <div id="view-wrapper">
                             {
-                                (this.state.hasError ? 
+                                this.state.hasError ? 
                                     (<DismissibleAlert variant="danger" className="error-alert">
                                         <Alert.Heading>server go brrr</Alert.Heading>
                                         This is probably an issue with our servers. Please try again later.
                                     </DismissibleAlert>)
-                                : null)
+                                : null
                             }
                             {
-                                (showConfigPanel ? 
+                                showConfigPanel ? 
                                     (<ConfigPanel action={this.onConfigPanelReady} disabled={this.state.isLoadingRecord} />)
                                 : (
-                                    <div>  
+                                    !isGameover && (<div>  
                                         <Record type={this.state.currentRecord.type}
                                             data={this.state.currentRecord.data}
                                             className={this.state.hasGuessed ? 
@@ -285,8 +293,13 @@ export default class GamePage extends Component {
                                                 {this.recordButtonText(false, 'human')}
                                             </Button>
                                         </div>
-                                    </div>
-                                ))
+                                    </div>)
+                                )
+                            }
+                            {
+                                isGameover && (
+                                    <GameOverPanel />
+                                )
                             }
                         </div>    
                     </Col>

@@ -76,7 +76,7 @@ class ConfigPanel extends Component {
 
     render() {
         return (    
-            <div className="settings-panel">
+            <div className="panel">
                 <h4 className="text-center mt-2 font-weight-bold">settings</h4>
                 <Form className="mt-4">
                     <Form.Group>
