@@ -247,14 +247,16 @@ export default class GamePage extends Component {
             gameConfig: this.state.gameConfig,
             hideConfigPanel: true,
             isGameover: true,
-            guessingTimeCountdownFinished: this.state.guessingTimeCountdownFinished
+            guessingTimeCountdownFinished: this.state.guessingTimeCountdownFinished,
+            score: this.state.score
         });
 
         this.nextRecord(() => {
             this.setState({
                 hideConfigPanel: false,
                 isGameover: false,
-                guessingTimeCountdownFinished: false
+                guessingTimeCountdownFinished: false,
+                score: 0
             });
         });
     }
@@ -332,10 +334,17 @@ export default class GamePage extends Component {
                                     <GameOverPanel
                                         title={this.state.guessingTimeCountdownFinished ? 'times up!' : 'you suck'}
                                         content={(
-                                            <p className="mt-3 mb-4">{this.state.guessingTimeCountdownFinished ?
-                                                'next time try to think faster' :
-                                                'bested by an artificial intelligence'
-                                            }</p>
+                                            <div className="my-5 gameover-results">
+                                                <h4 className="mt-3">
+                                                    <span className={this.state.score === 0 ? 'text-danger' : 'text-info'}>
+                                                        {this.state.score}
+                                                    </span> point{this.state.score !== 1 && (<span>s</span>)}
+                                                </h4>
+                                                <p>{this.state.guessingTimeCountdownFinished ?
+                                                    'next time try to think faster' :
+                                                    'bested by an artificial intelligence'
+                                                }</p>
+                                            </div>
                                         )}
                                         onPlayAgain={this.playAgain}
                                         disabled={this.state.isLoadingRecord}

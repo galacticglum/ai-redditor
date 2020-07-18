@@ -11,3 +11,9 @@
 .action-btn-restart {
     background: #FFC15E !important;
 }
+
+.gameover-results {
+    border: 3px solid rgba(0, 0, 0, 0.15);
+    border-left: 0px;
+    border-right: 0px;
+}
