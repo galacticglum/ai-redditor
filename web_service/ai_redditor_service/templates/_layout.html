@@ -76,6 +76,9 @@
                         </a>
                     {% endfor %}    
                     {% endblock %}
+                    {% if config['GAME_URL'] %}
+                        <a class="nav-link" href="{{ config['GAME_URL'] }}">Game</a>
+                    {% endif %}
                 </nav>
                 {% endblock %}
             </div>

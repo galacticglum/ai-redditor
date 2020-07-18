@@ -22,7 +22,8 @@ def _record_route(record_class, template_name, generate_form, uuid=None):
         
     return render_template(
         template_name, record=record,
-        generate_form=generate_form, from_uuid=uuid is not None
+        generate_form=generate_form,
+        from_uuid=uuid is not None
     )
 
 @bp.route('/tifu', defaults={'uuid': None})
