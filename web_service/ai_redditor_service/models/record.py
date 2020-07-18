@@ -105,8 +105,8 @@ class TIFURecord(RecordMixin, db.Model):
     '''
 
     __tablename__ = 'tifu_record'
-    post_title = db.Column(db.String(64))
-    post_body = db.Column(db.String(256))
+    post_title = db.Column(db.Text)
+    post_body = db.Column(db.Text)
 
     def __init__(self, post_title, post_body, **kwargs):
         '''
@@ -155,8 +155,8 @@ class WPRecord(RecordMixin, db.Model):
     '''
 
     __tablename__ = 'wp_record'
-    prompt = db.Column(db.String(64))
-    prompt_response = db.Column(db.String(256))
+    prompt = db.Column(db.Text)
+    prompt_response = db.Column(db.Text)
 
     def __init__(self, prompt, prompt_response, **kwargs):
         '''
@@ -198,9 +198,9 @@ class PHCRecord(RecordMixin, db.Model):
     '''
 
     __tablename__ = 'phc_record'
-    author_username = db.Column(db.String(32))
+    author_username = db.Column(db.Text)
     likes = db.Column(db.Integer)
-    comment = db.Column(db.String(256))
+    comment = db.Column(db.Text)
 
     def __init__(self, author_username, likes, comment, **kwargs):
         '''
