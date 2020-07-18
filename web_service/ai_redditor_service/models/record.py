@@ -199,7 +199,7 @@ class PHCRecord(RecordMixin, db.Model):
 
     __tablename__ = 'phc_record'
     author_username = db.Column(db.Text)
-    likes = db.Column(db.Integer)
+    likes = db.Column(db.BigInteger)
     comment = db.Column(db.Text)
 
     def __init__(self, author_username, likes, comment, **kwargs):
