@@ -115,3 +115,12 @@
         return prompt;
     }
 {% endblock %}
+
+<!-- Configure summary card -->
+{% block summary_title %}
+    This Post Does Not Exist
+{% endblock %}
+
+{% block summary_description %}
+{{ record.author }} said {{ record.comment }}
+{% endblock %}

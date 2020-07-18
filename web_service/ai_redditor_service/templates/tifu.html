@@ -13,3 +13,12 @@
 {% block post_content %}
     {{ record.post_body|markdown|e }}
 {% endblock %}
+
+<!-- Configure summary card -->
+{% block summary_title %}
+    {{ record.post_title }}
+{% endblock %}
+
+{% block summary_description %}
+    {{ record.post_body|markdown|e }}
+{% endblock %}

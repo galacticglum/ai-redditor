@@ -12,3 +12,12 @@
 {% block post_content %}
     {{ record.prompt_response|markdown|e }}
 {% endblock %}
+
+<!-- Configure summary card -->
+{% block summary_title %}
+    {{ record.prompt }}
+{% endblock %}
+
+{% block summary_description %}
+    {{ record.prompt_response|markdown|e }}
+{% endblock %}
