@@ -73,7 +73,11 @@ const GUESS_RESULT_DURATION_MS = 500;
 export default class GamePage extends Component {
     constructor(props) {
         super(props);
-        this.state = this.getInitialState();
+        this.state = {
+            ...this.getInitialState(),
+            // Round ID is used to uniquely identify the current round
+            roundId: 0
+        }
     }
 
     getInitialState = () => {
@@ -90,7 +94,7 @@ export default class GamePage extends Component {
             score: 0,
             isGameover: false,
             // A manual override to hide the config panel
-            hideConfigPanel: false
+            hideConfigPanel: false,
         };
     }
 
@@ -139,7 +143,8 @@ export default class GamePage extends Component {
         // Reset state variables
         this.setState({
             hasError: false,
-            isLoadingRecord: true
+            isLoadingRecord: true,
+            roundId: this.state.roundId + 1
         });
 
         axios.post(`${API_BASE_URL}/r/${recordType}/random`, {
@@ -170,9 +175,9 @@ export default class GamePage extends Component {
                 }
 
                 if (this.state.gameConfig.maxGuessingTimeEnabled) {
-                    const currentScore = this.state.score;
+                    const currentRoundId = this.state.roundId;
                     setTimeout(() => {
-                        if (this.state.hasGuessed || this.state.score !== currentScore) return;
+                        if (this.state.hasGuessed || this.state.roundId !== currentRoundId) return;
 
                         setTimeout(() => {
                             this.onGameOver();
