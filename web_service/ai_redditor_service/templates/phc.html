@@ -118,9 +118,9 @@
 
 <!-- Configure summary card -->
 {% block summary_title %}
-    This Post Does Not Exist
+{{ record.author_username }}
 {% endblock %}
 
 {% block summary_description %}
-{{ record.author_username }} said {{ record.comment }}
+    {{ record.comment }}
 {% endblock %}
