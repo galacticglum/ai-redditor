@@ -336,7 +336,7 @@ export default class GamePage extends Component {
                                         content={(
                                             <div className="my-5 gameover-results">
                                                 <h4 className="mt-3">
-                                                    <span className={this.state.score === 0 ? 'text-danger' : 'text-info'}>
+                                                    <span className={this.state.score === 0 ? 'text-danger' : 'text-success'}>
                                                         {this.state.score}
                                                     </span> point{this.state.score !== 1 && (<span>s</span>)}
                                                 </h4>
