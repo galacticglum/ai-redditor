@@ -20,7 +20,10 @@ def _record_route(record_class, template_name, generate_form, uuid=None):
         if record is None:
             abort(404)
         
-    return render_template(template_name, record=record, generate_form=generate_form)
+    return render_template(
+        template_name, record=record,
+        generate_form=generate_form, from_uuid=uuid is not None
+    )
 
 @bp.route('/tifu', defaults={'uuid': None})
 @bp.route('/tifu/<string:uuid>')
