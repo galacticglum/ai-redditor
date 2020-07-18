@@ -23,7 +23,11 @@
 
     <!-- Twitter Summary Card -->
     {% if from_uuid %}
-    <meta property="twitter:site" content="@thispostdoesnotexist">
+    <meta property="og:type" content= "website" />
+    <meta property="og:url" content="{{ record.permalink }}"/>
+    <meta property="og:site_name" content="This Post Does Not Exist" />
+    <meta property="og:image" itemprop="image primaryImageOfPage" content="{{ url_for('static', filename='android-chrome-192x192.png') }}" />
+    <meta property="twitter:domain" content="postdoesnotexist.com">
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="{% block summary_title%}summary_title{% endblock %}" />
     <meta name="twitter:description" content="{% block summary_description %}summary_description{% endblock %}" />
