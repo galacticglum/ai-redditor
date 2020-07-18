@@ -25,7 +25,7 @@ class GameOverPanel extends Component {
                         className="w-100 action-btn action-btn-restart"
                         disabled={this.props.disabled}
                     >
-                        play again
+                        try again
                     </Button>
                 </div> 
             </div>
