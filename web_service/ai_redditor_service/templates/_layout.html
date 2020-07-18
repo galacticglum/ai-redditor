@@ -23,6 +23,7 @@
 
     <!-- Twitter Summary Card -->
     {% if from_uuid %}
+    <meta property="twitter:site" content="@thispostdoesnotexist">
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="{% block summary_title%}summary_title{% endblock %}" />
     <meta name="twitter:description" content="{% block summary_description %}summary_description{% endblock %}" />
