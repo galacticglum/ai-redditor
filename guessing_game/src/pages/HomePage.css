@@ -45,3 +45,9 @@
         font-size: 64px;
     }
 }
+
+.make-your-own-btn {
+    position: fixed;
+    right: 30px;
+    top: 15px;
+}

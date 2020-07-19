@@ -26,10 +26,16 @@ export default class HomePage extends Component {
                 </Link>
                 
                 <div className="pt-4 explanation-text text-center">
-                    built by <a className="text-link" href="https://github.com/galacticglum">shon verch</a> (<a 
-                    class="text-link" href="https://twitter.com/galacticglum">@galacticglum</a>) using a
-                    finetuned generative language model (<a class="text-link" href="https://openai.com/blog/better-language-models/">gpt2</a>).
+                    <p>
+                        built by <a className="text-link" href="https://github.com/galacticglum">shon verch</a> (<a 
+                        class="text-link" href="https://twitter.com/galacticglum">@galacticglum</a>) using a
+                        finetuned generative language model (<a class="text-link" href="https://openai.com/blog/better-language-models/">gpt2</a>).
+                    </p>
                 </div>
+
+                <a className="make-your-own-btn text-link" href={process.env.REACT_APP_TPDNE_BASE_URL}>
+                    <span role="img" aria-label="memo">&#128221;</span> generate your own post
+                </a>
             </Container>
         )
     }
