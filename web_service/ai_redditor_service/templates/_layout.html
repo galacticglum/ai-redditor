@@ -1,11 +1,11 @@
 <!-- (href, caption, class-inactive, class-active) -->
 {% set navigation_bar = {
-    'tifu': ('main.tifu_page', 'tifu', '', ''),
-    'wp': ('main.writingprompts_page', 'writingprompts', '', ''),
     'phc': (
         'main.phc_page', 'p<i class="font-normal">orn</i>hub <span>&#128521</span>',
         'redacted redacted-orange', ''
-    )
+    ),
+    'tifu': ('main.tifu_page', 'tifu', '', ''),
+    'wp': ('main.writingprompts_page', 'writingprompts', '', '')
  } -%}
 
 {% set active_page = active_page|default('tifu') -%}

@@ -10,7 +10,7 @@ bp = Blueprint('main', __name__, url_prefix='/')
 
 @bp.route('/')
 def index():
-    return redirect(url_for('main.tifu_page'))
+    return redirect(url_for('main.phc_page'))
 
 def _record_route(record_class, template_name, generate_form, uuid=None):
     if uuid is None:
