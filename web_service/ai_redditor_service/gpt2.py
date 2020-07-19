@@ -137,10 +137,12 @@ def load_model(model_path, tokenizer_path=None, no_cuda=False, quantize=False):
 
     return model.to(device), tokenizer
 
+PHC_LINK_PATTERN = re.compile(r'(?P<url>(https?://)?.*pornhub\.com*[^\s]+)')
+
 def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
              top_p=1, num_return_sequences=10, max_iterations=10, min_length=250,
              max_length=1024, translate_token='<|eq_tok|>', end_of_likes_token='<|eol|>',
-             fp16=False, fp16_opt_level='O1', no_duplicates=False):
+             fp16=False, fp16_opt_level='O1', no_duplicates=False, use_link_filter=True):
     '''
     Generate text from a model with a language modelling head.
 
@@ -183,6 +185,9 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
         Apex AMP optimization level. See https://nvidia.github.io/apex/amp.html. Defaults to O1.
     :param no_duplicates:
         Don't generate any duplicate records. Defaults to False.
+    :param use_link_filter:
+        Filter for links in the generated output; if a link is found, the sample is skipped.
+        Defaults to True.
     :returns:
         A list of :class:`RawRecord` objects.
 
@@ -256,10 +261,10 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
             if len(results) >= samples: break
 
             raw_text = tokenizer.decode(output[i, :].tolist())
-            if decode_format == ModelDecodeFormat.PHC:
+            if decode_format == ModelDecodeFormat.PHC and use_link_filter:
                 # Filter out for pornhub links contained in the comment.
                 # Comments that contain links are often not very interesting (just advertisement).
-                urls = re.findall(r'(?P<url>(https?://)?.*pornhub\.com*[^\s]+)', raw_text)
+                urls = PHC_LINK_PATTERN.findall(raw_text)
                 if len(urls) > 0: continue
             
             match = decode_regex.match(raw_text)

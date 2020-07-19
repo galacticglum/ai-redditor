@@ -13,7 +13,8 @@ from ai_redditor_service.utils import unescape_unicode
 from ai_redditor_service.gpt2 import (
     ModelDecodeFormat,
     load_model,
-    generate as gpt2_model_generate
+    generate as gpt2_model_generate,
+    PHC_LINK_PATTERN
 )
 
 from ai_redditor_service.models import (
@@ -147,12 +148,18 @@ def generate_record(record_type, **kwargs):
     record_config = _RECORD_GENERATE_CONFIGS[record_type]
     model, tokenizer = generate_record._models[record_type]
 
+    use_link_filter = True
+    if record_type == RecordType.PHC and kwargs.get('prompt', None):
+        # We only use the link filter if the prompt DOES NOT have links; otherwise,
+        # if it does, we want to bypass the link filter to allow the prompt.
+        use_link_filter = len(PHC_LINK_PATTERN.findall(kwargs['prompt'])) == 0
+        
     outputs = gpt2_model_generate(
         model, tokenizer, record_config.decode_format,
         translate_token=current_app.config['GPT2_TRANSLATE_TOKEN'],
         end_of_likes_token=current_app.config['GPT2_END_OF_LIKES_TOKEN'],
         min_length=record_config.min_length, max_length=record_config.max_length,
-        **kwargs
+        use_link_filter=use_link_filter, **kwargs
     )
 
     # The records are custom if the prompt keyword argument
