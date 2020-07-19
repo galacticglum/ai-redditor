@@ -109,8 +109,7 @@
                         Permalink
                     </a>
                     <a class="text-link-secondary mr-3" href="{{ url_for(navigation_bar[active_page][0]) }}">New post</a>
-                    <a class="text-link-secondary mr-auto" data-post-view-target="#post-view"
-                       data-generate-view-target="#generate-view" id="generate-button">
+                    <a class="text-link-secondary mr-auto" id="generate-button">
                         Make your own
                     </a>
 
@@ -148,7 +147,7 @@
                     <div class="d-flex flex-row mt-2">
                         <a class="text-link-secondary mr-auto" id="cancel-generate-button">Cancel</a>
                         {{ generate_form.submit(class_='text-link anchor-input') }}
-                </div>
+                    </div>
                 </form>
                 {% endblock %}
             </div>
@@ -158,6 +157,21 @@
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>   
+            </div>
+            <div id="error-view" class="d-none">
+                <div class="d-flex my-auto">
+                    <div class="alert" role="alert">
+                        <span class="font-weight-bold text-muted" id="error-code"></span>
+                        <h3 class="alert-heading pb-2">Something Happened</h3>
+                        <p>
+                            We couldn't process your request. This is probably an issue with our servers, though 
+                            it just as well might have been something with your network. Please try again later.
+                        </p>
+                        <div class="d-flex flex-row">
+                            <a class="text-link" id="close-error-button">Back</a>
+                        </div>
+                    </div>
+                </div>
             </div>
             {% endblock %}
         </main>
@@ -197,70 +211,73 @@
     <script src="{{ url_for('static', filename='vendor/clipboard.min.js') }}" type="text/javascript"></script>
     <script src="{{ url_for('static', filename='js/index.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
-        $('#generate-form').on('submit', function() {
-            function getTaskStatus(url) {
-                // Poll the API for task status every 2.5 seconds (2500 milliseconds).
-                setTimeout(function() {
-                    $.ajax({
-                        type: 'GET',
-                        url: url,
-                        success: function(data) {
-                            if (!data.is_ready) {
-                                getTaskStatus(url);
-                            } else {
-                                window.location.href = data.permalink;
+        $(document).ready(function () {
+            $('#generate-form').on('submit', function() {
+                function getTaskStatus(url) {
+                    // Poll the API for task status every 2.5 seconds (2500 milliseconds).
+                    setTimeout(function() {
+                        $.ajax({
+                            type: 'GET',
+                            url: url,
+                            success: function(data) {
+                                if (!data.is_ready) {
+                                    getTaskStatus(url);
+                                } else {
+                                    window.location.href = data.permalink;
+                                }
+                            },
+                            error: function(xhr, textStatus, errorThrown) {
+                                $('#error-code').text(xhr.status);
+                                toggleView(Views.ERROR);
                             }
-                        }
-                    })
-                },  {{ config['TASK_STATUS_TIMEOUT_MS'] }});
-            }
-            
-            const BOS_TOKEN = "{{ config['GPT2_BOS_TOKEN']|safe }}"; 
-            const TRANSLATE_TOKEN = "{{ config['GPT2_TRANSLATE_TOKEN']|safe }}"; 
-            const END_OF_LIKES_TOKEN = "{{ config['GPT2_END_OF_LIKES_TOKEN']|safe }}"; 
+                        })
+                    },  {{ config['TASK_STATUS_TIMEOUT_MS'] }});
+                }
+                
+                const BOS_TOKEN = "{{ config['GPT2_BOS_TOKEN']|safe }}"; 
+                const TRANSLATE_TOKEN = "{{ config['GPT2_TRANSLATE_TOKEN']|safe }}"; 
+                const END_OF_LIKES_TOKEN = "{{ config['GPT2_END_OF_LIKES_TOKEN']|safe }}"; 
 
-            {% block process_prompt_func %}
-            function formToPrompt(form) {
-                var prompt = BOS_TOKEN;
-                if (form['title']) {
-                    prompt += form['title'].trim();
+                {% block process_prompt_func %}
+                function formToPrompt(form) {
+                    var prompt = BOS_TOKEN;
+                    if (form['title']) {
+                        prompt += form['title'].trim();
+                    }
+
+                    if (form['post_body']) {
+                        prompt += TRANSLATE_TOKEN + form['post_body'].trim();
+                    }
+
+                    return prompt;
+                }
+                {% endblock %}
+                
+                function formToJson(form) {
+                    result = {};
+                    $.map(form.serializeArray(), (n, i) => {
+                        result[n['name']] = n['value'];
+                    });
+
+                    return result;
                 }
 
-                if (form['post_body']) {
-                    prompt += TRANSLATE_TOKEN + form['post_body'].trim();
-                }
-
-                return prompt;
-            }
-            {% endblock %}
-            
-            function formToJson(form) {
-                result = {};
-                $.map(form.serializeArray(), (n, i) => {
-                    result[n['name']] = n['value'];
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('api.generate_record', record_type=active_page) }}",
+                    data: JSON.stringify({
+                        'prompt': formToPrompt(formToJson($('#generate-form')))
+                    }),
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function(data) {
+                        getTaskStatus(data.task_status_endpoint);
+                        toggleView(Views.LOADING);
+                    },
                 });
 
-                return result;
-            }
-
-            $.ajax({
-                type: 'POST',
-                url: "{{ url_for('api.generate_record', record_type=active_page) }}",
-                data: JSON.stringify({
-                    'prompt': formToPrompt(formToJson($('#generate-form')))
-                }),
-                dataType: 'json',
-                contentType: 'application/json',
-                success: function(data) {
-                    getTaskStatus(data.task_status_endpoint);
-
-                    // Toggle the loading view
-                    $('#generate-view').addClass('d-none');
-                    $('#loading-view').removeClass('d-none');
-                },
+                return false;
             });
-
-            return false;
         });
     </script>
     {% endblock %}

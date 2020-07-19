@@ -32,6 +32,24 @@ function unescapeHtml(safe) {
         .replace(/&#039;/g, "'");
 }
 
+const Views = {
+    POST: 'post',
+    GENERATE: 'generate',
+    LOADING: 'loading',
+    ERROR: 'error'
+}
+
+function getViewElement(x) { 
+    return $(`#${x}-view`); 
+}
+
+const ViewValues = Object.values(Views);
+function toggleView(view) {
+    if (!ViewValues.includes(view)) return;
+    ViewValues.filter(x => x != view).forEach(x => getViewElement(x).addClass('d-none'));
+    getViewElement(view).removeClass('d-none');
+}
+
 $(document).ready(function () {
     $('body').show();
 
@@ -78,27 +96,13 @@ $(document).ready(function () {
         });
     }
 
-    function togglePostViewVisibility(isPostViewActive) {
-        const generateButtonElement = $('#generate-button');
-        const postViewElement = $(generateButtonElement.data('post-view-target'));
-        const generateViewElement = $(generateButtonElement.data('generate-view-target'));
-
-        if (isPostViewActive) {
-            postViewElement.removeClass('d-none');
-            generateViewElement.addClass('d-none');
-        } else {
-            postViewElement.addClass('d-none');
-            generateViewElement.removeClass('d-none');
-        }
-    }
-
     // Handle changing the view between generated post and generate new post
     $('#generate-button').on('click', function () {
-        togglePostViewVisibility(false);
+        toggleView(Views.GENERATE);
     });
 
-    $('#cancel-generate-button').on('click', function () {
-        togglePostViewVisibility(true);
+    $('#cancel-generate-button, #close-error-button').on('click', function () {
+        toggleView(Views.POST);
     });
 
     // Initialize copy to clipboard action for permalink button

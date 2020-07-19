@@ -155,6 +155,9 @@ def generate_record_task_status(task_id):
 
     if is_ready:
         record_type, uuids = result_handle.result
+        if len(uuids) == 0:
+            return error_response('Could not generate a record from the given prompt.', 400)
+        
         kwargs['uuid'] = uuids[0]
 
         route = 'main.{}_page'.format(_RECORD_ROUTE_MAP[record_type])
