@@ -76,9 +76,6 @@
                         </a>
                     {% endfor %}    
                     {% endblock %}
-                    {% if config['GAME_URL'] %}
-                        <a class="nav-link" href="{{ config['GAME_URL'] }}">Game</a>
-                    {% endif %}
                 </nav>
                 {% endblock %}
             </div>
@@ -170,13 +167,20 @@
         {% endblock %}
 
         {% block footer %}
-        <footer class="mastfoot mt-auto text-center">
+        <footer class="mastfoot mt-auto mx-auto">
             <div class="inner">
+                {% if config['GAME_URL'] %}
+                <p class="p-0 m-0">
+                    Play the <a class="text-link-secondary" href="{{ config['GAME_URL'] }}">guessing game</a>.
+                </p>
+                {% endif %}
                 <p class="p-0 m-0">
                     Created by <a class="text-link-secondary" href="https://github.com/galacticglum">Shon Verch</a>
                     (<a class="text-link-secondary" href="https://twitter.com/galacticglum">@galacticglum</a>)
                 </p>
-                <p class="p-0 m-0" style="font-size: 14px;"><i>Posts are not reviewed. Use at your own risk.</i></p>
+                <p class="p-0 {{'pt-2' if config['GAME_URL'] else ''}} m-0" style="font-size: 14px;">
+                    <i>Posts are not reviewed. Use at your own risk.</i>
+                </p>
             </div>
         </footer>
         {% endblock %}
