@@ -175,6 +175,20 @@ body {
     text-decoration: none;
 }
 
+.text-link-muted {
+    color: #6c757d !important;
+    cursor: pointer;
+}
+
+.text-link-muted:hover, .text-link-muted:active {
+    color: #5becc0 !important;
+    text-decoration: none;
+}
+
+.show-prompt {
+    color: #17a2b8 !important;
+}
+
 /* Truncate utilities */
 .truncate-line {
     overflow: hidden;

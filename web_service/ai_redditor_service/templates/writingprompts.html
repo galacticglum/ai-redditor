@@ -6,11 +6,15 @@
 {% endblock %}
 
 {% block post_name %}
-    {{ record.prompt }}
+    <span class="prompt">{{ record.prompt[:record.prompted_prompt_end] }}</span>
+    {{ record.prompt[record.prompted_prompt_end:] }}
 {% endblock %}
 
 {% block post_content %}
-    {{ record.prompt_response|markdown|e }}
+    {{ '<span class="prompt">{}</span>{}'.format(
+            record.prompt_response[:record.prompted_response_end],
+            record.prompt_response[record.prompted_response_end:]
+    )|markdown|e}}
 {% endblock %}
 
 <!-- Configure summary card -->

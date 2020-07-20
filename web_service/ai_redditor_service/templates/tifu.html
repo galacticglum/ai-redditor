@@ -7,11 +7,15 @@
 {% endblock %}
 
 {% block post_name %}
-    {{ record.post_title }}
+    <span class="prompt">{{ record.post_title[:record.post_title_prompt_end] }}</span>
+    {{ record.post_title[record.post_title_prompt_end:] }}
 {% endblock %}
 
 {% block post_content %}
-    {{ record.post_body|markdown|e }}
+    {{ '<span class="prompt">{}</span>{}'.format(
+            record.post_body[:record.post_body_prompt_end],
+            record.post_body[record.post_body_prompt_end:]
+    )|markdown|e}}
 {% endblock %}
 
 <!-- Configure summary card -->

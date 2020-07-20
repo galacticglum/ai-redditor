@@ -19,11 +19,21 @@
     <img class="avatar mr-2" src="{{ url_for('static', filename='img/phc_avatar.png') }}" alt="Avatar">
     <div class="d-flex flex-column">
         <div class="d-flex flex-row">
-            <span class="font-weight-bold username">{{ record.author_username }}</span>
+            <span class="font-weight-bold username">
+                <span class="prompt">{{ record.author_username[:record.prompted_author_username_end] }}</span>
+                {{ record.author_username[record.prompted_author_username_end:] }}
+            </span>
         </div>
-        <p class="comment-text mb-0">{{ record.comment }}</p>
+        <p class="comment-text mb-0">
+            <span class="prompt">{{ record.comment[:record.prompted_comment_end] }}</span>
+            {{ record.comment[record.prompted_comment_end:] }}
+        </p>
         <div class="d-flex flex-row align-items-center mt-1">
-            <span class="like-text">{{ record.likes }}</span>
+            <span class="like-text">
+                <span class="{{ 'prompt' if record.is_likes_prompted else '' }}">
+                    {{ record.likes }}
+                </span>
+            </span>
             <span class="thumb-icons text-muted">
                 <i class="fas fa-thumbs-up ml-2"></i>
                 <i class="fas fa-thumbs-down ml-1"></i>

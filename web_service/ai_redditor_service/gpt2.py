@@ -139,6 +139,71 @@ def load_model(model_path, tokenizer_path=None, no_cuda=False, quantize=False):
 
 PHC_LINK_PATTERN = re.compile(r'(?P<url>(https?://)?.*pornhub\.com*[^\s]+)')
 
+def _get_decode_regex_mapping(strict, bos_token, eos_token, translate_token, end_of_likes_token):
+    '''
+    Regex patterns for splitting the model output into 
+    groups of data based on the decode format.
+
+    :param strict:
+        Whether the match groups must contain a value. If True, the match groups
+        cannot be empty.
+    :param bos_token:
+        The beginning of sentence token.
+    :param eos_token:
+        The end of sentence token.
+    :param translate_token:
+        The query/answer separator token (translation separator token).
+    :param end_of_likes_token:
+        The special token specifying the end of likes.
+    :returns:
+        A dictionary mapping between :class:`ModelDecodeFormat` and the
+        corresponding group capturing regex pattern.
+
+    '''
+    
+    match_token = '+' if strict else '*'
+    return {
+        ModelDecodeFormat.QUERY_ANSWER: re.compile((
+            f'^{re.escape(bos_token)}(?P<prompt>.{match_token}?)'
+            f'(?:{re.escape(translate_token)}(?P<response>.{match_token}?))*'
+            f'{re.escape(eos_token)}'
+        ), flags=re.MULTILINE | re.DOTALL),
+        ModelDecodeFormat.PHC: re.compile((
+            f'^{re.escape(bos_token)}(?P<likes>.{match_token}?)'
+            f'(?:{re.escape(end_of_likes_token)}(?P<author>.{match_token}?))*'
+            f'(?:{re.escape(translate_token)}(?P<comment_body>.{match_token}?))*'
+            f'{re.escape(eos_token)}'
+        ), flags=re.MULTILINE | re.DOTALL)
+    }
+
+def _get_decode_special_tokens_mapping(bos_token, eos_token, translate_token, end_of_likes_token):
+    '''
+    Special tokens, in order of appearance in the decode format.
+
+    :param bos_token:
+        The beginning of sentence token.
+    :param eos_token:
+        The end of sentence token.
+    :param translate_token:
+        The query/answer separator token (translation separator token).
+    :param end_of_likes_token:
+        The special token specifying the end of likes.
+    :returns:
+        A dictionary mapping between :class:`ModelDecodeFormat` and the
+        corresponding list of special tokens ordered by their appearance
+        in the decode format.
+
+    '''
+
+    return {
+        ModelDecodeFormat.QUERY_ANSWER: [
+            bos_token, translate_token, eos_token
+        ],
+        ModelDecodeFormat.PHC: [
+            bos_token, end_of_likes_token, translate_token, eos_token
+        ]
+    }
+
 def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
              top_p=1, num_return_sequences=10, max_iterations=10, min_length=250,
              max_length=1024, translate_token='<|eq_tok|>', end_of_likes_token='<|eol|>',
@@ -203,31 +268,19 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
     if decode_format == ModelDecodeFormat.PHC:
         provided_special_tokens['end_of_likes'] = end_of_likes_token
 
-    _verify_special_tokens(tokenizer,  **provided_special_tokens)   
-
-    # A mapping defining the regex pattern to use to split
+    # Strict regex patterns (i.e. matching groups cannot be empty) for splitting
     # the model output into groups of data based on the decode format.
-    DECODE_REGEX_MAPPING = {
-        ModelDecodeFormat.QUERY_ANSWER: (
-            f'^{re.escape(tokenizer.bos_token)}(?P<prompt>.+?)'
-            f'(?:{re.escape(translate_token)}(?P<response>.+?))*'
-            f'{re.escape(tokenizer.eos_token)}'
-        ),
-        ModelDecodeFormat.PHC: (
-            f'^{re.escape(tokenizer.bos_token)}(?P<likes>.+?)'
-            f'(?:{re.escape(end_of_likes_token)}(?P<author>.+?))*'
-            f'(?:{re.escape(translate_token)}(?P<comment_body>.+?))*'
-            f'{re.escape(tokenizer.eos_token)}'
-        )
-    }
+    DECODE_STRICT_REGEX_MAPPING = _get_decode_regex_mapping(
+        True, tokenizer.bos_token, tokenizer.eos_token,
+        translate_token, end_of_likes_token
+    )
 
-    if decode_format not in DECODE_REGEX_MAPPING:
+    _verify_special_tokens(tokenizer,  **provided_special_tokens)   
+    if decode_format not in DECODE_STRICT_REGEX_MAPPING:
         ValueError('{} is invalid. Must be one of: {}.'.format(
-            decode_format, list(DECODE_REGEX_MAPPING.keys())
+            decode_format, list(DECODE_STRICT_REGEX_MAPPING.keys())
         ))
     
-    decode_regex = re.compile(DECODE_REGEX_MAPPING[decode_format], flags=re.MULTILINE | re.DOTALL)
-
     # If no prompt is specified, the default is the BOS token.
     prompt = prompt or tokenizer.bos_token
     # Encode the prompt using the tokenizer
@@ -267,7 +320,7 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
                 urls = PHC_LINK_PATTERN.findall(raw_text)
                 if len(urls) > 0: continue
             
-            match = decode_regex.match(raw_text)
+            match = DECODE_STRICT_REGEX_MAPPING[decode_format].match(raw_text)
             # Check if the decode regex matched the decoded string
             if not match: continue
 

@@ -121,4 +121,30 @@ $(document).ready(function () {
 
         e.preventDefault();
     });
+
+    $('#show-prompt-button').on('click', function(e) {
+        let toggled = $(this).data('toggled');
+        if (toggled === undefined) {
+            toggled = false;
+        }
+
+        toggled = !toggled;
+        $('span.prompt').map(function() {
+            if (toggled) {
+                $(this).addClass('show-prompt');
+            } else {
+                $(this).removeClass('show-prompt');   
+            }
+        });
+
+        $(this).text(toggled ? 'Hide prompt' : 'Show prompt');
+        $(this).data('toggled', toggled);
+    });
+
+    $('#show-prompt-button').on('mousedown', function(e) {
+        // Disable text selection on double click
+        if (e.detail > 1) {
+            e.preventDefault();
+        }
+    });
 });
