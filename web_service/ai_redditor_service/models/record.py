@@ -117,9 +117,9 @@ class TIFURecord(RecordMixin, db.Model):
 
     __tablename__ = 'tifu_record'
     post_title = db.Column(db.Text)
-    post_title_prompt_end = db.Column(db.Integer)
+    post_title_prompt_end = db.Column(db.Integer, nullable=False, default=0)
     post_body = db.Column(db.Text)
-    post_body_prompt_end = db.Column(db.Integer)
+    post_body_prompt_end = db.Column(db.Integer, nullable=False, default=0)
 
     def __init__(self, post_title, post_body, post_title_prompt_end=0,
                  post_body_prompt_end=0, **kwargs):
@@ -186,9 +186,9 @@ class WPRecord(RecordMixin, db.Model):
 
     __tablename__ = 'wp_record'
     prompt = db.Column(db.Text)
-    prompted_prompt_end = db.Column(db.Integer)
+    prompted_prompt_end = db.Column(db.Integer, nullable=False, default=0)
     prompt_response = db.Column(db.Text)
-    prompted_response_end = db.Column(db.Integer)
+    prompted_response_end = db.Column(db.Integer, nullable=False, default=0)
 
     def __init__(self, prompt, prompt_response, prompted_prompt_end=0,
                  prompted_response_end=0, **kwargs):
@@ -250,11 +250,11 @@ class PHCRecord(RecordMixin, db.Model):
 
     __tablename__ = 'phc_record'
     author_username = db.Column(db.Text)
-    prompted_author_username_end = db.Column(db.Integer)
+    prompted_author_username_end = db.Column(db.Integer, nullable=False, default=0)
     likes = db.Column(db.BigInteger)
-    is_likes_prompted = db.Column(db.Boolean)
+    is_likes_prompted = db.Column(db.Boolean, nullable=False, default=False)
     comment = db.Column(db.Text)
-    prompted_comment_end = db.Column(db.Integer)
+    prompted_comment_end = db.Column(db.Integer, nullable=False, default=0)
 
     def __init__(self, author_username, likes, comment, prompted_author_username_end=0,
                  is_likes_prompted=False, prompted_comment_end=0, **kwargs):
