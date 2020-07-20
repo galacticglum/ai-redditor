@@ -150,3 +150,6 @@ apex/
 
 # Migrations
 migrations/
+
+# Config
+uwsgi.ini
