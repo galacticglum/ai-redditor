@@ -147,3 +147,6 @@ apex/
 
 # VS Code
 .vscode/
+
+# Migrations
+migrations/
