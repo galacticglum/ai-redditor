@@ -68,7 +68,7 @@
                 autocomplete='off',
                 rows=3
             )}}
-            <!-- <p class="comment-text mb-0">{{ record.comment }}</p> -->
+
             <div class="d-flex flex-row align-items-center mt-1">
                 {{ generate_form.likes(
                     class='form-control like-input',
@@ -76,7 +76,7 @@
                     autocomplete='off',
                     type='number'
                 )}}
-                <!-- <span class="like-text">{{ record.likes }}</span> -->
+
                 <span class="thumb-icons text-muted">
                     <i class="fas fa-thumbs-up ml-2"></i>
                     <i class="fas fa-thumbs-down ml-1"></i>
@@ -101,11 +101,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"
     integrity="sha512-UdIMMlVx0HEynClOIFSyOrPggomfhBKJE28LKl8yR3ghkgugPnG6iLfRfHwushZl1MOPSY6TsuBDGPK2X4zYKg=="
     crossorigin="anonymous"></script>
-<script type="text/javascript">
-    $('#submit').on('click', function () {
-        // const validator = $('#generate-form').validate();
-    });
-</script>
 {% endblock %}
 
 {% block process_prompt_func %}
