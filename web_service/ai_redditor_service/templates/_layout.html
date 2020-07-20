@@ -133,7 +133,7 @@
                 {% endif %}
             </div>
             <div id="generate-view" class="d-none">
-                {% block generate_view%}
+                {% block generate_view %}
                 <p class="text-muted mb-1">{{ self.post_category() }}</p>
                 <form method="POST" id="generate-form" action="javascript:void(0);">
                     {{ generate_form.csrf_token() }}
@@ -141,7 +141,8 @@
                         class='h3 form-control title-input',
                         placeholder='title',
                         value='',
-                        autocomplete='off'
+                        autocomplete='off',
+                        pattern='^(?!\s+$).*'
                     )}}
 
                     {{ generate_form.post_body(

@@ -22,7 +22,7 @@ class GeneratePHCForm(FlaskForm):
 
     '''
 
-    author_username = StringField('title', validators=[DataRequired()])
-    likes = IntegerField('likes', validators=[DataRequired()])
+    author_username = StringField('author_username')
+    likes = IntegerField('likes')
     comment = TextAreaField('comment')
     submit = SubmitField('Submit')

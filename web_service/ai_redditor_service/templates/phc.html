@@ -55,7 +55,8 @@
                     class='form-control username-input font-weight-bold',
                     placeholder='username',
                     value='',
-                    autocomplete='off'
+                    autocomplete='off',
+                    pattern='^(?!\s+$).*'
                 )}}
             </div>
             {{ generate_form.comment(
@@ -72,9 +73,10 @@
             <div class="d-flex flex-row align-items-center mt-1">
                 {{ generate_form.likes(
                     class='form-control like-input',
-                    value='0',
+                    placeholder='likes',
                     autocomplete='off',
-                    type='number'
+                    type='number',
+                    value='0'
                 )}}
 
                 <span class="thumb-icons text-muted">
