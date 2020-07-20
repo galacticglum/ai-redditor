@@ -207,7 +207,8 @@ def _get_decode_special_tokens_mapping(bos_token, eos_token, translate_token, en
 def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
              top_p=1, num_return_sequences=10, max_iterations=10, min_length=250,
              max_length=1024, translate_token='<|eq_tok|>', end_of_likes_token='<|eol|>',
-             fp16=False, fp16_opt_level='O1', no_duplicates=False, use_link_filter=True):
+             fp16=False, fp16_opt_level='O1', no_duplicates=False, use_link_filter=True,
+             decode_strict_regex_mapping=None):
     '''
     Generate text from a model with a language modelling head.
 
@@ -253,6 +254,10 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
     :param use_link_filter:
         Filter for links in the generated output; if a link is found, the sample is skipped.
         Defaults to True.
+    :param decode_strict_regex_mapping:
+        Strict regex patterns for decoding model output mapped by decode format. If not specified
+        or None, this mapping is computed using the :func:`ai_redditor_service.gpt2._get_decode_regex_mapping`
+        function; otherwise, the provided mapping is used.
     :returns:
         A list of :class:`RawRecord` objects.
 
@@ -268,17 +273,18 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
     if decode_format == ModelDecodeFormat.PHC:
         provided_special_tokens['end_of_likes'] = end_of_likes_token
 
-    # Strict regex patterns (i.e. matching groups cannot be empty) for splitting
-    # the model output into groups of data based on the decode format.
-    DECODE_STRICT_REGEX_MAPPING = _get_decode_regex_mapping(
-        True, tokenizer.bos_token, tokenizer.eos_token,
-        translate_token, end_of_likes_token
-    )
+    if decode_strict_regex_mapping is None:
+        # Strict regex patterns (i.e. matching groups cannot be empty) for splitting
+        # the model output into groups of data based on the decode format.
+        decode_strict_regex_mapping = _get_decode_regex_mapping(
+            True, tokenizer.bos_token, tokenizer.eos_token,
+            translate_token, end_of_likes_token
+        )
 
     _verify_special_tokens(tokenizer,  **provided_special_tokens)   
-    if decode_format not in DECODE_STRICT_REGEX_MAPPING:
+    if decode_format not in decode_strict_regex_mapping:
         ValueError('{} is invalid. Must be one of: {}.'.format(
-            decode_format, list(DECODE_STRICT_REGEX_MAPPING.keys())
+            decode_format, list(decode_strict_regex_mapping.keys())
         ))
     
     # If no prompt is specified, the default is the BOS token.
@@ -320,7 +326,7 @@ def generate(model, tokenizer, decode_format, prompt=None, samples=1, top_k=300,
                 urls = PHC_LINK_PATTERN.findall(raw_text)
                 if len(urls) > 0: continue
             
-            match = DECODE_STRICT_REGEX_MAPPING[decode_format].match(raw_text)
+            match = decode_strict_regex_mapping[decode_format].match(raw_text)
             # Check if the decode regex matched the decoded string
             if not match: continue
 

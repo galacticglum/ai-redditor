@@ -126,6 +126,30 @@ class GPT2GenerateTask(SqlAlchemyTask):
 
         return current_app.config['GPT2_END_OF_LIKES_TOKEN']
 
+    def _load_decode_regex_mapping(self, strict):
+        regex_mappings = {}
+        for model_type, value in self.models.items():
+            _, tokenizer = value
+            regex_mappings[model_type] =  _get_decode_regex_mapping(
+                strict, tokenizer.bos_token, tokenizer.eos_token,
+                self.translate_token, self.end_of_likes_token
+            )
+
+        return regex_mappings
+
+    @cached_property
+    def decode_strict_regex_mapping(self):
+        '''
+        A dictionary mapping each :class:`ai_redditor_service.models.RecordType`
+        to another dictionary containing the strict regex patterns (i.e. matching
+        groups cannot be empty) for splitting the model output into groups of data
+        based on the decode format, for each
+        :class:`ai_redditor_service.gpt2.ModelDecodeFormat`.
+
+        '''
+        
+        return self._load_decode_regex_mapping(True)
+
     @cached_property
     def decode_non_strict_regex_mapping(self):
         '''
@@ -137,15 +161,7 @@ class GPT2GenerateTask(SqlAlchemyTask):
 
         '''
         
-        regex_mappings = {}
-        for model_type, value in self.models.items():
-            _, tokenizer = value
-            regex_mappings[model_type] =  _get_decode_regex_mapping(
-                False, tokenizer.bos_token, tokenizer.eos_token,
-                self.translate_token, self.end_of_likes_token
-            )
-
-        return regex_mappings
+        return self._load_decode_regex_mapping(False)
 
     @cached_property
     def decode_special_tokens_mapping(self):
@@ -239,12 +255,16 @@ def generate_record(record_type, **kwargs):
         # if it does, we want to bypass the link filter to allow the prompt.
         use_link_filter = len(PHC_LINK_PATTERN.findall(kwargs['prompt'])) == 0
         
+    decode_strict_regex_mapping = generate_record.decode_strict_regex_mapping[record_type]
     outputs = gpt2_model_generate(
         model, tokenizer, record_config.decode_format,
         translate_token=generate_record.translate_token,
         end_of_likes_token=generate_record.end_of_likes_token,
-        min_length=record_config.min_length, max_length=record_config.max_length,
-        use_link_filter=use_link_filter, **kwargs
+        min_length=record_config.min_length,
+        max_length=record_config.max_length,
+        use_link_filter=use_link_filter,
+        decode_strict_regex_mapping=decode_strict_regex_mapping,
+        **kwargs
     )
 
     # The records are custom if the prompt keyword argument
