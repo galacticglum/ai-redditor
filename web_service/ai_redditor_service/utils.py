@@ -37,10 +37,18 @@ def validate_json(data, schema, force=False, fill_defaults=False):
     except ValidationError as exception:
         return abort(400, exception)
 
-def all_empty(iterable):
+def all_empty(iterable, ignore_int=True):
     '''
     Returns whether the specified iterable is all empty.
 
+    :param ignore_int:
+        Ignore integer values (i.e. a value of zero will be non be treated as empty).
+        Defaults to True.
+
     '''
     
-    return all(not bool(x) for x in iterable)
+    for x in iterable:
+        if ignore_int and isinstance(x, int): continue
+        if not bool(x): return False
+
+    return True
