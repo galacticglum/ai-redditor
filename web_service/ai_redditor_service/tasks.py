@@ -162,6 +162,15 @@ class GPT2GenerateTask(SqlAlchemyTask):
 
         return regex_mappings
 
+    @cached_property
+    def log_debug_info(self):
+        '''
+        Indicates whether to log debug information when generating records.
+
+        '''
+
+        return current_app.config['RECORD_GENERATION_LOG_DEBUG_INFO']
+
 class RecordGenerateConfig:
     '''
     Configuration values for generating a record.
@@ -279,7 +288,9 @@ def _phc_prompt_to_string(record_type, prompt_object):
         field for field in required_fields if _is_field_missing(field, prompt_object)
     ]
 
-    print(f'{required_fields} are required; {missing_fields} are missing.')
+    if generate_record.log_debug_info:
+        logger.warning(f'{required_fields} are required; {missing_fields} are missing.')
+
     if len(missing_fields) > 0:
         # Generate another record to populate the missing fields
         record_config = _RECORD_GENERATE_CONFIGS[RecordType.PHC]
@@ -290,9 +301,7 @@ def _phc_prompt_to_string(record_type, prompt_object):
             # Include the prompted likes, if given, to get more accurate field values.
             prompt += str(prompt_object['likes']) + generate_record.end_of_likes_token
 
-        import time
-        print(f'Generating secondary record with prompt \'{prompt}\'')
-        start=time.time()
+        start_time = time.time()
         outputs = gpt2_model_generate(
             model, tokenizer, record_config.decode_format,
             translate_token=generate_record.translate_token,
@@ -302,8 +311,12 @@ def _phc_prompt_to_string(record_type, prompt_object):
             decode_strict_regex_mapping=decode_strict_regex_mapping,
             prompt=prompt, samples=1
         )
-        end=time.time()
-        print('Took {:.2f} seconds'.format(end-start))
+
+        if generate_record.log_debug_info:
+            end_time = time.time()
+            logger.warning('Generating secondary record with prompt \'{}\'; took {:.2f} seconds'.format(
+                prompt, end_time - start_time
+            ))
 
         # Copy prompt object so that we only modify it within this function
         prompt_object = copy.copy(prompt_object)
@@ -354,11 +367,9 @@ def generate_record(record_type, prompt_object=None, **kwargs):
         # We only use the link filter if the prompt DOES NOT have links; otherwise,
         # if it does, we want to bypass the link filter to allow the prompt.
         use_link_filter = len(PHC_LINK_PATTERN.findall(prompt)) == 0
-        
+
+    start_time = time.time()
     decode_strict_regex_mapping = generate_record.decode_strict_regex_mapping[record_type]
-    import time
-    start=time.time()
-    print(f'Generating primary record with prompt \'{prompt}\'')
     outputs = gpt2_model_generate(
         model, tokenizer, record_config.decode_format,
         translate_token=generate_record.translate_token,
@@ -369,8 +380,12 @@ def generate_record(record_type, prompt_object=None, **kwargs):
         decode_strict_regex_mapping=decode_strict_regex_mapping,
         prompt=prompt, **kwargs
     )
-    end=time.time()
-    print('Took {:.2f} to generate.'.format(end-start))
+
+    if generate_record.log_debug_info:
+        end_time = time.time()
+        logger.warning('Generating primary record with prompt \'{}\'; took {:.2f} seconds'.format(
+            prompt, end_time - start_time
+        ))
 
     special_token_pattern = generate_record.special_tokens_match_pattern[record_type]
 
