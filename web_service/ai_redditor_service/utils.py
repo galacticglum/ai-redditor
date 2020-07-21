@@ -49,6 +49,6 @@ def all_empty(iterable, ignore_int=True):
     
     for x in iterable:
         if ignore_int and isinstance(x, int): continue
-        if not bool(x): return False
+        if bool(x): return False
 
     return True
