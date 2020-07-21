@@ -1,3 +1,7 @@
+from flask import abort
+from jsonschema import validate, ValidationError
+from flask_expects_json.default_validator import DefaultValidatingDraft4Validator
+
 def unescape_unicode(string):
     '''
     Unescape a string encoded with unicode_escape.
@@ -18,3 +22,17 @@ def merge_dicts(x, y):
     z = x.copy()
     z.update(y)
     return z
+
+def validate_json(data, schema, force=False, fill_defaults=False):
+    '''
+    Validates a JSON schema.
+
+    '''
+
+    try:
+        if fill_defaults:
+            DefaultValidatingDraft4Validator(schema).validate(data)
+        else:
+            validate(data, schema)
+    except ValidationError as exception:
+        return abort(400, exception)

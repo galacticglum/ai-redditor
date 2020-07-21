@@ -4,8 +4,11 @@ Celery tasks.
 '''
 
 import re
+import copy
 import time
+import traceback
 
+from celery import states
 from flask import current_app
 from celery.utils import cached_property, log
 from ai_redditor_service.extensions import celery, db
@@ -52,7 +55,19 @@ class GPT2GenerateTask(SqlAlchemyTask):
     '''
 
     abstract = True
-    
+
+    def on_failure(self, exception, task_id, args, kwargs, einfo):
+        '''
+        Invoked when the task raises an exception.
+
+        '''
+
+        self.update_state(state=states.FAILURE, meta={
+            'exc_type': type(exception).__name__,
+            'exc_message': traceback.format_exc().split('\n'),
+            'error': str(exception)
+        })
+
     @cached_property
     def models(self):
         '''
@@ -126,17 +141,6 @@ class GPT2GenerateTask(SqlAlchemyTask):
 
         return current_app.config['GPT2_END_OF_LIKES_TOKEN']
 
-    def _load_decode_regex_mapping(self, strict):
-        regex_mappings = {}
-        for model_type, value in self.models.items():
-            _, tokenizer = value
-            regex_mappings[model_type] =  _get_decode_regex_mapping(
-                strict, tokenizer.bos_token, tokenizer.eos_token,
-                self.translate_token, self.end_of_likes_token
-            )
-
-        return regex_mappings
-
     @cached_property
     def decode_strict_regex_mapping(self):
         '''
@@ -148,39 +152,15 @@ class GPT2GenerateTask(SqlAlchemyTask):
 
         '''
         
-        return self._load_decode_regex_mapping(True)
-
-    @cached_property
-    def decode_non_strict_regex_mapping(self):
-        '''
-        A dictionary mapping each :class:`ai_redditor_service.models.RecordType`
-        to another dictionary containing the non-strict regex patterns (i.e. 
-        matching groups can be empty) for splitting the model output into groups 
-        of data based on the decode format, for each
-        :class:`ai_redditor_service.gpt2.ModelDecodeFormat`.
-
-        '''
-        
-        return self._load_decode_regex_mapping(False)
-
-    @cached_property
-    def decode_special_tokens_mapping(self):
-        '''
-        A dictionary mapping each :class:`ai_redditor_service.models.RecordType`
-        to another dictionary containing the special tokens, in order of appearance
-        in the decode format, for each :class:`ai_redditor_service.gpt2.ModelDecodeFormat`.
-
-        '''
-
-        special_tokens_mapping = {}
+        regex_mappings = {}
         for model_type, value in self.models.items():
             _, tokenizer = value
-            special_tokens_mapping[model_type] = _get_decode_special_tokens_mapping(
-                tokenizer.bos_token, tokenizer.eos_token,
+            regex_mappings[model_type] =  _get_decode_regex_mapping(
+                True, tokenizer.bos_token, tokenizer.eos_token,
                 self.translate_token, self.end_of_likes_token
             )
 
-        return special_tokens_mapping
+        return regex_mappings
 
 class RecordGenerateConfig:
     '''
@@ -194,66 +174,175 @@ class RecordGenerateConfig:
         self.min_length = min_length
         self.max_length = max_length
 
-    def group_to_record(self, prompt, generated_groups,decode_non_strict_regex,
-                        decode_special_tokens, *args, **kwargs):  
-        if prompt is not None:
-            # Prepare prompt for splitting into groups.
-            # The regex pattern expects that ALL special tokens are present,
-            # meaning that we need to pad the end of the prompt with the missing tokens.
-            special_tokens = decode_special_tokens[self.decode_format]
-            prompt += ''.join(token for token in special_tokens if token not in prompt)
-            # Split the prompt into match groups
-            decode_regex = decode_non_strict_regex[self.decode_format]
-            prompt_groups = decode_regex.match(prompt).groupdict()
-        else:
-            prompt_groups = {}
+    def group_to_record(self, prompt_object, generated_groups, *args, **kwargs):  
+        return self._group_to_record_func(prompt_object, generated_groups, *args, **kwargs)
 
-        return self._group_to_record_func(prompt_groups, generated_groups, *args, **kwargs)
+def _sanitize_likes(likes_str):
+    '''
+    Sanitize the likes group of the model output.
+
+    '''
+
+    return int(re.sub('[^0-9]', '', likes_str) or 0)
 
 # Maps record type to a value configuration
 _RECORD_GENERATE_CONFIGS = {
     RecordType.TIFU: RecordGenerateConfig(
         ModelDecodeFormat.QUERY_ANSWER,
-        lambda prompt_groups, generated_groups, *args, **kwargs: TIFURecord(
+        lambda prompt_object, generated_groups, *args, **kwargs: TIFURecord(
             generated_groups['prompt'], generated_groups['response'],
-            post_title_prompt_end=len(prompt_groups.get('prompt', '')),
-            post_body_prompt_end=len(prompt_groups.get('response', '')),
+            post_title_prompt_end=len(prompt_object.get('post_title', '')),
+            post_body_prompt_end=len(prompt_object.get('post_body', '')),
             *args, **kwargs
         )
     ),
     RecordType.WP: RecordGenerateConfig(
         ModelDecodeFormat.QUERY_ANSWER,
-        lambda prompt_groups, generated_groups, *args, **kwargs: WPRecord(
+        lambda prompt_object, generated_groups, *args, **kwargs: WPRecord(
             generated_groups['prompt'], generated_groups['response'],
-            prompted_prompt_end=len(prompt_groups.get('prompt', '')),
-            prompted_response_end=len(prompt_groups.get('response', '')),
+            prompted_prompt_end=len(prompt_object.get('post_title', '')),
+            prompted_response_end=len(prompt_object.get('post_body', '')),
             *args, **kwargs
         )
     ),
     RecordType.PHC: RecordGenerateConfig(
         ModelDecodeFormat.PHC,
-        lambda prompt_groups, generated_groups, *args, **kwargs: PHCRecord(
+        lambda prompt_object, generated_groups, *args, **kwargs: PHCRecord(
             generated_groups['author'],
-            int(re.sub('[^0-9]', '', generated_groups['likes']) or 0),
+            _sanitize_likes(generated_groups['likes']),
             generated_groups['comment_body'],
-            prompted_author_username_end=len(prompt_groups.get('author', '')),
-            is_likes_prompted=bool(prompt_groups.get('likes', None)),
-            prompted_comment_end=len(prompt_groups.get('comment_body', '')),
+            prompted_author_username_end=len(prompt_object.get('author', '')),
+            is_likes_prompted=bool(prompt_object.get('likes', None)),
+            prompted_comment_end=len(prompt_object.get('comment_body', '')),
             *args, **kwargs
         ), min_length=10, max_length=200
     )
 }
 
+# Prefix for each record type
+_RECORD_PROMPT_PREFIXES = {
+    RecordType.TIFU: 'TIFU ',
+    RecordType.WP: '[WP] '
+}
+
+def _qa_prompt_to_string(record_type, prompt_object):
+    prompt_prefix = _RECORD_PROMPT_PREFIXES[record_type]
+    _, tokenizer = generate_record.models[record_type]
+
+    # Check if the prompt object is empty or None; if so,
+    # we simply provide the <|bos|> and prompt prefix as the
+    # input to the model.
+    if not bool(prompt_object):
+        return tokenizer.bos_token + prompt_prefix
+
+    if not bool(prompt_object.get('post_title', None)):
+        record_type_name = RecordType(record_type).name
+        raise ValueError(
+            f'Invalid prompt provided when trying to generate {record_type_name} record. '
+            'The \'post_title\' field is required but was not provided.'
+        )
+
+    # Make sure that the post title starts with the prefix
+    if not prompt_object['post_title'].startswith(prompt_prefix):
+        prompt_object['post_title'] = prompt_prefix + prompt_object['post_title']
+    
+    prompt = tokenizer.bos_token + prompt_object['post_title']
+    if bool(prompt_object.get('post_body', None)):
+        prompt += generate_record.translate_token + prompt_object['post_body']
+
+    return prompt    
+
+def _phc_prompt_to_string(record_type, prompt_object):
+    model, tokenizer = generate_record.models[record_type]
+
+    # Check if the prompt object is empty or None; if so,
+    # we simply provide the <|bos|> token as the input to the model.
+    if not bool(prompt_object):
+        return tokenizer.bos_token
+
+    # A prompt field depends on all the ones preceeding it
+    # (due to the nature of the input format to the model).
+    if bool(prompt_object.get('comment_body', None)):
+        required_fields = ['likes', 'author']
+    elif bool(prompt_object.get('author', None)):
+        required_fields = ['likes']
+    else:
+        required_fields = []
+
+    # Find all the missing fields
+    missing_fields = [
+        field for field in required_fields if not bool(prompt_object.get(field, None))
+    ]
+
+    if len(missing_fields) > 0:
+        # Generate another record to populate the missing fields
+        record_config = _RECORD_GENERATE_CONFIGS[RecordType.PHC]
+        decode_strict_regex_mapping = generate_record.decode_strict_regex_mapping[RecordType.PHC]
+        
+        prompt = tokenizer.bos_token
+        if 'likes' not in missing_fields:
+            # Include the prompted likes, if given, to get more accurate field values.
+            prompt += str(prompt_object['likes']) + generate_record.end_of_likes_token
+
+        outputs = gpt2_model_generate(
+            model, tokenizer, record_config.decode_format,
+            translate_token=generate_record.translate_token,
+            end_of_likes_token=generate_record.end_of_likes_token,
+            min_length=record_config.min_length,
+            max_length=record_config.max_length,
+            decode_strict_regex_mapping=decode_strict_regex_mapping,
+            prompt=prompt, samples=1
+        )
+
+        # Copy prompt object so that we only modify it within this function
+        prompt_object = copy.copy(prompt_object)
+
+        # Populate the missing fields
+        for field in missing_fields:
+            value = outputs[0].groups[field]
+            if field == 'likes':
+                value = _sanitize_likes(value)
+            
+            prompt_object[field] = value
+
+    prompt = tokenizer.bos_token + str(prompt_object['likes'])
+    if bool(prompt_object.get('author', None)):
+        prompt += generate_record.end_of_likes_token + prompt_object['author']
+
+    if bool(prompt_object.get('comment_body', None)):
+        prompt += generate_record.translate_token + prompt_object['comment_body']
+    
+    return prompt
+
+_PROMPT_OBJECT_TO_STRING = {
+    RecordType.TIFU: _qa_prompt_to_string,
+    RecordType.WP: _qa_prompt_to_string,
+    RecordType.PHC: _phc_prompt_to_string
+}
+
 @celery.task(base=GPT2GenerateTask)
-def generate_record(record_type, **kwargs):
+def generate_record(record_type, prompt_object=None, **kwargs):
     record_config = _RECORD_GENERATE_CONFIGS[record_type]
     model, tokenizer = generate_record.models[record_type]
 
+    if prompt_object is None:
+        prompt_object = dict()
+    
+    # Strip all prompt string values of trailing whitespace
+    prompt_object = {
+        key: (value.strip() if isinstance(value, str) else value) \
+            for key, value in prompt_object.items()
+    }
+
+    # Convert the prompt object to a string
+    prompt = _PROMPT_OBJECT_TO_STRING[record_type](record_type, prompt_object)
+
     use_link_filter = True
-    if record_type == RecordType.PHC and kwargs.get('prompt', None):
+    is_custom = prompt is not None
+    if record_type == RecordType.PHC and is_custom:
         # We only use the link filter if the prompt DOES NOT have links; otherwise,
         # if it does, we want to bypass the link filter to allow the prompt.
-        use_link_filter = len(PHC_LINK_PATTERN.findall(kwargs['prompt'])) == 0
+        use_link_filter = len(PHC_LINK_PATTERN.findall(prompt)) == 0
         
     decode_strict_regex_mapping = generate_record.decode_strict_regex_mapping[record_type]
     outputs = gpt2_model_generate(
@@ -264,12 +353,9 @@ def generate_record(record_type, **kwargs):
         max_length=record_config.max_length,
         use_link_filter=use_link_filter,
         decode_strict_regex_mapping=decode_strict_regex_mapping,
-        **kwargs
+        prompt=prompt, **kwargs
     )
 
-    # The records are custom if the prompt keyword argument
-    # is present AND non-empty.
-    is_custom = 'prompt' in kwargs and bool(kwargs['prompt'])
     special_token_pattern = generate_record.special_tokens_match_pattern[record_type]
 
     record_uuids = []
@@ -279,14 +365,7 @@ def generate_record(record_type, **kwargs):
             for key, value in output.groups.items()
         }
 
-        prompt = None or kwargs['prompt']
-        decode_non_strict_regex = generate_record.decode_non_strict_regex_mapping[record_type]
-        decode_special_tokens = generate_record.decode_special_tokens_mapping[record_type]
-
-        record = record_config.group_to_record(
-            prompt, groups, decode_non_strict_regex,
-            decode_special_tokens, is_custom=is_custom
-        )
+        record = record_config.group_to_record(prompt_object, groups, is_custom=is_custom)
         
         record_uuids.append(record.uuid)
         db.session.add(record)

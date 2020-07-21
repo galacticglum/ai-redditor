@@ -1,8 +1,11 @@
+import json
+from celery import states
 from celery.result import AsyncResult
 from flask_expects_json import expects_json
 from flask import Blueprint, current_app, g, jsonify, url_for
 
 import ai_redditor_service.tasks as tasks
+from ai_redditor_service.utils import validate_json
 from ai_redditor_service.models import RecordType, RECORD_MODEL_CLASSES
 from ai_redditor_service.extensions import celery as celery_app
 
@@ -77,20 +80,54 @@ def get_random_record(record_type):
     result = records[0].to_dict() if len(records) == 1 else [record.to_dict() for record in records]        
     return jsonify(result), 201
 
-_RECORD_PROMPT_PREFIXES = {
-    RecordType.TIFU: 'TIFU ',
-    RecordType.WP: '[WP] ',
-    RecordType.PHC: ''
-}
-
 generate_schema = {
     'type': 'object',
     'properties': {
         'prompt': {
-            'type': ['string', 'null'],
+            'type': ['object', 'null'],
             'default': None
         }
     }
+}
+
+query_answer_prompt_schema = {
+    'type': 'object',
+    'properties': {
+        'post_title': {
+            'type': ['string', 'null'],
+            'default': None
+        },
+        'post_body': {
+            'type': ['string', 'null'],
+            'default': None
+        },
+    },
+    'additionalProperties': False
+}
+
+phc_prompt_schema = {
+    'type': 'object',
+    'properties': {                
+        'author': {
+            'type': ['string', 'null'],
+            'default': None
+        },
+        'likes': {
+            'type': ['integer', 'null'],
+            'default': None
+        },
+        'comment_body': {
+            'type': ['string', 'null'],
+            'default': None
+        }
+    },
+    'additionalProperties': False
+}
+
+_PROMPT_SCHEMAS = {
+    RecordType.TIFU: query_answer_prompt_schema,
+    RecordType.WP: query_answer_prompt_schema,
+    RecordType.PHC: phc_prompt_schema
 }
 
 @bp.route('/r/<any(tifu, wp, phc):record_type>/generate', methods=['POST'])
@@ -104,25 +141,12 @@ def generate_record(record_type):
 
     # Convert record type argument to enum
     record_type = RecordType[record_type.upper()]
-    bos_token = current_app.config['GPT2_BOS_TOKEN']
-    prompt_prefix = _RECORD_PROMPT_PREFIXES[record_type]
-
     prompt = g.data['prompt']
-    if prompt is None:
-        prompt = bos_token + prompt_prefix
-    else:
-        prompt = prompt.strip()
-        
-        # Make sure that the prompt starts with the bos token and prompt prefix
-        if prompt.startswith(bos_token):
-            prompt = prompt.replace(bos_token,  '')
-        
-        if prompt.startswith(prompt_prefix):
-            prompt = prompt.replace(prompt_prefix, '')
 
-        prompt = bos_token + prompt_prefix + prompt
-    
-    result = tasks.generate_record.delay(record_type, prompt=prompt, samples=1) 
+    if record_type in _PROMPT_SCHEMAS:
+        validate_json(prompt, _PROMPT_SCHEMAS[record_type])
+
+    result = tasks.generate_record.delay(record_type, prompt, samples=1) 
     response_message = 'Queued up {} record generation.'.format(record_type.name)
 
     return jsonify(
@@ -154,14 +178,21 @@ def generate_record_task_status(task_id):
     }
 
     if is_ready:
-        record_type, uuids = result_handle.result
-        if len(uuids) == 0:
-            return error_response('Could not generate a record from the given prompt.', 400)
-        
-        kwargs['uuid'] = uuids[0]
+        if result_handle.state == states.FAILURE:
+            backend = result_handle.backend
+            state_meta = backend.get(backend.get_key_for_task(result_handle.id))
+            # The state meta is an encoded JSON string, so we have to decode and parse it.
+            state_meta = json.loads(state_meta.decode())
+            return error_response(state_meta['result']['error'], 500)
+        else:
+            record_type, uuids = result_handle.result
+            if len(uuids) == 0:
+                return error_response('Could not generate a record from the given prompt.', 400)
+            
+            kwargs['uuid'] = uuids[0]
 
-        route = 'main.{}_page'.format(_RECORD_ROUTE_MAP[record_type])
-        kwargs['permalink'] = url_for(route, uuid=uuids[0])
+            route = 'main.{}_page'.format(_RECORD_ROUTE_MAP[record_type])
+            kwargs['permalink'] = url_for(route, uuid=uuids[0])
 
     status_code = 201 if is_ready else 202
     return jsonify(success=True, **kwargs), status_code
