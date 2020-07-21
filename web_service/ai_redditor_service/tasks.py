@@ -224,7 +224,7 @@ _RECORD_GENERATE_CONFIGS = {
             _sanitize_likes(generated_groups['likes']),
             generated_groups['comment_body'],
             prompted_author_username_end=len(prompt_object.get('author', '')),
-            is_likes_prompted=_is_field_missing('likes', prompt_object),
+            is_likes_prompted=not _is_field_missing('likes', prompt_object),
             prompted_comment_end=len(prompt_object.get('comment_body', '')),
             *args, **kwargs
         ), min_length=10, max_length=200
