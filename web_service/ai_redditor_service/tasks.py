@@ -276,6 +276,7 @@ def _phc_prompt_to_string(record_type, prompt_object):
         field for field in required_fields if not bool(prompt_object.get(field, None))
     ]
 
+    print(f'{required_fields} are required; {missing_fields} are missing.')
     if len(missing_fields) > 0:
         # Generate another record to populate the missing fields
         record_config = _RECORD_GENERATE_CONFIGS[RecordType.PHC]
@@ -286,6 +287,9 @@ def _phc_prompt_to_string(record_type, prompt_object):
             # Include the prompted likes, if given, to get more accurate field values.
             prompt += str(prompt_object['likes']) + generate_record.end_of_likes_token
 
+        import time
+        print(f'Generating secondary record with prompt \'{prompt}\'')
+        start=time.time()
         outputs = gpt2_model_generate(
             model, tokenizer, record_config.decode_format,
             translate_token=generate_record.translate_token,
@@ -295,6 +299,8 @@ def _phc_prompt_to_string(record_type, prompt_object):
             decode_strict_regex_mapping=decode_strict_regex_mapping,
             prompt=prompt, samples=1
         )
+        end=time.time()
+        print('Took {:.2f} seconds'.format(end-start))
 
         # Copy prompt object so that we only modify it within this function
         prompt_object = copy.copy(prompt_object)
@@ -347,6 +353,9 @@ def generate_record(record_type, prompt_object=None, **kwargs):
         use_link_filter = len(PHC_LINK_PATTERN.findall(prompt)) == 0
         
     decode_strict_regex_mapping = generate_record.decode_strict_regex_mapping[record_type]
+    import time
+    start=time.time()
+    print(f'Generating primary record with prompt \'{prompt}\'')
     outputs = gpt2_model_generate(
         model, tokenizer, record_config.decode_format,
         translate_token=generate_record.translate_token,
@@ -357,6 +366,8 @@ def generate_record(record_type, prompt_object=None, **kwargs):
         decode_strict_regex_mapping=decode_strict_regex_mapping,
         prompt=prompt, **kwargs
     )
+    end=time.time()
+    print('Took {:.2f} to generate.'.format(end-start))
 
     special_token_pattern = generate_record.special_tokens_match_pattern[record_type]
 
