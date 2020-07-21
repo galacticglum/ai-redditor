@@ -45,6 +45,16 @@
 {% endblock %}
 
 {% block generate_view%}
+<div class="alert alert-danger fade show d-none" id="validation-error-alert" role="alert">
+    <div class="d-flex flex-row">
+        <div class="mr-auto small">
+            <strong>Holy guacamole!</strong> At least one of the prompt fields are required!
+        </div>
+        <button type="button" class="close" aria-label="Close" id="validation-error-alert-close-btn">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
 <form method="POST" id="generate-form" action="javascript:void(0);">
     {{ generate_form.csrf_token() }}
     <div class="d-flex flex-row">
@@ -102,6 +112,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"
     integrity="sha512-UdIMMlVx0HEynClOIFSyOrPggomfhBKJE28LKl8yR3ghkgugPnG6iLfRfHwushZl1MOPSY6TsuBDGPK2X4zYKg=="
     crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $('#validation-error-alert-close-btn').on('click', function(e) {
+        $('#validation-error-alert').addClass('d-none');
+    });
+</script>
 {% endblock %}
 
 {% block process_prompt_func %}
@@ -112,6 +127,39 @@
             'comment_body': form['comment'].trim()
         }
     }
+{% endblock %}
+
+{% block generate_form_submit %}
+$.validator.addMethod('require_any', function (value, element, param) {
+    var is_filled = false;
+    $.each(param.split(/\|/), function (i, input_id) {
+        if($('#' + input_id).val() !== '') {
+            return is_filled = true;
+        }
+    });
+    return is_filled; 
+});
+
+$('#generate-form').submit(function(e) {
+    e.preventDefault();
+    return false;
+}).validate({
+    rules: {
+        author_username: {
+            require_any: 'author_username|likes|comment',
+        },
+        likes: {
+            require_any: 'author_username|likes|comment'
+        },
+        comment: {
+            require_any: 'author_username|likes|comment'
+        }
+    },
+    invalidHandler: function() {
+        $('#validation-error-alert').removeClass('d-none');
+    },
+    submitHandler: generateFormSubmitHandler
+});
 {% endblock %}
 
 <!-- Configure summary card -->

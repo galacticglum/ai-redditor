@@ -76,6 +76,34 @@
     width: 5%;
 }
 
+/* Validation alert styling */
+#validation-error-alert.alert {
+    border: 2px solid #721c24 !important;
+    background: none;
+    color: #b8b8b8;
+    border-radius: 0.5px !important;
+}
+
+#validation-error-alert .close {
+    color: white;
+    font-size: inherit !important;
+}
+
+/* Hide generate form labels */
+#generate-form label.error {
+    display: none !important;
+}
+
+/* Form input error style */
+#generate-form input.error:not(:focus),
+#generate-form textarea.error:not(:focus) {
+    border: 1px solid #dc3545 !important;
+}
+
+.validation-help-text {
+    color: #b8b8b8;
+}
+
 /* Hide arrows from number input */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,

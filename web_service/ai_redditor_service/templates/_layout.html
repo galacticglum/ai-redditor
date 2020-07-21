@@ -233,7 +233,7 @@
     </script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#generate-form').on('submit', function() {
+            function generateFormSubmitHandler() {
                 function getTaskStatus(url) {
                     // Poll the API for task status every 2.5 seconds (2500 milliseconds).
                     setTimeout(function() {
@@ -279,7 +279,11 @@
                 });
 
                 return false;
-            });
+            }
+
+            {% block generate_form_submit %}
+            $('#generate-form').on('submit', generateFormSubmitHandler);
+            {% endblock %}
         });
     </script>
     {% endblock %}
