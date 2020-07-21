@@ -36,3 +36,11 @@ def validate_json(data, schema, force=False, fill_defaults=False):
             validate(data, schema)
     except ValidationError as exception:
         return abort(400, exception)
+
+def all_empty(iterable):
+    '''
+    Returns whether the specified iterable is all empty.
+
+    '''
+    
+    return all(not bool(x) for x in iterable)

@@ -12,7 +12,7 @@ from celery import states
 from flask import current_app
 from celery.utils import cached_property, log
 from ai_redditor_service.extensions import celery, db
-from ai_redditor_service.utils import unescape_unicode
+from ai_redditor_service.utils import unescape_unicode, all_empty
 from ai_redditor_service.gpt2 import (
     ModelDecodeFormat,
     load_model,
@@ -225,6 +225,7 @@ _RECORD_PROMPT_PREFIXES = {
     RecordType.WP: '[WP] '
 }
 
+
 def _qa_prompt_to_string(record_type, prompt_object):
     prompt_prefix = _RECORD_PROMPT_PREFIXES[record_type]
     _, tokenizer = generate_record.models[record_type]
@@ -232,7 +233,7 @@ def _qa_prompt_to_string(record_type, prompt_object):
     # Check if the prompt object is empty or None; if so,
     # we simply provide the <|bos|> and prompt prefix as the
     # input to the model.
-    if not bool(prompt_object):
+    if not bool(prompt_object) or all_empty(prompt_object.values()):
         return tokenizer.bos_token + prompt_prefix
 
     if not bool(prompt_object.get('post_title', None)):
@@ -255,9 +256,10 @@ def _qa_prompt_to_string(record_type, prompt_object):
 def _phc_prompt_to_string(record_type, prompt_object):
     model, tokenizer = generate_record.models[record_type]
 
-    # Check if the prompt object is empty or None; if so,
-    # we simply provide the <|bos|> token as the input to the model.
-    if not bool(prompt_object):
+    # Check if the prompt object is empty or None, or if it contains
+    # keys with all empty values. If so, we simply provide the <|bos|>
+    # token as the input to the model.
+    if not bool(prompt_object) or all_empty(prompt_object.values()):
         return tokenizer.bos_token
 
     # A prompt field depends on all the ones preceeding it
