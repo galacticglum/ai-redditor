@@ -22,7 +22,7 @@ class GeneratePHCForm(FlaskForm):
 
     '''
 
-    author_username = StringField('author_username')
+    author = StringField('author')
     likes = IntegerField('likes')
     comment = TextAreaField('comment')
     submit = SubmitField('Submit')

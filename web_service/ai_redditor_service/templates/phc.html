@@ -61,7 +61,7 @@
         <img class="avatar mr-2" src="{{ url_for('static', filename='img/phc_avatar.png') }}" alt="Avatar">
         <div class="d-flex flex-column w-100">
             <div class="d-flex flex-row mb-2">
-                {{ generate_form.author_username(
+                {{ generate_form.author(
                     class='form-control username-input font-weight-bold',
                     placeholder='username',
                     value='',
@@ -122,7 +122,7 @@
 {% block process_prompt_func %}
     function formToPrompt(form) {
         return {
-            'author': form['author_username'].trim(),
+            'author': form['author'].trim(),
             'likes': parseInt(form['likes'].trim()),
             'comment_body': form['comment'].trim()
         }
@@ -145,14 +145,14 @@ $('#generate-form').submit(function(e) {
     return false;
 }).validate({
     rules: {
-        author_username: {
-            require_any: 'author_username|likes|comment',
+        author: {
+            require_any: 'author|likes|comment',
         },
         likes: {
-            require_any: 'author_username|likes|comment'
+            require_any: 'author|likes|comment'
         },
         comment: {
-            require_any: 'author_username|likes|comment'
+            require_any: 'author|likes|comment'
         }
     },
     invalidHandler: function() {
