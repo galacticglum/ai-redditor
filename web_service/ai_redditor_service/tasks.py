@@ -194,6 +194,9 @@ def _sanitize_likes(likes_str):
 
     return int(re.sub('[^0-9-]', '', likes_str) or 0)
 
+def _is_field_missing(field, data):
+    return field not in data or not isinstance(data[field], int) and not bool(data.get(field, None))
+
 # Maps record type to a value configuration
 _RECORD_GENERATE_CONFIGS = {
     RecordType.TIFU: RecordGenerateConfig(
@@ -221,7 +224,7 @@ _RECORD_GENERATE_CONFIGS = {
             _sanitize_likes(generated_groups['likes']),
             generated_groups['comment_body'],
             prompted_author_username_end=len(prompt_object.get('author', '')),
-            is_likes_prompted=bool(prompt_object.get('likes', None)),
+            is_likes_prompted=_is_field_missing('likes', prompt_object),
             prompted_comment_end=len(prompt_object.get('comment_body', '')),
             *args, **kwargs
         ), min_length=10, max_length=200
@@ -281,9 +284,6 @@ def _phc_prompt_to_string(record_type, prompt_object):
         required_fields = []
 
     # Find all the missing fields
-    def _is_field_missing(field, data):
-        return field not in data or not isinstance(data[field], int) and not bool(data.get(field, None))
-
     missing_fields = [
         field for field in required_fields if _is_field_missing(field, prompt_object)
     ]
