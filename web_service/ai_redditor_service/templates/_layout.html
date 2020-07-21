@@ -222,22 +222,12 @@
     <script src="{{ url_for('static', filename='js/index.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
         const TASK_STATUS_TIMEOUT_MS = {{ config['TASK_STATUS_TIMEOUT_MS'] }};
-        const BOS_TOKEN = "{{ config['GPT2_BOS_TOKEN']|safe }}"; 
-        const TRANSLATE_TOKEN = "{{ config['GPT2_TRANSLATE_TOKEN']|safe }}"; 
-        const END_OF_LIKES_TOKEN = "{{ config['GPT2_END_OF_LIKES_TOKEN']|safe }}"; 
-
         {% block process_prompt_func %}
         function formToPrompt(form) {
-            var prompt = BOS_TOKEN;
-            if (form['title']) {
-                prompt += form['title'].trim();
+            return {
+                'post_title': form['post_title'].trim(),
+                'post_body': form['post_body'].trim()
             }
-
-            if (form['post_body']) {
-                prompt += TRANSLATE_TOKEN + form['post_body'].trim();
-            }
-
-            return prompt;
         }
         {% endblock %}
     </script>

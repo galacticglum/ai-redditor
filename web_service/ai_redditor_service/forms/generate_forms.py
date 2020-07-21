@@ -12,7 +12,7 @@ class GeneratePostForm(FlaskForm):
 
     '''
 
-    title = StringField('title', validators=[DataRequired()])
+    post_title = StringField('post_title', validators=[DataRequired()])
     post_body = TextAreaField('post_body')
     submit = SubmitField('Submit')
 

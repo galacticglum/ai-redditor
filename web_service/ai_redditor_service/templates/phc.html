@@ -106,20 +106,11 @@
 
 {% block process_prompt_func %}
     function formToPrompt(form) {
-        var prompt = BOS_TOKEN;
-        if (form['likes']) {
-            prompt += form['likes'].trim() + END_OF_LIKES_TOKEN
+        return {
+            'author': form['author_username'].trim(),
+            'likes': parseInt(form['likes'].trim()),
+            'comment_body': form['comment'].trim()
         }
-        
-        if (form['author_username']) {
-            prompt += form['author_username'].trim();
-        }
-
-        if (form['comment']) {
-            prompt += TRANSLATE_TOKEN + form['comment'].trim();
-        }
-
-        return prompt;
     }
 {% endblock %}
 
