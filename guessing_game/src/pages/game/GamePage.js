@@ -117,11 +117,11 @@ export default class GamePage extends Component {
                 recordTypes: recordTypes
             }
         }, () => {
-            this.nextRecord();
+            this.nextRecord(0);
         });
     }
 
-    nextRecord = (onComplete=null) => {
+    nextRecord = (waitDurationMs=GUESS_RESULT_DURATION_MS, onComplete=null) => {
         if (this.state.hasGuessed && !this.state.isGuessCorrect && !this.state.isGameover) {
             this.onGameOver();
         } else {
@@ -129,11 +129,11 @@ export default class GamePage extends Component {
             const recordTypes = this.state.gameConfig.recordTypes;
             const recordType = recordTypes[Math.floor(Math.random() * recordTypes.length)];
             const isRecordGenerated = Math.random() < randomFloat(0.40, 0.60);
-            this.fetchRecord(recordType, isRecordGenerated, onComplete);
+            this.fetchRecord(recordType, isRecordGenerated, waitDurationMs, onComplete);
         }
     }
 
-    fetchRecord = (recordType, isGenerated, onComplete=null) => {
+    fetchRecord = (recordType, isGenerated, waitDurationMs=GUESS_RESULT_DURATION_MS, onComplete=null) => {
         const requestData = {
             // A "custom" record refers to a user-generated record
             'is_custom': false,
@@ -156,7 +156,7 @@ export default class GamePage extends Component {
             }
         })
         .then(response => {
-            let waitTime = GUESS_RESULT_DURATION_MS - response.duration;
+            let waitTime = waitDurationMs - response.duration;
             const currentRecord = {
                 data: response.data,
                 type: recordType
@@ -258,7 +258,7 @@ export default class GamePage extends Component {
             score: this.state.score
         });
 
-        this.nextRecord(() => {
+        this.nextRecord(0, () => {
             this.setState({
                 hideConfigPanel: false,
                 isGameover: false,
