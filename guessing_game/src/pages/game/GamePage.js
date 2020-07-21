@@ -48,8 +48,8 @@ function Record(props) {
         case 'phc':
             recordView = (
                 <div className="d-flex flex-column">
-                    <span class="font-weight-bold phc-username">{props.data.author_username}</span>
-                    <p class="phc-comment-text mb-0">{props.data.comment}</p>
+                    <span className="font-weight-bold phc-username">{props.data.author_username}</span>
+                    <p className="phc-comment-text mb-0">{props.data.comment}</p>
                 </div>
             );
             postPanelClass += " phc-panel"
@@ -268,6 +268,27 @@ export default class GamePage extends Component {
         });
     }
 
+    getGameoverStatusText = () => {
+        // [a, b] intervals where null indicates +/- infinity.
+        const INTERVALS = [
+            { min: 0, max: 0, text: 'bruh' },
+            { min: 1, max: 4, text: 'you suck' },
+            { min: 5, max: 7, text: 'wow! you are just about average!' },
+            { min: 8, max: 9, text: 'incredible! your IQ is probably greater than 100!' },
+            { min: 10, max: 14, text: 'eureka! you are a GOD!' },
+            { min: 15, max: 24, text: 'BLOOBLE!' },
+            { min: 25, max: null, text: 'UNSTOPABBLE!!' }
+        ];
+
+        const score = this.state.score;
+        for (const interval of INTERVALS) {
+            if (interval.min < score || score > interval.max) continue;
+            return interval.text;
+        }
+
+        return 'you suck';
+    }
+
     render() {
         const hasRecord = this.state.currentRecord !== undefined
         const showConfigPanel = !hasRecord && !this.state.hideConfigPanel;
@@ -339,7 +360,7 @@ export default class GamePage extends Component {
                             {
                                 isGameover && (
                                     <GameOverPanel
-                                        title={this.state.guessingTimeCountdownFinished ? 'times up!' : 'you suck'}
+                                        title={this.state.guessingTimeCountdownFinished ? 'times up!' : this.getGameoverStatusText()}
                                         content={(
                                             <div className="my-5 gameover-results">
                                                 <h4 className="mt-3">

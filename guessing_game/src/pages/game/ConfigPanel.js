@@ -120,7 +120,7 @@ class ConfigPanel extends Component {
                             </Form.Check.Label>
                         </Form.Check>
                         <RangeSlider disabled={!this.state.maxGuessingTimeEnabled} value={this.state.maxGuessingTime}
-                            min="5" max="60" className="max-guessing-time-range-slider"
+                            min={5} max={60} className="max-guessing-time-range-slider"
                             onChange={this.maxGuessingTimeChange}
                         />
                     </Form.Group>

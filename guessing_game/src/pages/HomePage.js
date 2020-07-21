@@ -28,8 +28,8 @@ export default class HomePage extends Component {
                 <div className="pt-4 explanation-text text-center">
                     <p>
                         built by <a className="text-link" href="https://github.com/galacticglum">shon verch</a> (<a 
-                        class="text-link" href="https://twitter.com/galacticglum">@galacticglum</a>) using a
-                        finetuned generative language model (<a class="text-link" href="https://openai.com/blog/better-language-models/">gpt2</a>).
+                        className="text-link" href="https://twitter.com/galacticglum">@galacticglum</a>) using a
+                        finetuned generative language model (<a className="text-link" href="https://openai.com/blog/better-language-models/">gpt2</a>).
                     </p>
                 </div>
 
