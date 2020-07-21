@@ -183,7 +183,7 @@ def _sanitize_likes(likes_str):
 
     '''
 
-    return int(re.sub('[^0-9]-', '', likes_str) or 0)
+    return int(re.sub('[^0-9-]', '', likes_str) or 0)
 
 # Maps record type to a value configuration
 _RECORD_GENERATE_CONFIGS = {
