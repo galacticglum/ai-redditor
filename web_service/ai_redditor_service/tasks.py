@@ -272,8 +272,11 @@ def _phc_prompt_to_string(record_type, prompt_object):
         required_fields = []
 
     # Find all the missing fields
+    def _is_field_missing(field, data):
+        return field not in data or not isinstance(data[field], int) and not bool(data.get(field, None))
+
     missing_fields = [
-        field for field in required_fields if not bool(prompt_object.get(field, None))
+        field for field in required_fields if _is_field_missing(field, prompt_object)
     ]
 
     print(f'{required_fields} are required; {missing_fields} are missing.')
