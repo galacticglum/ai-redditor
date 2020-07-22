@@ -17,6 +17,7 @@ def init_app(app):
 
     app.cli.add_command(_init_db_command)
     app.cli.add_command(_load_fixture_command)
+    app.cli.add_command(_build_record_refs)
 
 @click.command('init-db')
 @with_appcontext
@@ -80,3 +81,35 @@ def _load_fixture_command(record_type, fixture_filename):
     
     with tqdm.tqdm(total=len(data)) as progress_bar:
         _TYPE_HANDLER_MAP[record_type](data, progress_bar)
+
+_RECORD_TYPES = {
+    'tifu': TIFURecord,
+    'wp': WPRecord,
+    'phc': PHCRecord
+}
+
+@click.command('build-record-refs')
+@click.argument('record_type', type=click.Choice(_RECORD_TYPES.keys(), case_sensitive=False))
+@with_appcontext
+def _build_record_refs(record_type):
+    confirmation = click.confirm(
+        'Are you sure you would like to continue? '
+        'This will recreate all {} record reference index tables.'.format(record_type.upper())
+    )
+
+    if not confirmation: return
+    
+    record_class = _RECORD_TYPES[record_type]
+    # Remove all entries from reference index tables
+    record_class._generated_record_ref_class.query.delete()
+    record_class._dataset_record_ref_class.query.delete()
+
+    for record in tqdm.tqdm(record_class.query.all()):
+        if record.is_custom: continue
+        if record.is_generated:
+            record_ref = record._generated_record_ref_class(record_id=record.id)
+        else:
+            record_ref = record._dataset_record_ref_class(record_id=record.id)
+
+        db.session.add(record_ref)
+    db.session.commit()

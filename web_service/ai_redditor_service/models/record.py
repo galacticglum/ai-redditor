@@ -1,3 +1,6 @@
+import math
+import random
+import sqlalchemy
 from sqlalchemy import func
 from datetime import datetime
 import uuid as uuid_generator
@@ -48,7 +51,7 @@ class RecordMixin(object):
 
         if uuid is None:
             uuid = uuid_generator.uuid4().hex
-
+        
         self.uuid = uuid
         self.is_custom = is_custom
         self.is_generated = is_generated
@@ -84,7 +87,22 @@ class RecordMixin(object):
         if count <= 0:
             raise ValueError('Count must be a positive integer.')
 
-        return cls.query.filter_by(**filter_kwargs).order_by(func.random()).limit(count).all()
+        if 'is_custom' in filter_kwargs and 'is_generated' in \
+            filter_kwargs and not filter_kwargs['is_custom']:
+            # Use the index table to select a random, non-custom, 
+            # record depending on the given value of is_generated.
+            if filter_kwargs['is_generated']:
+                record_ref_class = cls._generated_record_ref_class
+            else:
+                record_ref_class = cls._dataset_record_ref_class
+
+            return cls.query.filter(cls.id.in_(
+                record_ref_class.query.options(sqlalchemy.orm.load_only('id')).offset(
+                    math.floor(random.random() * int(record_ref_class.query.count()))
+                ).limit(count)
+            )).all()
+        else:
+            return cls.query.filter_by(**filter_kwargs).order_by(func.random()).limit(count).all()
 
     @classmethod
     def select_random(cls, **filter_kwargs):
@@ -95,7 +113,43 @@ class RecordMixin(object):
         '''
 
         return cls.select_random_n(1, **filter_kwargs)[0]
-    
+
+    @sqlalchemy.orm.validates('is_generated')
+    def _validate_is_generated(self, key, is_generated):
+        if self.is_custom: return is_generated
+
+        # NOTE: this validation function will be called EVERY TIME is_generated changes.
+        # Since this function creates a mapping between the index tables for the generated/dataset
+        # records, if it is called on anything but an INSERT, a duplicate entry in the index table
+        # will be made. However, at this point, we assume that records are constants...
+        if is_generated:
+            self.generated_record_ref = self._generated_record_ref_class(record_id=record_id)
+        
+        self.dataset_record_ref = self._dataset_record_ref_class(record_id=record_id)
+        return is_generated
+
+class TIFUDatasetRecord(db.Model):
+    '''
+    TIFU record where ``is_generated`` is false and ``is_custom`` is false. 
+
+    '''
+
+    __tablename__ = 'tifu_dataset_record'
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('tifu_record.id'))
+    record = db.relationship('TIFURecord', back_populates='dataset_record_ref')
+
+class TIFUGeneratedRecord(db.Model):
+    '''
+    TIFU record where ``is_generated`` is true and ``is_custom`` is false.
+
+    '''
+
+    __tablename__ = 'tifu_generated_record'
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('tifu_record.id'))
+    record = db.relationship('TIFURecord', back_populates='generated_record_ref')
+
 class TIFURecord(RecordMixin, db.Model):
     '''
     A TIFU post record.
@@ -120,6 +174,11 @@ class TIFURecord(RecordMixin, db.Model):
     post_title_prompt_end = db.Column(db.Integer, nullable=False, default=0)
     post_body = db.Column(db.Text)
     post_body_prompt_end = db.Column(db.Integer, nullable=False, default=0)
+
+    dataset_record_ref = db.relationship('TIFUDatasetRecord', uselist=False, back_populates='record')
+    generated_record_ref = db.relationship('TIFUGeneratedRecord', uselist=False, back_populates='record')
+    _generated_record_ref_class = TIFUGeneratedRecord
+    _dataset_record_ref_class = TIFUDatasetRecord
 
     def __init__(self, post_title, post_body, post_title_prompt_end=0,
                  post_body_prompt_end=0, **kwargs):
@@ -165,6 +224,28 @@ class TIFURecord(RecordMixin, db.Model):
             'post_body_prompt_end': self.post_body_prompt_end
         })
 
+class WPDatasetRecord(db.Model):
+    '''
+    Writingprompt record where ``is_generated`` is false and ``is_custom`` is false. 
+
+    '''
+
+    __tablename__ = 'wp_dataset_record'
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('wp_record.id'))
+    record = db.relationship('WPRecord', back_populates='dataset_record_ref')
+
+class WPGeneratedRecord(db.Model):
+    '''
+    Writingprompt record where ``is_generated`` is true and ``is_custom`` is false.
+
+    '''
+
+    __tablename__ = 'wp_generated_record'
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('wp_record.id'))
+    record = db.relationship('WPRecord', back_populates='generated_record_ref')
+
 class WPRecord(RecordMixin, db.Model):
     '''
     A writingprompt and response pair record.
@@ -189,6 +270,11 @@ class WPRecord(RecordMixin, db.Model):
     prompted_prompt_end = db.Column(db.Integer, nullable=False, default=0)
     prompt_response = db.Column(db.Text)
     prompted_response_end = db.Column(db.Integer, nullable=False, default=0)
+
+    dataset_record_ref = db.relationship('WPDatasetRecord', uselist=False, back_populates='record')
+    generated_record_ref = db.relationship('WPGeneratedRecord', uselist=False, back_populates='record')
+    _generated_record_ref_class = WPGeneratedRecord
+    _dataset_record_ref_class = WPDatasetRecord
 
     def __init__(self, prompt, prompt_response, prompted_prompt_end=0,
                  prompted_response_end=0, **kwargs):
@@ -225,6 +311,28 @@ class WPRecord(RecordMixin, db.Model):
             'prompted_response_end': self.prompted_response_end
         })
 
+class PHCDatasetRecord(db.Model):
+    '''
+    PHC record where ``is_generated`` is false and ``is_custom`` is false. 
+
+    '''
+
+    __tablename__ = 'phc_dataset_record'
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('phc_record.id'))
+    record = db.relationship('PHCRecord', back_populates='dataset_record_ref')
+
+class PHCGeneratedRecord(db.Model):
+    '''
+    PHC record where ``is_generated`` is true and ``is_custom`` is false.
+
+    '''
+
+    __tablename__ = 'phc_generated_record'
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('phc_record.id'))
+    record = db.relationship('PHCRecord', back_populates='generated_record_ref')
+
 class PHCRecord(RecordMixin, db.Model):
     '''
     A pornhub comment record.
@@ -255,6 +363,11 @@ class PHCRecord(RecordMixin, db.Model):
     is_likes_prompted = db.Column(db.Boolean, nullable=False, default=False)
     comment = db.Column(db.Text)
     prompted_comment_end = db.Column(db.Integer, nullable=False, default=0)
+
+    dataset_record_ref = db.relationship('PHCDatasetRecord', uselist=False, back_populates='record')
+    generated_record_ref = db.relationship('PHCGeneratedRecord', uselist=False, back_populates='record')
+    _generated_record_ref_class = PHCGeneratedRecord
+    _dataset_record_ref_class = PHCDatasetRecord
 
     def __init__(self, author_username, likes, comment, prompted_author_username_end=0,
                  is_likes_prompted=False, prompted_comment_end=0, **kwargs):
