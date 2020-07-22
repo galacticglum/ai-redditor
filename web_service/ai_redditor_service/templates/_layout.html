@@ -123,12 +123,22 @@
                 </div>
 
                 <!-- Record metadata -->
-                {% if record.is_custom and record.creation_date %}
+                {% if record.is_custom %}
+                {% if record.creation_date %}
                 <div class="d-flex flex-row mt-2">
                     <small class="text-muted mr-auto">
                         {{ record.creation_date.strftime('Generated on %A, %B %d %Y %H:%M.') }}
                     </small>
                     <a class="text-link-muted small" id="show-prompt-button">Show prompt</a>
+                </div>
+                {% endif %}
+                {% else %}
+                <!-- Human-written comment disclaimer -->
+                <div class="d-flex flex-row mt-2">
+                    <small class="text-muted">
+                        <i class="font-weight-bold">Disclaimer:</i> This post was written by a human; 
+                        it is part of the model training dataset.
+                    </small>
                 </div>
                 {% endif %}
             </div>
