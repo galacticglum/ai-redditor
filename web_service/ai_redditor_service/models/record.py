@@ -96,11 +96,12 @@ class RecordMixin(object):
             else:
                 record_ref_class = cls._dataset_record_ref_class
 
-            return cls.query.filter(cls.id.in_(
-                record_ref_class.query.options(sqlalchemy.orm.load_only('id')).offset(
-                    math.floor(random.random() * int(record_ref_class.query.count()))
-                ).limit(count)
-            )).all()
+            # TODO: Combine into single query so that we don't have to iterate over refs
+            refs = record_ref_class.query.options(sqlalchemy.orm.load_only('id')).offset(
+                math.floor(random.random() * int(record_ref_class.query.count()))
+            ).limit(count).all()
+
+            return [x.record for x in refs]
         else:
             return cls.query.filter_by(**filter_kwargs).order_by(func.random()).limit(count).all()
 
