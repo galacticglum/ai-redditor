@@ -87,8 +87,8 @@ class RecordMixin(object):
         if count <= 0:
             raise ValueError('Count must be a positive integer.')
 
-        if 'is_custom' in filter_kwargs and 'is_generated' in \
-            filter_kwargs and not filter_kwargs['is_custom']:
+        if len(filter_kwargs) == 2 and 'is_custom' in filter_kwargs \
+            and 'is_generated' in filter_kwargs and not filter_kwargs['is_custom']:
             # Use the index table to select a random, non-custom, 
             # record depending on the given value of is_generated.
             if filter_kwargs['is_generated']:
