@@ -312,7 +312,7 @@ export default class GamePage extends Component {
                         <div className="timer-progress-bar timer-progress-bar-background w-100" />
                     )}
                 </div>
-                <Row>
+                <Row className="mt-auto">
                     <Col sm="12" md="8" lg="6" className="mx-auto">
                         <div id="view-wrapper">
                             {

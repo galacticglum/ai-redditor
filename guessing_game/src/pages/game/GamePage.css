@@ -2,10 +2,6 @@
     --timer-progress-bar-duration: 30s
 }
 
-#view-wrapper {
-    margin-top: 200px;
-}
-
 .error-alert.alert {
     background: white !important;
     border: 3px solid red !important;
