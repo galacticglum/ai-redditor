@@ -2,6 +2,22 @@
     --timer-progress-bar-duration: 30s
 }
 
+#view-inner-wrapper {
+    margin-top: 200px;
+}
+
+/* Small screen */
+@media (max-width: 768px) {
+    #view-inner-wrapper {
+        margin-top: 0px;
+    }
+
+    #view-outer-wrapper {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+}
+
 .error-alert.alert {
     background: white !important;
     border: 3px solid red !important;

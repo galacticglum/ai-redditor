@@ -312,9 +312,9 @@ export default class GamePage extends Component {
                         <div className="timer-progress-bar timer-progress-bar-background w-100" />
                     )}
                 </div>
-                <Row className="mt-auto">
+                <Row id="view-outer-wrapper" className={showConfigPanel ? 'mb-0' : ''}>
                     <Col sm="12" md="8" lg="6" className="mx-auto">
-                        <div id="view-wrapper">
+                        <div id="view-inner-wrapper">
                             {
                                 this.state.hasError ? 
                                     (<DismissibleAlert variant="danger" className="error-alert">
