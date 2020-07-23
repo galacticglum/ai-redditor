@@ -247,7 +247,7 @@
         crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            let socket = io.connect('http://' + document.domain + ':' + location.port + '/app');
+            let socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/app');
             let useLongPolling = false;
             socket.on('connect_error', function() {
                 // If we can't connect to SocketIO, use long polling instead.
