@@ -9,6 +9,7 @@ import time
 import traceback
 
 from celery import states
+from flask_socketio import SocketIO
 from flask import current_app
 from celery.utils import cached_property, log
 from ai_redditor_service.extensions import celery, db
@@ -67,6 +68,25 @@ class GPT2GenerateTask(SqlAlchemyTask):
             'exc_message': traceback.format_exc().split('\n'),
             'error': str(exception)
         })
+
+        # Emit socket event
+        socketio = SocketIO(message_queue=self.socketio_message_queue)
+        socketio.emit('generate_record_complete', 
+            {
+                'error': str(exception),
+                'success': False
+            },
+            namespace='/app', room=self.request.id
+        )
+
+    @cached_property
+    def socketio_message_queue(self):
+        '''
+        The SocketIO message queue URL.
+
+        '''
+
+        return current_app.config['SOCKETIO_MESSAGE_QUEUE']
 
     @cached_property
     def models(self):
@@ -345,6 +365,12 @@ _PROMPT_OBJECT_TO_STRING = {
 
 @celery.task(base=GPT2GenerateTask)
 def generate_record(record_type, prompt_object=None, **kwargs):
+    # Ensure SocketIO message queue url is loaded.
+    # Since the on_failure callback does not have access to the
+    # Flask app context and we need that to get the config, we do it
+    # here, where the app context is available.
+    socketio_message_queue = generate_record.socketio_message_queue
+    
     record_config = _RECORD_GENERATE_CONFIGS[record_type]
     model, tokenizer = generate_record.models[record_type]
 
@@ -401,4 +427,28 @@ def generate_record(record_type, prompt_object=None, **kwargs):
         db.session.add(record)
 
     db.session.commit()
+    
+    # Emit socket event
+    socketio = SocketIO(message_queue=socketio_message_queue)
+    if len(record_uuids) > 0:
+        event_data = {
+            'records': [
+                {
+                    'uuid': uuid
+                } for uuid in record_uuids
+            ],
+            'success': True
+        }
+    else:
+        event_data = {
+            'error': 'Could not generate a record from the given prompt',
+            'success': False
+        }
+    
+    socketio.emit(
+        'generate_record_complete', event_data,
+        namespace='/app',
+        room=generate_record.request.id
+    )
+
     return record_type, record_uuids

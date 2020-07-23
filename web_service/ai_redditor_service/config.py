@@ -10,6 +10,10 @@ RECORD_GENERATION_LOG_DEBUG_INFO = False
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+# SocketIO configuration
+SOCKETIO_ENABLE_LOGGING = False
+ENGINEIO_ENABLE_LOGGING = False
+
 # The client will send an AJAX request every 2.5 seconds
 # asking about the status of the text generation task.
-TASK_STATUS_TIMEOUT_MS = 2500
+TASK_STATUS_TIMEOUT_MS = 2500 

@@ -26,12 +26,12 @@ def create_app(instance_config_filename='local_config.py', test_config=None):
     from ai_redditor_service import extensions
     extensions.init_app(app)
 
-    from ai_redditor_service import routes, models, cli
+    from ai_redditor_service import routes, events, models, cli
     routes.init_app(app)
     cli.init_app(app)
 
     # Register mimetypes
     mimetypes.add_type('text/css', '.css')
     mimetypes.add_type('text/javascript', '.js')
-
+    
     return app

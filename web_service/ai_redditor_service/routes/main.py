@@ -39,5 +39,4 @@ def writingprompts_page(uuid):
 @bp.route('/phc', defaults={'uuid': None})
 @bp.route('/phc/<string:uuid>')
 def phc_page(uuid):
-    # TODO: change form to one specific for pornhub comments
     return _record_route(PHCRecord, 'phc.html', GeneratePHCForm(), uuid=uuid)
