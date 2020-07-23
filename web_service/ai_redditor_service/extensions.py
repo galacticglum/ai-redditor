@@ -1,7 +1,7 @@
-import time
 from celery import Celery
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 import ai_redditor_service.template_filters as template_filters
 
@@ -12,6 +12,8 @@ celery = Celery(
     'ai_redditor_service',
     include=['ai_redditor_service.tasks']
 )
+
+socketio = SocketIO(cookie=None)
 
 def init_app(app):
     '''
@@ -25,6 +27,11 @@ def init_app(app):
     
     _init_migrate(app)
     _init_celery(app)
+    socketio.init_app(
+        app, message_queue=app.config['SOCKETIO_MESSAGE_QUEUE'],
+        logger=app.config['SOCKETIO_ENABLE_LOGGING'],
+        engineio_logger=app.config['ENGINEIO_ENABLE_LOGGING']
+    )
 
 def _init_celery(app):
     '''
@@ -48,7 +55,7 @@ def _init_celery(app):
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return self.run(*args, **kwargs)
-
+                
     celery.Task = ContextTask
     return celery
 

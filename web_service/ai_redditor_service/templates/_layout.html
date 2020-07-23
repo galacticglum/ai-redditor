@@ -232,6 +232,7 @@
     <script src="{{ url_for('static', filename='js/index.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
         const TASK_STATUS_TIMEOUT_MS = {{ config['TASK_STATUS_TIMEOUT_MS'] }};
+        const BASE_PERMALINK_URL = {{ url_for(navigation_bar[active_page][0], uuid='') }};
         {% block process_prompt_func %}
         function formToPrompt(form) {
             return {
@@ -241,30 +242,52 @@
         }
         {% endblock %}
     </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+        integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="
+        crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            function generateFormSubmitHandler() {
-                function getTaskStatus(url) {
-                    // Poll the API for task status every 2.5 seconds (2500 milliseconds).
-                    setTimeout(function() {
-                        $.ajax({
-                            type: 'GET',
-                            url: url,
-                            success: function(data) {
-                                if (!data.is_ready) {
-                                    getTaskStatus(url);
-                                } else {
-                                    window.location.href = data.permalink;
-                                }
-                            },
-                            error: function(xhr, textStatus, errorThrown) {
-                                $('#error-code').text(xhr.status);
-                                toggleView(Views.ERROR);
-                            }
-                        })
-                    },  TASK_STATUS_TIMEOUT_MS);
+            let socket = io.connect('http://' + document.domain + ':' + location.port + '/app');
+            let useLongPolling = false;
+            socket.on('connect_error', function() {
+                // If we can't connect to SocketIO, use long polling instead.
+                useLongPolling = true;
+            });
+
+            socket.on('generate_record_complete', function(data) {
+                if (data['success']) {
+                    const permalink = BASE_PERMALINK_URL + data['records'][0]['uuid'];
+                    window.location.href = permalink;
+                } else {
+                    // Okay, look, is 400 the best error code to use? No.
+                    // Do I care enough to program a more sophisticated system? lol no.
+                    $('#error-code').text('400');
+                    toggleView(Views.ERROR);
                 }
-                
+            });
+
+            function getTaskStatus(url) {
+                // Poll the API for task status
+                setTimeout(function() {
+                    $.ajax({
+                        type: 'GET',
+                        url: url,
+                        success: function(data) {
+                            if (!data.is_ready) {
+                                getTaskStatus(url);
+                            } else {
+                                window.location.href = data.permalink;
+                            }
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            $('#error-code').text(xhr.status);
+                            toggleView(Views.ERROR);
+                        }
+                    })
+                },  TASK_STATUS_TIMEOUT_MS);
+            }
+
+            function generateFormSubmitHandler() {
                 function formToJson(form) {
                     result = {};
                     $.map(form.serializeArray(), (n, i) => {
@@ -283,9 +306,18 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     success: function(data) {
-                        getTaskStatus(data.task_status_endpoint);
                         toggleView(Views.LOADING);
+                        
+                        if(useLongPolling) {
+                            getTaskStatus(data.task_status_endpoint);
+                        } else {
+                            socket.emit('join_room', data.task_id);
+                        }
                     },
+                    error: function(xhr, textStatus, errorThrown) {
+                        $('#error-code').text(xhr.status);
+                        toggleView(Views.ERROR);
+                    }
                 });
 
                 return false;
