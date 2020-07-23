@@ -237,7 +237,6 @@ _RECORD_PROMPT_PREFIXES = {
     RecordType.WP: '[WP] '
 }
 
-
 def _qa_prompt_to_string(record_type, prompt_object):
     prompt_prefix = _RECORD_PROMPT_PREFIXES[record_type]
     _, tokenizer = generate_record.models[record_type]
