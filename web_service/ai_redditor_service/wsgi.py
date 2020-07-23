@@ -4,9 +4,10 @@ The entrypoint for uWSGI.
 '''
 
 from ai_redditor_service import create_app
+from ai_redditor_service.extensions import socketio
 
 # Initialize the app
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0')
