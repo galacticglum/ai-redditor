@@ -47,7 +47,7 @@
 }
 
 .make-your-own-btn {
-    position: fixed;
+    position: absolute;
     right: 30px;
     top: 15px;
 }
