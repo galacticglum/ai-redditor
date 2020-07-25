@@ -3,7 +3,6 @@ SocketIO events.
 
 '''
 
-from flask import session
 from flask_socketio import SocketIO, join_room
 from ai_redditor_service.extensions import socketio
 
