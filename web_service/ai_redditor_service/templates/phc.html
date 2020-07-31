@@ -20,8 +20,9 @@
     <div class="d-flex flex-column">
         <div class="d-flex flex-row">
             <span class="font-weight-bold username">
-                <span class="prompt">{{ record.author_username[:record.prompted_author_username_end] }}</span>
-                {{ record.author_username[record.prompted_author_username_end:] }}
+                <span class="prompt">{{ 
+                    record.author_username[:record.prompted_author_username_end] }}
+                </span>{{ record.author_username[record.prompted_author_username_end:] }}
             </span>
         </div>
         <p class="comment-text mb-0">
