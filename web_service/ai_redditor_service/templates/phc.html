@@ -26,8 +26,9 @@
             </span>
         </div>
         <p class="comment-text mb-0">
-            <span class="prompt">{{ record.comment[:record.prompted_comment_end] }}</span>
-            {{ record.comment[record.prompted_comment_end:] }}
+            <span class="prompt">{{ record.comment[:record.prompted_comment_end] }}</span>{{
+                record.comment[record.prompted_comment_end:]
+            }}
         </p>
         <div class="d-flex flex-row align-items-center mt-1">
             <span class="like-text">
