@@ -2,7 +2,7 @@ alembic==1.4.2
 amqp==2.6.0
 attrs==19.3.0
 billiard==3.6.3.0
-celery==4.4.6
+celery==5.2.2
 certifi==2020.6.20
 cffi==1.14.0
 chardet==3.0.4
